@@ -1,36 +1,24 @@
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --color-surface: #0a0a0b;
+  --color-surface-elevated: #141416;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-accent: #6366f1;
+  --color-accent-glow: rgba(99, 102, 241, 0.35);
 }
 
 html,
 body,
 #root {
-  width: 100%;
   height: 100%;
 }
 
 body {
-  background: #ffffff;
-  color: #000000;
-  font-family: system-ui, -apple-system, sans-serif;
-}
-
-.screen {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  min-height: 100dvh;
-  background: #ffffff;
-}
-
-.title {
-  font-size: 2.5rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  background-color: var(--color-surface);
+  color: #fafafa;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
