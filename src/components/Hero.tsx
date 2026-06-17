@@ -30,27 +30,29 @@ export default function Hero() {
         <MountainSilhouettes />
       </div>
 
-      <div className="relative z-10 mx-auto flex max-w-[700px] flex-col items-center px-6 pt-36 text-center sm:pt-40">
-        <h1 className="font-serif text-[2.75rem] font-medium leading-[1.1] tracking-tight text-black sm:text-6xl lg:text-[4.25rem]">
-          Verify before harm spreads.
+      <div className="relative z-10 mx-auto flex max-w-[760px] flex-col items-center px-6 pt-36 text-center sm:pt-40">
+        <p className="rounded-full border border-black/10 bg-white/40 px-4 py-1.5 text-xs font-medium uppercase tracking-widest text-black/70">
+          Rumor → Reality → Action
+        </p>
+
+        <h1 className="mt-6 font-serif text-[2.5rem] font-medium leading-[1.12] tracking-tight text-black sm:text-5xl lg:text-[3.5rem]">
+          From confusion to clarity — then action.
         </h1>
 
-        <p className="mx-auto mt-6 max-w-[600px] text-center text-base font-light italic leading-relaxed text-black sm:text-lg">
-          NomaeTrust helps you verify voices, claims, and trust signals
-          <br />
-          so you can act on facts, not fraud.
+        <p className="mx-auto mt-6 max-w-[640px] text-center text-base font-light leading-relaxed text-black/85 sm:text-lg">
+          At 2 a.m., Fatima gets a frantic WhatsApp voice note: &ldquo;The food bank
+          closed — don&apos;t go.&rdquo; NomaeTrust turns rumors into Action Cards with
+          plain-language next steps, multilingual sharing, and a Family Trust Circle
+          for suspicious calls.
         </p>
 
         <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row">
-          <Link to="/voice" className="btn-primary w-full sm:w-auto">
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M3 3h8.5v8.5H3V3zm10.5 0H22v8.5h-8.5V3zM3 12.5h8.5V21H3v-8.5zm10.5 0H22V21h-8.5v-8.5z" />
-            </svg>
-            Start verification
+          <Link to="/stress" className="btn-primary w-full sm:w-auto">
+            Try Action Cards
           </Link>
-          <a href="#features" className="btn-secondary w-full sm:w-auto">
-            View capabilities
-          </a>
+          <Link to="/call" className="btn-secondary w-full sm:w-auto">
+            Verify a call
+          </Link>
         </div>
       </div>
 

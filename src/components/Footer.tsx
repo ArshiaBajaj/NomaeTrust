@@ -1,5 +1,13 @@
 import { Link } from "react-router-dom";
 
+const footerLinks = [
+  { to: "/stress", label: "Action Cards" },
+  { to: "/screenshot", label: "Screenshots" },
+  { to: "/call", label: "Trust Circle" },
+  { to: "/trust-map", label: "Confusion Map" },
+  { to: "/disclosure", label: "Disclosure" },
+];
+
 export default function Footer() {
   return (
     <footer className="footer-dark px-6 py-12 lg:px-8">
@@ -12,12 +20,7 @@ export default function Footer() {
           </span>
         </p>
         <div className="flex flex-wrap items-center justify-center gap-6">
-          {[
-            { to: "/voice", label: "Voice" },
-            { to: "/screenshot", label: "Screenshot" },
-            { to: "/call", label: "Call" },
-            { to: "/trust-map", label: "Trust Map" },
-          ].map((link) => (
+          {footerLinks.map((link) => (
             <Link
               key={link.to}
               to={link.to}

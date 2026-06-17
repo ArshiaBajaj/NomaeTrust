@@ -34,7 +34,7 @@ export default function ProductPreview() {
           <span className="h-3 w-3 rounded-full bg-[#febc2e]" />
           <span className="h-3 w-3 rounded-full bg-[#28c840]" />
           <span className="ml-3 text-xs font-medium text-white/50">
-            NomaeTrust — Voice Verification
+            NomaeTrust — Action Cards
           </span>
         </div>
 
@@ -42,10 +42,10 @@ export default function ProductPreview() {
           <div className="mb-6 flex items-center justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                Pipeline
+                Rumor → Action
               </p>
               <p className="mt-1 font-serif text-lg text-slate-800">
-                Verify voice notes
+                What to do now
               </p>
             </div>
             <span className="rounded-full bg-[#2b5ce6] px-4 py-1.5 text-xs font-semibold text-white">
@@ -54,7 +54,7 @@ export default function ProductPreview() {
           </div>
 
           <div className="mb-6 flex gap-2">
-            {["Upload", "Transcribe", "Extract", "Evidence"].map((step, i) => (
+            {["Upload", "Check sources", "Action Card"].map((step, i) => (
               <div
                 key={step}
                 className={`flex flex-1 items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium ${
@@ -101,11 +101,10 @@ export default function ProductPreview() {
 
           <div className="mt-4 rounded-xl border border-slate-100 bg-white p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">
-              Verified
+              Action Card
             </p>
             <p className="mt-2 text-sm leading-relaxed text-slate-600">
-              &ldquo;The city council approved the new water treatment facility
-              funding in last Tuesday&rsquo;s session.&rdquo;
+              Call Atlanta Food Bank to confirm hours. Do not skip pickup based only on this voice note.
             </p>
           </div>
         </div>

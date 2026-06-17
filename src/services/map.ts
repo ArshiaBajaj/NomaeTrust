@@ -1,36 +1,70 @@
-import { mockCommunityClaims, mockMapHotspots } from "../data/mockClaims";
-import type { Claim, MapHotspot } from "../types";
+import type { Claim, ClaimSource } from "../types";
 
-const MOCK_DELAY_MS = 800;
+const API_BASE = import.meta.env.VITE_API_URL ?? "";
 
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-export async function getMapHotspots(): Promise<MapHotspot[]> {
-  await delay(MOCK_DELAY_MS);
-  return mockMapHotspots;
+export async function getMapHotspots() {
+  const res = await fetch(`${API_BASE}/api/map/hotspots`);
+  if (!res.ok) throw new Error("Failed to load hotspots");
+  return res.json();
 }
 
 export async function getCommunityClaims(): Promise<Claim[]> {
-  await delay(MOCK_DELAY_MS);
-  return mockCommunityClaims;
+  const res = await fetch(`${API_BASE}/api/map/claims`);
+  if (!res.ok) throw new Error("Failed to load claims");
+  return res.json();
 }
 
-export async function reportClaim(claimText: string): Promise<Claim> {
-  await delay(600);
+export async function getValidatorQueue(): Promise<Claim[]> {
+  const res = await fetch(`${API_BASE}/api/map/validator-queue`);
+  if (!res.ok) throw new Error("Failed to load validator queue");
+  return res.json();
+}
 
-  return {
-    id: `cm-${Date.now()}`,
-    text: claimText,
-    source: "community",
-    status: "pending",
-    confidence: 0.5,
-    extractedAt: new Date().toISOString(),
-    location: {
-      lat: 37.7749 + (Math.random() - 0.5) * 2,
-      lng: -122.4194 + (Math.random() - 0.5) * 2,
-      label: "Community Report",
-    },
-  };
+export async function reportClaim(
+  claimText: string,
+  options?: {
+    source?: ClaimSource;
+    confidence?: number;
+    urgentReview?: boolean;
+  },
+): Promise<Claim> {
+  const res = await fetch(`${API_BASE}/api/map/claims`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      text: claimText,
+      source: options?.source ?? "community",
+      confidence: options?.confidence,
+      urgentReview: options?.urgentReview,
+    }),
+  });
+  if (!res.ok) throw new Error("Failed to report claim");
+  return res.json();
+}
+
+export async function validateClaimApi(
+  claimId: string,
+  validatorId: string,
+  badge: string,
+): Promise<Claim> {
+  const res = await fetch(`${API_BASE}/api/map/validate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ claimId, validatorId, badge }),
+  });
+  if (!res.ok) throw new Error("Validation failed");
+  return res.json();
+}
+
+export async function syncClaimToMap(
+  text: string,
+  source: ClaimSource,
+  confidence: number,
+  urgentReview?: boolean,
+): Promise<Claim | null> {
+  try {
+    return await reportClaim(text, { source, confidence, urgentReview });
+  } catch {
+    return null;
+  }
 }

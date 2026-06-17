@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-type FeatureType = "voice" | "screenshot" | "call" | "map";
+type FeatureType = "action" | "screenshot" | "call" | "map";
 
 type FeaturePreviewCardProps = {
   type: FeatureType;
@@ -27,33 +27,29 @@ function CheckmarkBadge({ className = "" }: { className?: string }) {
   );
 }
 
-function VoiceMockup() {
-  const bars = [28, 44, 36, 52, 40, 56, 32, 48, 38, 50, 34, 42];
+function ActionCardMockup() {
+  const steps = ["Call Atlanta Food Bank", "Check official website", "Ask a validator"];
   return (
     <div className="flex h-full flex-col rounded-xl bg-white p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between">
         <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-          Waveform
+          Action Card
         </span>
         <CheckmarkBadge />
       </div>
-      <div className="flex flex-1 items-end justify-center gap-1 px-1">
-        {bars.map((h, i) => (
-          <div
-            key={i}
-            className="w-2 rounded-full bg-accent/80"
-            style={{ height: `${h}%` }}
-          />
+      <p className="text-[11px] leading-relaxed text-slate-600">
+        Someone said the food bank closed. We didn&apos;t find proof — verify before you change plans.
+      </p>
+      <ul className="mt-3 flex-1 space-y-2">
+        {steps.map((step) => (
+          <li key={step} className="flex items-start gap-2 text-[10px] text-slate-600">
+            <span className="text-emerald-500">☐</span>
+            <span>{step}</span>
+          </li>
         ))}
-      </div>
-      <div className="mt-3 rounded-lg bg-[#EEF2F8] px-3 py-2">
-        <p className="text-[10px] leading-relaxed text-slate-500">
-          &ldquo;Council approved funding Tuesday&hellip;&rdquo;
-        </p>
-        <div className="mt-1.5 flex items-center gap-1.5">
-          <CheckmarkBadge className="h-3 w-3 [&_svg]:h-1.5 [&_svg]:w-1.5" />
-          <span className="text-[9px] font-semibold text-emerald-600">Verified</span>
-        </div>
+      </ul>
+      <div className="mt-3 rounded-lg bg-emerald-50 px-3 py-2 text-center text-[10px] font-semibold text-emerald-700">
+        Share on WhatsApp
       </div>
     </div>
   );
@@ -122,7 +118,7 @@ function MapMockup() {
     <div className="flex h-full flex-col rounded-xl bg-white p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between">
         <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-          Trust map
+          Confusion Map
         </span>
         <CheckmarkBadge />
       </div>
@@ -152,7 +148,7 @@ function MapMockup() {
 }
 
 const mockups: Record<FeatureType, () => React.ReactNode> = {
-  voice: VoiceMockup,
+  action: ActionCardMockup,
   screenshot: ScreenshotMockup,
   call: CallMockup,
   map: MapMockup,

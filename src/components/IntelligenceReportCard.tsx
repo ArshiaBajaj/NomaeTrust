@@ -1,4 +1,5 @@
 import { useState } from "react";
+import ActionCardPanel from "./ActionCardPanel";
 import ConfidenceMeter from "./ConfidenceMeter";
 import RiskGauge from "./RiskGauge";
 import VerificationStatusBadge from "./VerificationStatusBadge";
@@ -9,6 +10,7 @@ import type {
 import {
   computeHarmRiskScore,
   copyReport,
+  copyWhatsAppEvidence,
   downloadPdfReport,
   shareReport,
 } from "../utils/reportExport";
@@ -16,6 +18,7 @@ import {
 type IntelligenceReportCardProps = {
   card: EvidenceCardType;
   result: AudioAnalysisResult;
+  hideActionCard?: boolean;
 };
 
 const categoryColors: Record<string, string> = {
@@ -30,6 +33,7 @@ const categoryColors: Record<string, string> = {
 export default function IntelligenceReportCard({
   card,
   result,
+  hideActionCard = false,
 }: IntelligenceReportCardProps) {
   const [actionFeedback, setActionFeedback] = useState<string | null>(null);
   const intel = card.regionalIntelligence;
@@ -53,9 +57,14 @@ export default function IntelligenceReportCard({
 
   const handleShare = async () => {
     const outcome = await shareReport(result, card);
-    if (outcome === "shared") showFeedback("Report shared");
-    else if (outcome === "copied") showFeedback("Report copied (share unavailable)");
+    if (outcome === "shared") showFeedback("Shared via system share");
+    else if (outcome === "copied") showFeedback("WhatsApp-ready text copied");
     else showFeedback("Share cancelled");
+  };
+
+  const handleWhatsApp = async () => {
+    const ok = await copyWhatsAppEvidence(card);
+    showFeedback(ok ? "Copied for WhatsApp" : "Copy failed");
   };
 
   return (
@@ -109,6 +118,9 @@ export default function IntelligenceReportCard({
           <ActionButton onClick={handleShare} icon="share">
             Share Card
           </ActionButton>
+          <ActionButton onClick={handleWhatsApp} icon="copy">
+            WhatsApp
+          </ActionButton>
         </div>
         {actionFeedback && (
           <span className="animate-fade-in text-xs font-medium text-emerald-400">
@@ -151,14 +163,30 @@ export default function IntelligenceReportCard({
           </p>
         </div>
 
+        {/* Action Card — hero feature */}
+        {!hideActionCard && <ActionCardPanel card={card} variant="dark" />}
+
         {/* Analysis */}
         <div>
           <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
             Intelligence Assessment
           </p>
           <p className="mt-2 text-sm leading-relaxed text-slate-400">{card.summary}</p>
+          {card.recommendation && (
+            <p className="mt-3 rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 text-sm text-amber-200">
+              {card.recommendation}
+            </p>
+          )}
+          {card.confidenceBand && (
+            <p className="mt-2 text-xs uppercase tracking-widest text-slate-500">
+              Confidence band: {card.confidenceBand}
+            </p>
+          )}
           <div className="mt-4 flex flex-wrap gap-2">
-            {card.sources.map((source) => (
+            {(card.sourceReferences?.length
+              ? card.sourceReferences.map((s) => s.title)
+              : card.sources
+            ).map((source) => (
               <span
                 key={source}
                 className="rounded border border-slate-700 bg-slate-800/50 px-2.5 py-1 font-mono text-[10px] text-slate-400"
@@ -167,7 +195,42 @@ export default function IntelligenceReportCard({
               </span>
             ))}
           </div>
+          {card.sourceReferences && card.sourceReferences.length > 0 && (
+            <ul className="mt-4 space-y-2">
+              {card.sourceReferences.map((s) => (
+                <li key={s.url} className="text-xs">
+                  <a
+                    href={s.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-300 hover:underline"
+                  >
+                    {s.title} ({s.date}) ↗
+                  </a>
+                  <p className="text-slate-500">{s.snippet}</p>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
+
+        {card.translations && (
+          <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-5">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">
+              Multilingual sharing (WhatsApp)
+            </p>
+            <div className="mt-3 space-y-3 text-sm text-slate-300">
+              <div>
+                <p className="text-xs font-semibold text-slate-500">Somali</p>
+                <p className="mt-1">{card.translations.somali}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-slate-500">Español</p>
+                <p className="mt-1">{card.translations.spanish}</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Regional intelligence */}
         {intel && (
