@@ -8,6 +8,39 @@ export type ClaimSource = "voice" | "screenshot" | "call" | "community";
 
 export type RiskLevel = "low" | "medium" | "high";
 
+export type SourceCategory =
+  | "Education"
+  | "Health"
+  | "Public Safety"
+  | "Government"
+  | "Community Services"
+  | "Transportation";
+
+export type ClaimCategory =
+  | "Schools"
+  | "Food Banks"
+  | "Public Health"
+  | "Transportation"
+  | "Emergency Alerts"
+  | "General";
+
+export type TrustedSource = {
+  id: string;
+  name: string;
+  category: SourceCategory;
+  claimCategories: ClaimCategory[];
+  locations: string[];
+  url: string;
+  description: string;
+};
+
+export type RegionalIntelligence = {
+  locations: string[];
+  claimCategory: ClaimCategory;
+  sourceCategory: SourceCategory;
+  recommendedSources: TrustedSource[];
+};
+
 export type Claim = {
   id: string;
   text: string;
@@ -26,12 +59,15 @@ export type EvidenceCard = {
   id: string;
   claim: string;
   status: VerificationStatus;
+  statusLabel?: string;
   confidence: number;
   sources: string[];
   summary: string;
   verifiedAt: string;
   riskLevel: RiskLevel;
   sourceType: ClaimSource;
+  demoMode?: boolean;
+  regionalIntelligence?: RegionalIntelligence;
 };
 
 export type TranscriptionResult = {
@@ -85,6 +121,8 @@ export type AudioAnalysisResult = {
   claim: string;
   confidence: number;
   status: string;
+  demoMode?: boolean;
+  regionalIntelligence?: RegionalIntelligence;
 };
 
 export type VerificationPipelineResult = {

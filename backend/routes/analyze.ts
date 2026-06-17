@@ -1,21 +1,69 @@
 import { Router } from "express";
 import multer from "multer";
+import path from "node:path";
 import { extractClaim } from "../services/claims.js";
+import { DEMO_ANALYSIS_RESULT } from "../services/demoMode.js";
+import {
+  logOpenAIError,
+  shouldFallbackToDemoMode,
+} from "../services/openaiClient.js";
 import { transcribeAudio } from "../services/whisper.js";
+
+const AUDIO_EXTENSIONS = new Set([
+  ".mp3",
+  ".wav",
+  ".m4a",
+  ".webm",
+  ".ogg",
+  ".mp4",
+  ".caf",
+  ".aac",
+  ".flac",
+]);
+
+function isAudioFile(mimetype: string, originalname: string): boolean {
+  if (mimetype.startsWith("audio/") || mimetype === "video/webm") {
+    return true;
+  }
+
+  if (mimetype === "application/octet-stream") {
+    const ext = path.extname(originalname).toLowerCase();
+    return AUDIO_EXTENSIONS.has(ext);
+  }
+
+  return false;
+}
 
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 25 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
-    if (file.mimetype.startsWith("audio/") || file.mimetype === "video/webm") {
+    if (isAudioFile(file.mimetype, file.originalname)) {
       cb(null, true);
       return;
     }
-    cb(new Error("Only audio files are supported"));
+    cb(
+      new Error(
+        `Unsupported file type "${file.mimetype}". Use MP3, WAV, M4A, or WEBM.`,
+      ),
+    );
   },
 });
 
 const router = Router();
+
+router.use((req, res, next) => {
+  const start = Date.now();
+  console.log(
+    `[API] --> ${req.method} ${req.originalUrl} content-type=${req.headers["content-type"] ?? "none"}`,
+  );
+  res.on("finish", () => {
+    console.log(
+      `[API] <-- ${req.method} ${req.originalUrl} ${res.statusCode} (${Date.now() - start}ms)`,
+    );
+  });
+  next();
+});
 
 router.post(
   "/analyze-audio",
@@ -39,13 +87,20 @@ router.post(
   async (req, res) => {
     try {
       if (!req.file) {
-        res.status(400).json({ error: "No audio file provided. Use field name 'audio'." });
+        res
+          .status(400)
+          .json({ error: "No audio file provided. Use field name 'audio'." });
         return;
       }
+
+      console.log(
+        `[API] analyze-audio received file="${req.file.originalname}" mimetype="${req.file.mimetype}" size=${req.file.size}`,
+      );
 
       const transcript = await transcribeAudio(
         req.file.buffer,
         req.file.originalname || "audio.mp3",
+        req.file.mimetype,
       );
 
       if (!transcript) {
@@ -55,29 +110,25 @@ router.post(
 
       const { claim, confidence, status } = await extractClaim(transcript);
 
+      console.log("[API] analyze-audio success");
+
       res.json({
         transcript,
         claim,
         confidence,
         status,
+        demoMode: false,
       });
     } catch (error) {
-      console.error("Audio analysis failed:", error);
-
-      const message =
-        error instanceof Error ? error.message : "Audio analysis failed";
-
-      if (message.includes("OPENAI_API_KEY")) {
-        res.status(503).json({ error: message });
+      if (shouldFallbackToDemoMode(error)) {
+        logOpenAIError("analyze-audio demo fallback", error);
+        console.warn("[API] OpenAI unavailable — returning demo mode result");
+        res.json(DEMO_ANALYSIS_RESULT);
         return;
       }
 
-      if (message.includes("401") || message.includes("Incorrect API key")) {
-        res.status(401).json({ error: "Invalid OpenAI API key" });
-        return;
-      }
-
-      res.status(500).json({ error: message });
+      console.error("[API] analyze-audio failed, falling back to demo:", error);
+      res.json(DEMO_ANALYSIS_RESULT);
     }
   },
 );
