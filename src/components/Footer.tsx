@@ -2,37 +2,30 @@ import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/5 px-6 py-10 lg:px-8">
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 sm:flex-row">
-        <p className="text-sm text-zinc-500">
-          &copy; {new Date().getFullYear()} NomaeTrust. Built for a safer
-          information ecosystem.
+    <footer className="footer-dark px-6 py-12 lg:px-8">
+      <div className="mx-auto flex max-w-[1200px] flex-col items-center justify-between gap-6 sm:flex-row">
+        <p className="text-sm">
+          <span className="font-medium text-white">NomaeTrust</span>
+          <span className="text-[#6b7280]">
+            {" "}
+            &copy; {new Date().getFullYear()}
+          </span>
         </p>
         <div className="flex flex-wrap items-center justify-center gap-6">
-          <Link
-            to="/voice"
-            className="text-sm text-zinc-500 transition-colors hover:text-zinc-300"
-          >
-            Voice
-          </Link>
-          <Link
-            to="/screenshot"
-            className="text-sm text-zinc-500 transition-colors hover:text-zinc-300"
-          >
-            Screenshot
-          </Link>
-          <Link
-            to="/call"
-            className="text-sm text-zinc-500 transition-colors hover:text-zinc-300"
-          >
-            Call
-          </Link>
-          <Link
-            to="/trust-map"
-            className="text-sm text-zinc-500 transition-colors hover:text-zinc-300"
-          >
-            Trust Map
-          </Link>
+          {[
+            { to: "/voice", label: "Voice" },
+            { to: "/screenshot", label: "Screenshot" },
+            { to: "/call", label: "Call" },
+            { to: "/trust-map", label: "Trust Map" },
+          ].map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className="text-sm text-[#9ca3af] transition-colors duration-150 hover:text-white"
+            >
+              {link.label}
+            </Link>
+          ))}
         </div>
       </div>
     </footer>

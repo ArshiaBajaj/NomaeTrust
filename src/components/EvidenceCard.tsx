@@ -6,63 +6,59 @@ type EvidenceCardProps = {
 
 const statusStyles = {
   verified: {
-    badge: "bg-emerald-500/15 text-emerald-400 ring-emerald-500/25",
+    badge: "border-success/25 bg-success/10 text-success",
     label: "Verified",
   },
   unverified: {
-    badge: "bg-red-500/15 text-red-400 ring-red-500/25",
+    badge: "border-secondary/25 bg-secondary/10 text-secondary",
     label: "Unverified",
   },
   disputed: {
-    badge: "bg-amber-500/15 text-amber-400 ring-amber-500/25",
+    badge: "border-[rgba(0,0,0,0.1)] bg-surface-raised text-text-muted",
     label: "Disputed",
   },
   pending: {
-    badge: "bg-zinc-500/15 text-zinc-400 ring-zinc-500/25",
+    badge: "border-[rgba(0,0,0,0.07)] bg-surface-raised text-text-muted",
     label: "Pending",
   },
 };
 
 const riskStyles = {
-  low: "text-emerald-400",
-  medium: "text-amber-400",
-  high: "text-red-400",
+  low: "text-success",
+  medium: "text-text-muted",
+  high: "text-secondary",
 };
 
 export default function EvidenceCard({ card }: EvidenceCardProps) {
   const status = statusStyles[card.status];
 
   return (
-    <article className="rounded-2xl border border-white/8 bg-white/[0.03] p-6 backdrop-blur-sm">
+    <article className="card p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
+        <span className={`badge border ${status.badge}`}>{status.label}</span>
         <span
-          className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ${status.badge}`}
+          className={`text-xs font-semibold uppercase tracking-wide ${riskStyles[card.riskLevel]}`}
         >
-          {status.label}
-        </span>
-        <span className={`text-xs font-medium uppercase ${riskStyles[card.riskLevel]}`}>
           {card.riskLevel} risk
         </span>
       </div>
 
-      <h3 className="mt-4 text-base font-semibold leading-snug text-white">
-        {card.claim}
-      </h3>
+      <h3 className="card-title mt-4 text-base leading-snug">{card.claim}</h3>
 
-      <p className="mt-3 text-sm leading-relaxed text-zinc-400">{card.summary}</p>
+      <p className="card-body-text mt-3 text-sm">{card.summary}</p>
 
       <div className="mt-5 flex flex-wrap gap-2">
         {card.sources.map((source) => (
           <span
             key={source}
-            className="rounded-md bg-white/5 px-2.5 py-1 text-xs text-zinc-400"
+            className="rounded-md border border-[rgba(0,0,0,0.07)] bg-surface-raised px-2.5 py-1 text-xs text-text-muted"
           >
             {source}
           </span>
         ))}
       </div>
 
-      <div className="mt-5 flex items-center justify-between border-t border-white/5 pt-4 text-xs text-zinc-500">
+      <div className="mt-5 flex items-center justify-between border-t border-[rgba(0,0,0,0.06)] pt-4 text-xs text-text-muted">
         <span>Confidence: {Math.round(card.confidence * 100)}%</span>
         <span>{new Date(card.verifiedAt).toLocaleString()}</span>
       </div>

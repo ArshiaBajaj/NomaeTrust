@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import EvidenceCard from "../components/EvidenceCard";
 import LoadingSpinner from "../components/LoadingSpinner";
+import PageHeader from "../components/PageHeader";
 import PipelineSteps from "../components/PipelineSteps";
 import UploadBox from "../components/UploadBox";
 import { runScreenshotVerificationPipeline } from "../services/verification";
@@ -59,23 +60,16 @@ export default function ScreenshotVerification() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-4xl px-6 pt-28 pb-20 lg:px-8">
-      <div className="mb-10">
-        <p className="text-sm font-medium uppercase tracking-widest text-violet-400">
-          Screenshot Verification
-        </p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-          Verify screenshots and viral messages
-        </h1>
-        <p className="mt-3 max-w-2xl text-zinc-400">
-          Upload a screenshot to extract text via OCR, detect claims, and
-          generate evidence cards with mocked verification results.
-        </p>
-      </div>
+    <div className="page-shell">
+      <PageHeader
+        title="Verify screenshots"
+        description="Upload a screenshot to extract text, detect claims, and generate evidence cards."
+      />
 
-      <div className="mb-8 rounded-2xl border border-white/8 bg-white/[0.02] p-6">
-        <h2 className="mb-4 text-sm font-medium text-zinc-300">
-          Verification Pipeline
+      <div className="mx-auto max-w-[1200px] px-6 pb-20 pt-10 lg:px-8">
+      <div className="card mb-8 p-6">
+        <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-text-muted">
+          Pipeline
         </h2>
         <PipelineSteps steps={steps} />
       </div>
@@ -83,23 +77,22 @@ export default function ScreenshotVerification() {
       <UploadBox
         accept="image/*,.png,.jpg,.jpeg,.webp"
         label="Drop a screenshot here"
-        description="Supports PNG, JPG, WEBP — any image works for this demo"
+        description="PNG, JPG, WEBP supported"
         icon="image"
         onFileSelect={handleFileSelect}
         disabled={loading}
       />
 
-      {loading && (
-        <LoadingSpinner label="Running screenshot verification pipeline…" />
-      )}
+      {loading && <LoadingSpinner label="Processing image…" />}
 
       {result && !loading && (
-        <div className="mt-10 space-y-10">
+        <div className="mt-12 space-y-10">
           <OCRPanel ocr={result.ocr!} />
           <ClaimsPanel claims={result.claims} />
           <EvidencePanel cards={result.evidenceCards} />
         </div>
       )}
+      </div>
     </div>
   );
 }
@@ -107,13 +100,13 @@ export default function ScreenshotVerification() {
 function OCRPanel({ ocr }: { ocr: OCRResult }) {
   return (
     <section>
-      <h2 className="text-lg font-semibold text-white">OCR Extraction</h2>
-      <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.03] p-6">
-        <pre className="whitespace-pre-wrap text-sm leading-relaxed text-zinc-300 font-sans">
+      <h2 className="card-title text-xl">OCR extraction</h2>
+      <div className="card mt-4 p-6">
+        <pre className="card-body-text whitespace-pre-wrap font-sans text-sm">
           {ocr.text}
         </pre>
-        <div className="mt-4 flex flex-wrap gap-4 text-xs text-zinc-500">
-          <span>Regions detected: {ocr.regions}</span>
+        <div className="mt-4 flex flex-wrap gap-4 text-xs text-text-muted">
+          <span>Regions: {ocr.regions}</span>
           <span>Confidence: {Math.round(ocr.confidence * 100)}%</span>
         </div>
       </div>
@@ -123,31 +116,30 @@ function OCRPanel({ ocr }: { ocr: OCRResult }) {
 
 function ClaimsPanel({ claims }: { claims: Claim[] }) {
   const statusColor = {
-    verified: "text-emerald-400",
-    unverified: "text-red-400",
-    disputed: "text-amber-400",
-    pending: "text-zinc-400",
+    verified: "text-success",
+    unverified: "text-secondary",
+    disputed: "text-text-muted",
+    pending: "text-text-muted",
   };
 
   return (
     <section>
-      <h2 className="text-lg font-semibold text-white">Detected Claims</h2>
+      <h2 className="card-title text-xl">Detected claims</h2>
       <ul className="mt-4 space-y-3">
         {claims.map((claim) => (
-          <li
-            key={claim.id}
-            className="rounded-xl border border-white/8 bg-white/[0.03] p-4"
-          >
-            <p className="text-sm text-zinc-300">{claim.text}</p>
+          <li key={claim.id} className="card p-4">
+            <p className="card-body-text text-sm">{claim.text}</p>
             <div className="mt-2 flex flex-wrap gap-4 text-xs">
-              <span className={statusColor[claim.status]}>
+              <span
+                className={`font-semibold uppercase tracking-wide ${statusColor[claim.status]}`}
+              >
                 {claim.status}
               </span>
-              <span className="text-zinc-500">
+              <span className="text-text-muted">
                 {Math.round(claim.confidence * 100)}% confidence
               </span>
               {claim.location && (
-                <span className="text-zinc-500">{claim.location.label}</span>
+                <span className="text-text-muted">{claim.location.label}</span>
               )}
             </div>
           </li>
@@ -160,7 +152,7 @@ function ClaimsPanel({ claims }: { claims: Claim[] }) {
 function EvidencePanel({ cards }: { cards: EvidenceCardType[] }) {
   return (
     <section>
-      <h2 className="text-lg font-semibold text-white">Evidence Cards</h2>
+      <h2 className="card-title text-xl">Evidence cards</h2>
       <div className="mt-4 grid gap-4">
         {cards.map((card) => (
           <EvidenceCard key={card.id} card={card} />

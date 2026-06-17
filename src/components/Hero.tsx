@@ -1,77 +1,60 @@
 import { Link } from "react-router-dom";
+import ProductPreview from "./ProductPreview";
+
+function MountainSilhouettes() {
+  return (
+    <svg
+      aria-hidden
+      className="pointer-events-none absolute inset-x-0 bottom-0 h-[38%] w-full opacity-[0.18]"
+      viewBox="0 0 1440 400"
+      preserveAspectRatio="none"
+      fill="none"
+    >
+      <path
+        d="M0 400 L0 280 L120 220 L240 260 L380 180 L520 240 L680 160 L840 220 L1000 150 L1160 210 L1320 170 L1440 230 L1440 400 Z"
+        fill="#3d5a73"
+      />
+      <path
+        d="M0 400 L0 310 L200 270 L400 300 L600 250 L800 290 L1000 240 L1200 280 L1440 260 L1440 400 Z"
+        fill="#2d4a63"
+        opacity="0.7"
+      />
+    </svg>
+  );
+}
 
 export default function Hero() {
   return (
-    <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-24 pb-20 lg:px-8">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 overflow-hidden"
-      >
-        <div className="absolute -top-40 left-1/2 h-[600px] w-[800px] -translate-x-1/2 rounded-full bg-indigo-600/20 blur-[120px]" />
-        <div className="absolute top-1/3 -right-32 h-[400px] w-[400px] rounded-full bg-violet-600/10 blur-[100px]" />
-        <div className="absolute bottom-0 -left-32 h-[300px] w-[300px] rounded-full bg-blue-600/10 blur-[80px]" />
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
-            backgroundSize: "64px 64px",
-          }}
-        />
+    <section className="hero-section hero-gradient relative min-h-screen">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+        <MountainSilhouettes />
       </div>
 
-      <div className="relative mx-auto max-w-4xl text-center">
-        <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm text-zinc-300 backdrop-blur-sm">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-indigo-500" />
-          </span>
-          AI-powered trust verification
-        </div>
-
-        <h1 className="text-5xl font-bold tracking-tight text-white sm:text-6xl lg:text-7xl">
-          NomaeTrust
+      <div className="relative z-10 mx-auto flex max-w-[700px] flex-col items-center px-6 pt-36 text-center sm:pt-40">
+        <h1 className="font-serif text-[2.75rem] font-medium leading-[1.1] tracking-tight text-white sm:text-6xl lg:text-[4.25rem]">
+          Verify before harm spreads.
         </h1>
 
-        <p className="mx-auto mt-6 max-w-2xl text-xl font-medium leading-relaxed text-zinc-300 sm:text-2xl">
-          Verify People. Verify Information.{" "}
-          <span className="text-white">Before Harm Spreads.</span>
+        <p className="mx-auto mt-6 max-w-[600px] text-center text-base font-light leading-relaxed text-white/90 sm:text-lg">
+          NomaeTrust helps you verify voices, claims, and trust signals
+          <br />
+          so you can act on facts, not fraud.
         </p>
 
-        <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-zinc-400 sm:text-lg">
-          Stop AI impersonation and misinformation before they reach your
-          community. NomaeTrust verifies voices, claims, and trust signals in
-          real time.
-        </p>
-
-        <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <Link
-            to="/voice"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-500 px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-indigo-500/25 transition-all hover:bg-indigo-400 hover:shadow-indigo-500/40 sm:w-auto"
-          >
-            Try Demo
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-              />
+        <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row">
+          <Link to="/voice" className="btn-primary w-full sm:w-auto">
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3 3h8.5v8.5H3V3zm10.5 0H22v8.5h-8.5V3zM3 12.5h8.5V21H3v-8.5zm10.5 0H22V21h-8.5v-8.5z" />
             </svg>
+            Start verification
           </Link>
-          <a
-            href="#features"
-            className="inline-flex w-full items-center justify-center rounded-xl border border-white/10 bg-white/5 px-8 py-3.5 text-base font-semibold text-white backdrop-blur-sm transition-all hover:border-white/20 hover:bg-white/10 sm:w-auto"
-          >
-            Learn More
+          <a href="#features" className="btn-secondary w-full sm:w-auto">
+            View capabilities
           </a>
         </div>
       </div>
+
+      <ProductPreview />
     </section>
   );
 }

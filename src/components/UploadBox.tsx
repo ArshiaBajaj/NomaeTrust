@@ -49,12 +49,12 @@ export default function UploadBox({
       onDragLeave={() => setDragOver(false)}
       onDrop={onDrop}
       onClick={() => !disabled && inputRef.current?.click()}
-      className={`relative cursor-pointer rounded-2xl border-2 border-dashed p-10 text-center transition-all ${
+      className={`relative cursor-pointer rounded-2xl border-2 border-dashed p-10 text-center transition-colors duration-150 ${
         disabled
-          ? "cursor-not-allowed border-white/5 opacity-50"
+          ? "cursor-not-allowed border-[rgba(0,0,0,0.05)] opacity-50"
           : dragOver
-            ? "border-indigo-400 bg-indigo-500/10"
-            : "border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]"
+            ? "border-accent bg-accent/5"
+            : "border-[rgba(0,0,0,0.1)] bg-surface shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:border-accent/40"
       }`}
     >
       <input
@@ -69,10 +69,10 @@ export default function UploadBox({
         }}
       />
 
-      <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-indigo-500/10 ring-1 ring-indigo-500/20">
+      <div className="icon-container mx-auto mb-4">
         {icon === "audio" ? (
           <svg
-            className="h-7 w-7 text-indigo-400"
+            className="h-6 w-6"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -86,7 +86,7 @@ export default function UploadBox({
           </svg>
         ) : (
           <svg
-            className="h-7 w-7 text-indigo-400"
+            className="h-6 w-6"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -101,12 +101,12 @@ export default function UploadBox({
         )}
       </div>
 
-      <p className="text-base font-medium text-white">{label}</p>
-      <p className="mt-2 text-sm text-zinc-400">{description}</p>
+      <p className="text-sm font-semibold text-navy">{label}</p>
+      <p className="mt-2 text-sm text-text-muted">{description}</p>
 
       {selectedFile && (
-        <p className="mt-4 rounded-lg bg-white/5 px-4 py-2 text-sm text-indigo-300">
-          Selected: {selectedFile.name}
+        <p className="mt-4 rounded-lg border border-[rgba(0,0,0,0.07)] bg-surface-raised px-4 py-2 text-sm text-accent">
+          {selectedFile.name}
         </p>
       )}
     </div>

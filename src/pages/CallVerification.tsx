@@ -1,5 +1,6 @@
 import { useState } from "react";
 import LoadingSpinner from "../components/LoadingSpinner";
+import PageHeader from "../components/PageHeader";
 import { mockVoicePassports } from "../data/mockClaims";
 import { verifyCall } from "../services/verification";
 import type { CallVerificationResult } from "../types";
@@ -23,71 +24,61 @@ export default function CallVerification() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl px-6 pt-28 pb-20 lg:px-8">
-      <div className="mb-10">
-        <p className="text-sm font-medium uppercase tracking-widest text-emerald-400">
-          Call Verification
-        </p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-          Family voice verification
-        </h1>
-        <p className="mt-3 max-w-2xl text-zinc-400">
-          Simulate an incoming call and verify the caller against enrolled voice
-          passports. Detect deepfake risk before sharing sensitive information.
-        </p>
-      </div>
+    <div className="page-shell">
+      <PageHeader
+        title="Verify incoming calls"
+        description="Match callers against enrolled voice passports. Assess deepfake risk before sharing sensitive information."
+      />
 
-      <section className="mb-8 rounded-2xl border border-white/8 bg-white/[0.02] p-6">
-        <h2 className="text-sm font-medium text-zinc-300">
-          Enrolled Voice Passports
+      <div className="mx-auto max-w-[1200px] px-6 pb-20 pt-10 lg:px-8">
+      <section className="card mb-8 p-6">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+          Enrolled voice passports
         </h2>
         <ul className="mt-4 grid gap-3 sm:grid-cols-3">
           {mockVoicePassports.map((passport) => (
-            <li
-              key={passport.voiceprintId}
-              className="rounded-xl border border-white/8 bg-white/[0.03] p-4"
-            >
-              <p className="text-sm font-medium text-white">
+            <li key={passport.voiceprintId} className="card-raised p-4">
+              <p className="text-sm font-semibold text-navy">
                 {passport.contactName}
               </p>
-              <p className="mt-1 text-xs text-zinc-500">
+              <p className="mt-1 text-xs text-text-muted">
                 ID: {passport.voiceprintId}
               </p>
-              <p className="mt-2 text-xs text-emerald-400">
-                Trust score: {Math.round(passport.trustScore * 100)}%
+              <p className="mt-2 text-xs font-semibold text-success">
+                Trust: {Math.round(passport.trustScore * 100)}%
               </p>
             </li>
           ))}
         </ul>
       </section>
 
-      <section className="rounded-2xl border border-white/8 bg-white/[0.02] p-6">
-        <h2 className="text-sm font-medium text-zinc-300">
-          Simulate Incoming Call
+      <section className="card p-6">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+          Simulate incoming call
         </h2>
 
-        <div className="mt-4 flex flex-col gap-4 sm:flex-row">
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row">
           <button
             type="button"
             onClick={() => setScenario("verified")}
-            className={`flex-1 rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
+            className={`flex-1 rounded-xl border px-4 py-3 text-sm font-semibold transition-colors duration-150 ${
               scenario === "verified"
-                ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-300"
-                : "border-white/10 text-zinc-400 hover:border-white/20"
+                ? "border-success/40 bg-success/10 text-success"
+                : "border-[rgba(0,0,0,0.1)] text-text-muted hover:border-[rgba(0,0,0,0.18)]"
             }`}
           >
-            Verified caller (Mom)
+            Verified caller
           </button>
           <button
             type="button"
             onClick={() => setScenario("suspicious")}
-            className={`flex-1 rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
+            className={`flex-1 rounded-xl border px-4 py-3 text-sm font-semibold transition-colors duration-150 ${
               scenario === "suspicious"
-                ? "border-red-500/50 bg-red-500/10 text-red-300"
-                : "border-white/10 text-zinc-400 hover:border-white/20"
+                ? "border-secondary/40 bg-secondary/10 text-secondary"
+                : "border-[rgba(0,0,0,0.1)] text-text-muted hover:border-[rgba(0,0,0,0.18)]"
             }`}
           >
-            Suspicious caller (AI impersonation)
+            Suspicious caller
           </button>
         </div>
 
@@ -95,65 +86,65 @@ export default function CallVerification() {
           type="button"
           onClick={handleVerify}
           disabled={loading}
-          className="mt-6 w-full rounded-xl bg-emerald-500 px-6 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-400 disabled:opacity-50"
+          className="btn-primary mt-6 w-full"
         >
-          {loading ? "Analyzing call…" : "Run Call Verification"}
+          {loading ? "Running…" : "Run verification"}
         </button>
       </section>
 
-      {loading && <LoadingSpinner label="Analyzing voice biometrics…" />}
+      {loading && <LoadingSpinner label="Analyzing voice…" />}
 
       {result && !loading && (
-        <section className="mt-10 space-y-6">
+        <section className="mt-12 space-y-4">
           <div
-            className={`rounded-2xl border p-6 ${
-              result.isVerified
-                ? "border-emerald-500/30 bg-emerald-500/5"
-                : "border-red-500/30 bg-red-500/5"
+            className={`card p-6 ${
+              result.isVerified ? "border-success/30" : "border-secondary/30"
             }`}
           >
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <p className="text-sm text-zinc-400">Caller</p>
-                <p className="text-xl font-semibold text-white">
+                <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+                  Caller
+                </p>
+                <p className="mt-1 font-serif text-2xl font-medium text-navy">
                   {result.callerName}
                 </p>
               </div>
               <span
-                className={`rounded-full px-4 py-1.5 text-sm font-medium ${
+                className={`badge border ${
                   result.isVerified
-                    ? "bg-emerald-500/20 text-emerald-300"
-                    : "bg-red-500/20 text-red-300"
+                    ? "border-success/25 bg-success/10 text-success"
+                    : "border-secondary/25 bg-secondary/10 text-secondary"
                 }`}
               >
-                {result.isVerified ? "Verified" : "Not Verified"}
+                {result.isVerified ? "Verified" : "Not verified"}
               </span>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-6">
-            <h3 className="text-sm font-medium text-zinc-300">
-              Deepfake Risk Score
+          <div className="card p-6">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+              Deepfake risk score
             </h3>
             <div className="mt-4">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-zinc-400">Risk level</span>
+                <span className="text-text-muted">Risk level</span>
                 <span
                   className={
                     result.deepfakeRiskScore > 0.5
-                      ? "font-semibold text-red-400"
-                      : "font-semibold text-emerald-400"
+                      ? "font-bold text-secondary"
+                      : "font-bold text-success"
                   }
                 >
                   {Math.round(result.deepfakeRiskScore * 100)}%
                 </span>
               </div>
-              <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/5">
+              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-raised">
                 <div
-                  className={`h-full rounded-full transition-all ${
+                  className={`h-full rounded-full transition-all duration-300 ${
                     result.deepfakeRiskScore > 0.5
-                      ? "bg-red-500"
-                      : "bg-emerald-500"
+                      ? "bg-secondary"
+                      : "bg-success"
                   }`}
                   style={{ width: `${result.deepfakeRiskScore * 100}%` }}
                 />
@@ -162,34 +153,40 @@ export default function CallVerification() {
           </div>
 
           {result.voicePassport && (
-            <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-6">
-              <h3 className="text-sm font-medium text-zinc-300">
-                Matched Voice Passport
+            <div className="card p-6">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+                Matched voice passport
               </h3>
-              <p className="mt-2 text-white">{result.voicePassport.contactName}</p>
-              <p className="mt-1 text-xs text-zinc-500">
-                Enrolled {new Date(result.voicePassport.enrolledAt).toLocaleDateString()}
+              <p className="mt-2 font-semibold text-navy">
+                {result.voicePassport.contactName}
+              </p>
+              <p className="mt-1 text-xs text-text-muted">
+                Enrolled{" "}
+                {new Date(result.voicePassport.enrolledAt).toLocaleDateString()}
               </p>
             </div>
           )}
 
-          <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-6">
-            <h3 className="text-sm font-medium text-zinc-300">Analysis</h3>
-            <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+          <div className="card p-6">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+              Analysis
+            </h3>
+            <p className="mt-2 card-body-text text-sm">
               {result.analysis}
             </p>
           </div>
 
-          <div className="rounded-2xl border border-indigo-500/20 bg-indigo-500/5 p-6">
-            <h3 className="text-sm font-medium text-indigo-300">
+          <div className="card border-accent/20 p-6">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-accent">
               Recommendation
             </h3>
-            <p className="mt-2 text-sm leading-relaxed text-zinc-300">
+            <p className="mt-2 card-body-text text-sm">
               {result.recommendation}
             </p>
           </div>
         </section>
       )}
+      </div>
     </div>
   );
 }

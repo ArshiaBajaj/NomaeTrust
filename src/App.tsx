@@ -9,7 +9,7 @@ import VoiceVerification from "./pages/VoiceVerification";
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-[#0a0a0b]">
+    <div className="min-h-screen bg-bg">
       <Navbar />
       <main>
         <Routes>

@@ -4,23 +4,23 @@ type LoadingSpinnerProps = {
 };
 
 const sizeClasses = {
-  sm: "h-5 w-5 border-2",
-  md: "h-8 w-8 border-2",
-  lg: "h-12 w-12 border-[3px]",
+  sm: "h-4 w-4 border-2",
+  md: "h-7 w-7 border-2",
+  lg: "h-10 w-10 border-2",
 };
 
 export default function LoadingSpinner({
-  label = "Processing…",
+  label,
   size = "md",
 }: LoadingSpinnerProps) {
   return (
-    <div className="flex flex-col items-center justify-center gap-4 py-12">
+    <div className="flex flex-col items-center justify-center gap-3 py-12">
       <div
-        className={`animate-spin rounded-full border-indigo-500/30 border-t-indigo-400 ${sizeClasses[size]}`}
+        className={`animate-spin rounded-full border-[rgba(15,23,42,0.08)] border-t-accent ${sizeClasses[size]}`}
         role="status"
-        aria-label={label}
+        aria-label={label ?? "Loading"}
       />
-      <p className="text-sm text-zinc-400">{label}</p>
+      {label && <p className="text-sm text-text-muted">{label}</p>}
     </div>
   );
 }
