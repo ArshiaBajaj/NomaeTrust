@@ -31,11 +31,11 @@ export default function Hero() {
       </div>
 
       <div className="relative z-10 mx-auto flex max-w-[700px] flex-col items-center px-6 pt-36 text-center sm:pt-40">
-        <h1 className="font-serif text-[2.75rem] font-medium leading-[1.1] tracking-tight text-white sm:text-6xl lg:text-[4.25rem]">
+        <h1 className="font-serif text-[2.75rem] font-medium leading-[1.1] tracking-tight text-black sm:text-6xl lg:text-[4.25rem]">
           Verify before harm spreads.
         </h1>
 
-        <p className="mx-auto mt-6 max-w-[600px] text-center text-base font-light leading-relaxed text-white/90 sm:text-lg">
+        <p className="mx-auto mt-6 max-w-[600px] text-center text-base font-light italic leading-relaxed text-black sm:text-lg">
           NomaeTrust helps you verify voices, claims, and trust signals
           <br />
           so you can act on facts, not fraud.

@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 const navLinks = [
   { to: "/voice", label: "Voice" },
   { to: "/screenshot", label: "Screenshot" },
+  { to: "/call", label: "Call" },
   { to: "/trust-map", label: "Trust Map" },
 ];
 

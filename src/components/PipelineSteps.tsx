@@ -4,62 +4,100 @@ type PipelineStepsProps = {
   steps: PipelineStep[];
 };
 
-function stepStyles(status: PipelineStep["status"]) {
-  switch (status) {
-    case "complete":
-      return "border-accent/30 bg-accent/10 text-accent";
-    case "active":
-      return "border-accent bg-accent text-white";
-    case "error":
-      return "border-secondary/30 bg-secondary/10 text-secondary";
-    default:
-      return "border-[rgba(0,0,0,0.1)] bg-surface-raised text-text-muted";
-  }
-}
-
 export default function PipelineSteps({ steps }: PipelineStepsProps) {
   const completedCount = steps.filter((s) => s.status === "complete").length;
   const progress = (completedCount / steps.length) * 100;
 
   return (
-    <ol className="flex flex-col gap-3 sm:flex-row sm:gap-0">
-      {steps.map((step, index) => (
-        <li
-          key={step.id}
-          className="relative flex flex-1 items-center gap-3 sm:flex-col sm:gap-2 sm:text-center"
-        >
-          {index > 0 && (
-            <div
-              aria-hidden
-              className="absolute -left-3 top-4 hidden h-px w-6 bg-white/10 sm:-top-3 sm:left-1/2 sm:block sm:h-6 sm:w-px"
-            />
-          )}
-          <span
-            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
-              step.status === "complete"
-                ? "bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/30"
-                : step.status === "active"
-                  ? "bg-indigo-500/20 text-indigo-400 ring-1 ring-indigo-500/30 animate-pulse"
-                  : step.status === "error"
-                    ? "bg-red-500/20 text-red-400 ring-1 ring-red-500/30"
-                    : "bg-white/5 text-zinc-500 ring-1 ring-white/10"
-            }`}
-          >
-            {step.status === "complete" ? "✓" : index + 1}
-          </span>
-          <span
-            className={`text-sm ${
-              step.status === "active"
-                ? "font-medium text-white"
-                : step.status === "complete"
-                  ? "text-zinc-300"
-                  : "text-zinc-500"
-            }`}
-          >
-            {step.label}
-          </span>
-        </li>
-      ))}
-    </ol>
+    <div className="space-y-5">
+      <div className="flex items-center justify-between text-xs">
+        <span className="font-medium uppercase tracking-widest text-slate-400">
+          AI Analysis Pipeline
+        </span>
+        <span className="font-mono text-slate-500">
+          {completedCount}/{steps.length} complete
+        </span>
+      </div>
+
+      <div className="h-1 overflow-hidden rounded-full bg-slate-800">
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-blue-600 via-indigo-500 to-emerald-500 transition-all duration-700 ease-out"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+
+      <ol className="grid gap-3 sm:grid-cols-5">
+        {steps.map((step, index) => {
+          const isComplete = step.status === "complete";
+          const isActive = step.status === "active";
+          const isError = step.status === "error";
+
+          return (
+            <li
+              key={step.id}
+              className={`relative rounded-lg border px-3 py-3 transition-all duration-500 ${
+                isComplete
+                  ? "border-emerald-500/30 bg-emerald-500/5"
+                  : isActive
+                    ? "border-blue-500/40 bg-blue-500/10 shadow-lg shadow-blue-500/10"
+                    : isError
+                      ? "border-red-500/30 bg-red-500/5"
+                      : "border-slate-700/50 bg-slate-900/30"
+              } ${isActive ? "animate-pulse-subtle" : ""}`}
+            >
+              {index < steps.length - 1 && (
+                <div
+                  aria-hidden
+                  className="absolute -right-2 top-1/2 hidden h-px w-4 -translate-y-1/2 bg-slate-700 sm:block"
+                />
+              )}
+
+              <div className="flex items-center gap-2 sm:flex-col sm:gap-2 sm:text-center">
+                <span
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all duration-500 ${
+                    isComplete
+                      ? "bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/40"
+                      : isActive
+                        ? "bg-blue-500/25 text-blue-300 ring-1 ring-blue-400/50"
+                        : isError
+                          ? "bg-red-500/20 text-red-400 ring-1 ring-red-500/40"
+                          : "bg-slate-800 text-slate-500 ring-1 ring-slate-700"
+                  }`}
+                >
+                  {isComplete ? (
+                    <svg
+                      className="h-3.5 w-3.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={3}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M4.5 12.75l6 6 9-13.5"
+                      />
+                    </svg>
+                  ) : (
+                    index + 1
+                  )}
+                </span>
+                <span
+                  className={`text-xs leading-tight transition-colors duration-300 ${
+                    isActive
+                      ? "font-semibold text-white"
+                      : isComplete
+                        ? "text-slate-300"
+                        : "text-slate-500"
+                  }`}
+                >
+                  {step.label}
+                </span>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
   );
 }
