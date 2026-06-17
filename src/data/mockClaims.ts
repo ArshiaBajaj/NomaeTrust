@@ -156,6 +156,10 @@ export const mockCallVerificationResults: Record<string, CallVerificationResult>
       analysis:
         "Voice biometrics match enrolled passport with 97% confidence. Natural speech patterns, consistent background noise profile, and no synthetic artifact detection.",
       recommendation: "Caller verified. Safe to continue conversation.",
+      challengeCode: "SUNFLOWER",
+      challengePassed: true,
+      detectedClaim: null,
+      transcript: "Hi, it's Mom. I'll see you at dinner tonight.",
     },
     suspicious: {
       callerName: "Unknown — claims to be Mom",
@@ -166,6 +170,11 @@ export const mockCallVerificationResults: Record<string, CallVerificationResult>
         "Voice does not match Sarah Chen's enrolled passport. Detected neural TTS artifacts at 2.4kHz range. Caller used urgency and secrecy framing typical of AI impersonation scams.",
       recommendation:
         "Do not share financial information. Hang up and call back using a known number.",
+      challengeCode: "SUNFLOWER",
+      challengePassed: false,
+      detectedClaim:
+        "Caller requests urgent wire transfer claiming to be a family member.",
+      transcript: mockVoiceTranscription,
     },
   };
 

@@ -3,31 +3,31 @@ import Hero from "../components/Hero";
 
 const features = [
   {
-    type: "voice" as const,
-    label: "Voice Verification.",
+    type: "action" as const,
+    label: "Action Cards.",
     description:
-      "Transcribe and analyze voice notes, then extract verifiable claims automatically.",
-    to: "/voice",
+      "Upload a scary voice note and get plain-language next steps you can share on WhatsApp.",
+    to: "/stress",
   },
   {
     type: "screenshot" as const,
-    label: "Screenshot Verification.",
+    label: "Screenshot verification.",
     description:
-      "Run OCR on images, detect claims, and surface evidence cards in seconds.",
+      "OCR forwarded images, detect claims, and surface Action Cards in seconds.",
     to: "/screenshot",
   },
   {
     type: "call" as const,
-    label: "Call Verification.",
+    label: "Family Trust Circle.",
     description:
-      "Match callers to voice passports and score deepfake risk before you respond.",
+      "Rotating family verify codes, voice passports, and deepfake risk on suspicious calls.",
     to: "/call",
   },
   {
     type: "map" as const,
-    label: "Community Trust Map.",
+    label: "Community Confusion Map.",
     description:
-      "Visualize misinformation hotspots and coordinate community reporting.",
+      "See where rumors spread, report claims, and route urgent items to human validators.",
     to: "/trust-map",
   },
 ];
@@ -40,14 +40,14 @@ export default function Home() {
         <div className="mx-auto max-w-[1200px]">
           <div className="mx-auto max-w-[600px] text-center">
             <h2 className="font-serif text-[2.75rem] font-normal leading-[1.15] tracking-tight sm:text-5xl lg:text-[3.5rem]">
-              <span className="text-[#0D1B2A]">Four layers of </span>
+              <span className="text-[#0D1B2A]">Four tools for </span>
               <span className="font-normal italic text-[#9CA3AF]">
-                verification
+                stressed families
               </span>
             </h2>
             <p className="mt-5 text-base font-light leading-relaxed text-[#6B7280] sm:text-lg">
-              Protect people and organizations from impersonation, deepfakes,
-              and viral misinformation.
+              From confusion to clarity to action — verify rumors, calls, and
+              screenshots before harm spreads.
             </p>
           </div>
 

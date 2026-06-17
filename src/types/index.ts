@@ -8,6 +8,8 @@ export type ClaimSource = "voice" | "screenshot" | "call" | "community";
 
 export type RiskLevel = "low" | "medium" | "high";
 
+export type ConfidenceBand = "low" | "medium" | "high";
+
 export type SourceCategory =
   | "Education"
   | "Health"
@@ -41,6 +43,18 @@ export type RegionalIntelligence = {
   recommendedSources: TrustedSource[];
 };
 
+export type SourceReference = {
+  title: string;
+  url: string;
+  date: string;
+  snippet: string;
+};
+
+export type EvidenceTranslations = {
+  somali: string;
+  spanish: string;
+};
+
 export type Claim = {
   id: string;
   text: string;
@@ -53,6 +67,9 @@ export type Claim = {
     lng: number;
     label: string;
   };
+  urgentReview?: boolean;
+  provenanceBadge?: string;
+  validatorId?: string;
 };
 
 export type EvidenceCard = {
@@ -61,13 +78,25 @@ export type EvidenceCard = {
   status: VerificationStatus;
   statusLabel?: string;
   confidence: number;
+  confidenceBand?: ConfidenceBand;
   sources: string[];
+  sourceReferences?: SourceReference[];
   summary: string;
+  plainLanguageSummary?: string;
+  valuesBridge?: string;
+  recommendation?: string;
+  actionSteps?: string[];
+  doNotDo?: string[];
+  primaryActionLabel?: string;
+  primaryActionUrl?: string;
+  translations?: EvidenceTranslations;
   verifiedAt: string;
   riskLevel: RiskLevel;
   sourceType: ClaimSource;
   demoMode?: boolean;
+  demoReason?: string;
   regionalIntelligence?: RegionalIntelligence;
+  urgentReview?: boolean;
 };
 
 export type TranscriptionResult = {
@@ -88,6 +117,7 @@ export type VoicePassport = {
   voiceprintId: string;
   enrolledAt: string;
   trustScore: number;
+  challengeCode?: string;
 };
 
 export type CallVerificationResult = {
@@ -97,6 +127,10 @@ export type CallVerificationResult = {
   voicePassport: VoicePassport | null;
   analysis: string;
   recommendation: string;
+  challengeCode: string;
+  challengePassed: boolean | null;
+  detectedClaim: string | null;
+  transcript: string;
 };
 
 export type MapHotspot = {
@@ -116,13 +150,35 @@ export type PipelineStep = {
   status: "pending" | "active" | "complete" | "error";
 };
 
+export type ComposedEvidencePayload = {
+  summary: string;
+  plainLanguageSummary: string;
+  valuesBridge: string;
+  confidenceBand: ConfidenceBand;
+  recommendation: string;
+  actionSteps: string[];
+  doNotDo: string[];
+  primaryActionLabel: string;
+  primaryActionUrl: string;
+  sourceReferences: SourceReference[];
+  translations: EvidenceTranslations;
+  urgentReview: boolean;
+  riskLevel: RiskLevel;
+};
+
 export type AudioAnalysisResult = {
   transcript: string;
   claim: string;
   confidence: number;
   status: string;
   demoMode?: boolean;
+  demoReason?: string;
   regionalIntelligence?: RegionalIntelligence;
+  evidenceCard?: ComposedEvidencePayload;
+};
+
+export type ImageAnalysisResult = AudioAnalysisResult & {
+  ocr: OCRResult;
 };
 
 export type VerificationPipelineResult = {

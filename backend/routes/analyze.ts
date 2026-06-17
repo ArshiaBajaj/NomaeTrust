@@ -3,11 +3,16 @@ import multer from "multer";
 import path from "node:path";
 import { extractClaim } from "../services/claims.js";
 import { DEMO_ANALYSIS_RESULT } from "../services/demoMode.js";
+import { composeEvidenceCard } from "../services/evidenceCard.js";
 import {
   logOpenAIError,
   shouldFallbackToDemoMode,
+  toUserFacingOpenAIError,
 } from "../services/openaiClient.js";
+import { analyzeRegionalIntelligence } from "../services/regionalIntelligence.js";
+import { extractTextFromImage } from "../services/vision.js";
 import { transcribeAudio } from "../services/whisper.js";
+import { addClaim } from "../store/mapStore.js";
 
 const AUDIO_EXTENSIONS = new Set([
   ".mp3",
@@ -16,54 +21,89 @@ const AUDIO_EXTENSIONS = new Set([
   ".webm",
   ".ogg",
   ".mp4",
+  ".mov",
   ".caf",
   ".aac",
   ".flac",
 ]);
 
+const IMAGE_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".webp", ".gif"]);
+
 function isAudioFile(mimetype: string, originalname: string): boolean {
-  if (mimetype.startsWith("audio/") || mimetype === "video/webm") {
-    return true;
-  }
-
+  if (mimetype.startsWith("audio/") || mimetype.startsWith("video/")) return true;
   if (mimetype === "application/octet-stream") {
-    const ext = path.extname(originalname).toLowerCase();
-    return AUDIO_EXTENSIONS.has(ext);
+    return AUDIO_EXTENSIONS.has(path.extname(originalname).toLowerCase());
   }
+  return false;
+}
 
+function isImageFile(mimetype: string, originalname: string): boolean {
+  if (mimetype.startsWith("image/")) return true;
+  if (mimetype === "application/octet-stream") {
+    return IMAGE_EXTENSIONS.has(path.extname(originalname).toLowerCase());
+  }
   return false;
 }
 
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 25 * 1024 * 1024 },
-  fileFilter: (_req, file, cb) => {
-    if (isAudioFile(file.mimetype, file.originalname)) {
-      cb(null, true);
-      return;
-    }
-    cb(
-      new Error(
-        `Unsupported file type "${file.mimetype}". Use MP3, WAV, M4A, or WEBM.`,
-      ),
-    );
-  },
 });
 
 const router = Router();
 
-router.use((req, res, next) => {
-  const start = Date.now();
-  console.log(
-    `[API] --> ${req.method} ${req.originalUrl} content-type=${req.headers["content-type"] ?? "none"}`,
+async function runAnalysisPipeline(
+  transcript: string,
+  sourceType: "voice" | "screenshot",
+) {
+  const { claim, confidence, status } = await extractClaim(transcript);
+  const regionalIntelligence = analyzeRegionalIntelligence(transcript, claim);
+  const evidence = await composeEvidenceCard(
+    claim,
+    transcript,
+    regionalIntelligence,
+    confidence,
   );
-  res.on("finish", () => {
-    console.log(
-      `[API] <-- ${req.method} ${req.originalUrl} ${res.statusCode} (${Date.now() - start}ms)`,
-    );
+
+  const bandToRisk = { low: "low", medium: "medium", high: "high" } as const;
+
+  addClaim({
+    text: claim,
+    source: sourceType,
+    confidence,
+    status: status === "verified" ? "verified" : "pending",
+    location: {
+      lat: 33.749,
+      lng: -84.388,
+      label: regionalIntelligence.locations.join(", ") || "Atlanta, GA",
+    },
+    urgentReview: evidence.urgentReview,
   });
-  next();
-});
+
+  return {
+    transcript,
+    claim,
+    confidence,
+    status,
+    regionalIntelligence,
+    evidenceCard: {
+      summary: evidence.summary,
+      plainLanguageSummary: evidence.plainLanguageSummary,
+      valuesBridge: evidence.valuesBridge,
+      confidenceBand: evidence.confidenceBand,
+      recommendation: evidence.recommendation,
+      actionSteps: evidence.actionSteps,
+      doNotDo: evidence.doNotDo,
+      primaryActionLabel: evidence.primaryActionLabel,
+      primaryActionUrl: evidence.primaryActionUrl,
+      sourceReferences: evidence.sourceReferences,
+      translations: evidence.translations,
+      urgentReview: evidence.urgentReview,
+      riskLevel: bandToRisk[evidence.confidenceBand],
+    },
+    demoMode: false as const,
+  };
+}
 
 router.post(
   "/analyze-audio",
@@ -87,15 +127,9 @@ router.post(
   async (req, res) => {
     try {
       if (!req.file) {
-        res
-          .status(400)
-          .json({ error: "No audio file provided. Use field name 'audio'." });
+        res.status(400).json({ error: "No audio file provided. Use field name 'audio'." });
         return;
       }
-
-      console.log(
-        `[API] analyze-audio received file="${req.file.originalname}" mimetype="${req.file.mimetype}" size=${req.file.size}`,
-      );
 
       const transcript = await transcribeAudio(
         req.file.buffer,
@@ -108,29 +142,98 @@ router.post(
         return;
       }
 
-      const { claim, confidence, status } = await extractClaim(transcript);
-
-      console.log("[API] analyze-audio success");
-
-      res.json({
-        transcript,
-        claim,
-        confidence,
-        status,
-        demoMode: false,
-      });
+      const result = await runAnalysisPipeline(transcript, "voice");
+      res.json(result);
     } catch (error) {
       if (shouldFallbackToDemoMode(error)) {
         logOpenAIError("analyze-audio demo fallback", error);
-        console.warn("[API] OpenAI unavailable — returning demo mode result");
-        res.json(DEMO_ANALYSIS_RESULT);
-        return;
       }
-
-      console.error("[API] analyze-audio failed, falling back to demo:", error);
-      res.json(DEMO_ANALYSIS_RESULT);
+      const { message: demoReason } = toUserFacingOpenAIError(error);
+      const demo = DEMO_ANALYSIS_RESULT;
+      const regionalIntelligence = analyzeRegionalIntelligence(
+        demo.transcript,
+        demo.claim,
+      );
+      const evidence = await composeEvidenceCard(
+        demo.claim,
+        demo.transcript,
+        regionalIntelligence,
+        demo.confidence,
+      );
+      addClaim({
+        text: demo.claim,
+        source: "voice",
+        confidence: demo.confidence,
+        urgentReview: true,
+      });
+      res.json({
+        ...demo,
+        demoReason,
+        regionalIntelligence,
+        evidenceCard: {
+          summary: evidence.summary,
+          plainLanguageSummary: evidence.plainLanguageSummary,
+          valuesBridge: evidence.valuesBridge,
+          confidenceBand: evidence.confidenceBand,
+          recommendation: evidence.recommendation,
+          actionSteps: evidence.actionSteps,
+          doNotDo: evidence.doNotDo,
+          primaryActionLabel: evidence.primaryActionLabel,
+          primaryActionUrl: evidence.primaryActionUrl,
+          sourceReferences: evidence.sourceReferences,
+          translations: evidence.translations,
+          urgentReview: evidence.urgentReview,
+          riskLevel: evidence.confidenceBand,
+        },
+      });
     }
   },
 );
 
+router.post(
+  "/analyze-image",
+  (req, res, next) => {
+    upload.single("image")(req, res, (err) => {
+      if (err) {
+        res.status(400).json({ error: err.message });
+        return;
+      }
+      next();
+    });
+  },
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        res.status(400).json({ error: "No image provided. Use field name 'image'." });
+        return;
+      }
+
+      if (!isImageFile(req.file.mimetype, req.file.originalname)) {
+        res.status(400).json({ error: "Unsupported image type" });
+        return;
+      }
+
+      const { text, confidence: ocrConfidence } = await extractTextFromImage(
+        req.file.buffer,
+        req.file.mimetype,
+      );
+
+      const result = await runAnalysisPipeline(text, "screenshot");
+
+      res.json({
+        ...result,
+        ocr: {
+          text,
+          confidence: ocrConfidence,
+          regions: text.split("\n").filter(Boolean).length,
+        },
+      });
+    } catch (error) {
+      logOpenAIError("analyze-image", error);
+      res.status(500).json({ error: "Image analysis failed" });
+    }
+  },
+);
+
+export { isAudioFile, isImageFile };
 export default router;

@@ -9,72 +9,133 @@ function formatReportText(
 ): string {
   const lines = [
     "═══════════════════════════════════════════",
-    "  NOMAETRUST — VOICE VERIFICATION REPORT",
-    "  OFFICIAL INTELLIGENCE EVIDENCE CARD",
+    "  NOMAETRUST — EVIDENCE CARD",
+    "  Community Truth & Call Verification",
     "═══════════════════════════════════════════",
     "",
     `Report ID:     ${card.id}`,
     `Generated:     ${new Date(card.verifiedAt).toLocaleString()}`,
-    `Classification: UNVERIFIED — FOR OFFICIAL USE`,
+    `Confidence:    ${card.confidenceBand ?? "see score"} (${Math.round(card.confidence * 100)}%)`,
     "",
-    "── VERIFICATION STATUS ──",
-    `Status:        ${card.statusLabel ?? card.status}`,
-    `Confidence:    ${Math.round(card.confidence * 100)}%`,
-    `Risk Level:    ${card.riskLevel.toUpperCase()}`,
-    "",
-    "── EXTRACTED CLAIM ──",
+    "── CLAIM (NOT A VERDICT) ──",
     card.claim,
     "",
-    "── TRANSCRIPT ──",
-    `"${result.transcript}"`,
-    "",
-    "── ANALYSIS SUMMARY ──",
+    "── SUMMARY ──",
     card.summary,
     "",
   ];
 
-  if (result.regionalIntelligence) {
-    const intel = result.regionalIntelligence;
-    lines.push("── REGIONAL INTELLIGENCE ──");
-    lines.push(`Category:      ${intel.claimCategory}`);
-    lines.push(`Domain:        ${intel.sourceCategory}`);
-    lines.push(`Locations:     ${intel.locations.join(", ")}`);
-    lines.push("");
-    lines.push("── RECOMMENDED VERIFICATION SOURCES ──");
-    for (const source of intel.recommendedSources) {
-      lines.push(`• ${source.name}`);
-      lines.push(`  ${source.url}`);
-      lines.push(`  ${source.description}`);
-      lines.push("");
+  if (card.recommendation) {
+    lines.push("── RECOMMENDATION ──", card.recommendation, "");
+  }
+
+  if (card.actionSteps?.length) {
+    lines.push("── ACTION STEPS ──");
+    for (const step of card.actionSteps) {
+      lines.push(`☐ ${step}`);
     }
-  }
-
-  lines.push("── DATA SOURCES ──");
-  for (const source of card.sources) {
-    lines.push(`• ${source}`);
-  }
-
-  if (card.demoMode) {
     lines.push("");
-    lines.push("[ DEMO MODE — Sample data for demonstration purposes ]");
   }
 
-  lines.push("");
-  lines.push("═══════════════════════════════════════════");
-  lines.push("NomaeTrust · Verify People. Verify Information.");
-  lines.push("Before Harm Spreads.");
-  lines.push("═══════════════════════════════════════════");
+  if (card.doNotDo?.length) {
+    lines.push("── DO NOT DO YET ──");
+    for (const item of card.doNotDo) {
+      lines.push(`✕ ${item}`);
+    }
+    lines.push("");
+  }
 
+  if (card.primaryActionUrl) {
+    lines.push("── PRIMARY ACTION ──", `${card.primaryActionLabel ?? "Open"}: ${card.primaryActionUrl}`, "");
+  }
+
+  if (card.sourceReferences?.length) {
+    lines.push("── SOURCES ──");
+    for (const s of card.sourceReferences) {
+      lines.push(`• ${s.title} (${s.date})`);
+      lines.push(`  ${s.url}`);
+      lines.push(`  ${s.snippet}`);
+    }
+    lines.push("");
+  }
+
+  if (card.translations) {
+    lines.push("── MULTILINGUAL (for WhatsApp sharing) ──");
+    lines.push(`Somali: ${card.translations.somali}`);
+    lines.push(`Spanish: ${card.translations.spanish}`);
+    lines.push("");
+  }
+
+  lines.push("── TRANSCRIPT ──", `"${result.transcript}"`, "");
+  lines.push("NomaeTrust · Verify before harm spreads.");
   return lines.join("\n");
+}
+
+export function formatWhatsAppEvidence(card: EvidenceCardType): string {
+  const sources =
+    card.sourceReferences?.slice(0, 3).map((s) => `• ${s.title}: ${s.url}`).join("\n") ??
+    card.sources.map((s) => `• ${s}`).join("\n");
+
+  const actionSteps = card.actionSteps?.map((s) => `☐ ${s}`).join("\n") ?? "";
+  const avoid = card.doNotDo?.map((s) => `✕ ${s}`).join("\n") ?? "";
+
+  const lines = [
+    "🛡️ *NomaeTrust Action Card*",
+    "",
+    `*Claim:* ${card.claim}`,
+    "",
+  ];
+
+  if (card.plainLanguageSummary) {
+    lines.push(card.plainLanguageSummary, "");
+  } else {
+    lines.push(card.summary, "");
+  }
+
+  if (actionSteps) {
+    lines.push("*Do this now:*", actionSteps, "");
+  }
+
+  if (avoid) {
+    lines.push("*Do not do yet:*", avoid, "");
+  }
+
+  lines.push(
+    `*Confidence:* ${card.confidenceBand ?? "medium"} (${Math.round(card.confidence * 100)}%)`,
+    card.recommendation ? `*Next step:* ${card.recommendation}` : "",
+    "",
+    "*Sources:*",
+    sources,
+  );
+
+  if (card.primaryActionUrl) {
+    lines.push("", `*${card.primaryActionLabel ?? "Official source"}:* ${card.primaryActionUrl}`);
+  }
+
+  if (card.translations) {
+    lines.push("", "*Somali:*", card.translations.somali);
+    lines.push("", "*Español:*", card.translations.spanish);
+  }
+
+  lines.push("", "_Not a true/false verdict — verify with official sources._");
+  return lines.filter(Boolean).join("\n");
+}
+
+export async function copyWhatsAppEvidence(card: EvidenceCardType): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(formatWhatsAppEvidence(card));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export async function copyReport(
   result: AudioAnalysisResult,
   card: EvidenceCardType,
 ): Promise<boolean> {
-  const text = formatReportText(result, card);
   try {
-    await navigator.clipboard.writeText(text);
+    await navigator.clipboard.writeText(formatReportText(result, card));
     return true;
   } catch {
     return false;
@@ -82,7 +143,7 @@ export async function copyReport(
 }
 
 export async function downloadPdfReport(
-  result: AudioAnalysisResult,
+  _result: AudioAnalysisResult,
   card: EvidenceCardType,
 ): Promise<void> {
   const { jsPDF } = await import("jspdf");
@@ -103,86 +164,44 @@ export async function downloadPdfReport(
     y += wrapped.length * (size + 4);
   };
 
-  doc.setFillColor(15, 23, 42);
-  doc.rect(0, 0, pageWidth, 72, "F");
-  doc.setTextColor(255, 255, 255);
-  addLine("NOMAETRUST", 16, "bold");
-  doc.setTextColor(148, 163, 184);
-  addLine("Voice Verification Intelligence Report", 11);
-  y += 8;
-  doc.setTextColor(30, 41, 59);
-
+  addLine("NOMAETRUST EVIDENCE CARD", 16, "bold");
   addLine(`Report ID: ${card.id}`, 9);
-  addLine(`Generated: ${new Date(card.verifiedAt).toLocaleString()}`, 9);
-  y += 6;
-
-  addLine("VERIFICATION STATUS", 11, "bold");
-  addLine(`Status: ${card.statusLabel ?? card.status}`, 10);
-  addLine(`Confidence: ${Math.round(card.confidence * 100)}%`, 10);
-  addLine(`Risk Level: ${card.riskLevel.toUpperCase()}`, 10);
-  y += 6;
-
-  addLine("EXTRACTED CLAIM", 11, "bold");
+  addLine(`Confidence band: ${card.confidenceBand ?? "medium"}`, 10);
+  addLine("CLAIM", 11, "bold");
   addLine(card.claim, 10);
-  y += 6;
-
-  addLine("TRANSCRIPT", 11, "bold");
-  addLine(`"${result.transcript}"`, 10);
-  y += 6;
-
-  addLine("ANALYSIS SUMMARY", 11, "bold");
+  addLine("SUMMARY", 11, "bold");
   addLine(card.summary, 10);
-  y += 6;
 
-  if (result.regionalIntelligence) {
-    const intel = result.regionalIntelligence;
-    addLine("REGIONAL INTELLIGENCE", 11, "bold");
-    addLine(`Category: ${intel.claimCategory}`, 10);
-    addLine(`Domain: ${intel.sourceCategory}`, 10);
-    addLine(`Locations: ${intel.locations.join(", ")}`, 10);
-    y += 4;
-    addLine("RECOMMENDED VERIFICATION SOURCES", 11, "bold");
-    for (const source of intel.recommendedSources) {
-      addLine(`• ${source.name}`, 10, "bold");
-      addLine(source.url, 9);
-      addLine(source.description, 9);
+  if (card.sourceReferences?.length) {
+    addLine("SOURCES", 11, "bold");
+    for (const s of card.sourceReferences) {
+      addLine(`• ${s.title} — ${s.url}`, 9);
     }
-  }
-
-  if (card.demoMode) {
-    y += 4;
-    addLine("[ DEMO MODE — Sample data for demonstration ]", 9);
   }
 
   doc.save(`NomaeTrust-Report-${card.id}.pdf`);
 }
 
 export async function shareReport(
-  result: AudioAnalysisResult,
+  _result: AudioAnalysisResult,
   card: EvidenceCardType,
 ): Promise<"shared" | "copied" | "failed"> {
-  const text = formatReportText(result, card);
-  const title = "NomaeTrust Evidence Card";
-
+  const text = formatWhatsAppEvidence(card);
   if (navigator.share) {
     try {
-      await navigator.share({ title, text });
+      await navigator.share({ title: "NomaeTrust Evidence Card", text });
       return "shared";
     } catch (err) {
-      if (err instanceof DOMException && err.name === "AbortError") {
-        return "failed";
-      }
+      if (err instanceof DOMException && err.name === "AbortError") return "failed";
     }
   }
-
-  const copied = await copyReport(result, card);
+  const copied = await copyWhatsAppEvidence(card);
   return copied ? "copied" : "failed";
 }
 
 export function computeHarmRiskScore(result: AudioAnalysisResult): number {
   const confidencePct = result.confidence * 100;
   const status = result.status.toLowerCase();
-
   if (
     status.includes("needs verification") ||
     status === "unverified" ||
@@ -191,6 +210,5 @@ export function computeHarmRiskScore(result: AudioAnalysisResult): number {
   ) {
     return Math.min(99, Math.round(confidencePct * 0.92 + 8));
   }
-
   return Math.max(5, Math.round(100 - confidencePct));
 }

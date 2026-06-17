@@ -2,6 +2,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import analyzeRouter from "./routes/analyze.js";
+import callRouter from "./routes/call.js";
+import mapRouter from "./routes/map.js";
 
 dotenv.config();
 
@@ -22,22 +24,13 @@ app.use(
 
 app.use(express.json());
 
-app.use((req, res, next) => {
-  const start = Date.now();
-  console.log(`[API] --> ${req.method} ${req.originalUrl}`);
-  res.on("finish", () => {
-    console.log(
-      `[API] <-- ${req.method} ${req.originalUrl} ${res.statusCode} (${Date.now() - start}ms)`,
-    );
-  });
-  next();
-});
-
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", port: PORT });
 });
 
 app.use("/api", analyzeRouter);
+app.use("/api", callRouter);
+app.use("/api", mapRouter);
 
 app.use(
   (
@@ -53,14 +46,11 @@ app.use(
 
 const server = app.listen(PORT, () => {
   console.log(`NomaeTrust backend running on http://localhost:${PORT}`);
-  console.log(`[API] POST http://localhost:${PORT}/api/analyze-audio`);
 });
 
 server.on("error", (err: NodeJS.ErrnoException) => {
   if (err.code === "EADDRINUSE") {
-    console.error(
-      `[Server] Port ${PORT} is already in use. Stop the other process or change PORT in backend/.env`,
-    );
+    console.error(`[Server] Port ${PORT} is already in use.`);
     process.exit(1);
   }
   console.error("[Server] Failed to start:", err);

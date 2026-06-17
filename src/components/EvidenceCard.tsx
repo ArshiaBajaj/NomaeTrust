@@ -1,3 +1,4 @@
+import ActionCardPanel from "./ActionCardPanel";
 import type { EvidenceCard as EvidenceCardType } from "../types";
 
 type EvidenceCardProps = {
@@ -70,10 +71,21 @@ export default function EvidenceCard({ card }: EvidenceCardProps) {
 
       <h3 className="card-title mt-4 text-base leading-snug">{card.claim}</h3>
 
+      <ActionCardPanel card={card} variant="light" />
+
       <p className="mt-3 text-sm leading-relaxed text-zinc-400">{card.summary}</p>
 
+      {card.recommendation && (
+        <p className="mt-3 rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-sm text-amber-800">
+          {card.recommendation}
+        </p>
+      )}
+
       <div className="mt-5 flex flex-wrap gap-2">
-        {card.sources.map((source) => (
+        {(card.sourceReferences?.length
+          ? card.sourceReferences.map((s) => s.title)
+          : card.sources
+        ).map((source) => (
           <span
             key={source}
             className="rounded-md border border-[rgba(0,0,0,0.07)] bg-surface-raised px-2.5 py-1 text-xs text-text-muted"
@@ -82,6 +94,34 @@ export default function EvidenceCard({ card }: EvidenceCardProps) {
           </span>
         ))}
       </div>
+
+      {card.sourceReferences && card.sourceReferences.length > 0 && (
+        <ul className="mt-4 space-y-2">
+          {card.sourceReferences.map((s) => (
+            <li key={s.url} className="text-xs">
+              <a
+                href={s.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-accent hover:underline"
+              >
+                {s.title} ({s.date}) ↗
+              </a>
+              <p className="text-text-muted">{s.snippet}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {card.translations && (
+        <div className="mt-5 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+          <p className="text-xs font-semibold uppercase text-emerald-700">
+            Multilingual (WhatsApp)
+          </p>
+          <p className="mt-2 text-sm"><strong>Somali:</strong> {card.translations.somali}</p>
+          <p className="mt-2 text-sm"><strong>Español:</strong> {card.translations.spanish}</p>
+        </div>
+      )}
 
       {intel && intel.recommendedSources.length > 0 && (
         <div className="mt-6 border-t border-white/5 pt-5">

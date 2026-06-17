@@ -13,34 +13,21 @@ export const DEMO_ANALYSIS_RESULT: AudioAnalysisResult = {
 };
 
 function enrichResult(result: AudioAnalysisResult): AudioAnalysisResult {
-  return {
-    ...result,
-    regionalIntelligence: analyzeRegionalIntelligence(
-      result.transcript,
-      result.claim,
-    ),
-  };
+  const regionalIntelligence =
+    result.regionalIntelligence ??
+    analyzeRegionalIntelligence(result.transcript, result.claim);
+  return { ...result, regionalIntelligence };
 }
 
 export async function analyzeAudio(file: File): Promise<AudioAnalysisResult> {
-  const url = `${API_BASE}/api/analyze-audio`;
-
-  console.log("[analyzeAudio] POST", url, {
-    fileName: file.name,
-    fileSize: file.size,
-    fileType: file.type,
-  });
-
   const formData = new FormData();
   formData.append("audio", file);
 
   try {
-    const response = await fetch(url, {
+    const response = await fetch(`${API_BASE}/api/analyze-audio`, {
       method: "POST",
       body: formData,
     });
-
-    console.log("[analyzeAudio] Response", response.status, response.statusText);
 
     const data = (await response.json().catch(() => null)) as
       | AudioAnalysisResult
@@ -48,16 +35,11 @@ export async function analyzeAudio(file: File): Promise<AudioAnalysisResult> {
       | null;
 
     if (response.ok && data && "transcript" in data) {
-      console.log("[analyzeAudio] Success", { demoMode: data.demoMode ?? false });
       return enrichResult(data);
     }
 
-    console.warn("[analyzeAudio] Server error — using demo mode", data);
     return enrichResult(DEMO_ANALYSIS_RESULT);
-  } catch (err) {
-    const detail =
-      err instanceof Error ? `${err.name}: ${err.message}` : String(err);
-    console.warn("[analyzeAudio] Fetch failed — using demo mode:", detail);
+  } catch {
     return enrichResult(DEMO_ANALYSIS_RESULT);
   }
 }

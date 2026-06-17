@@ -1,10 +1,10 @@
 import { Link, NavLink, useLocation } from "react-router-dom";
 
 const navLinks = [
-  { to: "/voice", label: "Voice" },
-  { to: "/screenshot", label: "Screenshot" },
-  { to: "/call", label: "Call" },
-  { to: "/trust-map", label: "Trust Map" },
+  { to: "/stress", label: "Action Cards" },
+  { to: "/screenshot", label: "Screenshots" },
+  { to: "/call", label: "Trust Circle" },
+  { to: "/trust-map", label: "Confusion Map" },
 ];
 
 export default function Navbar() {
@@ -65,8 +65,8 @@ export default function Navbar() {
         </nav>
 
         {!isHero && (
-          <Link to="/voice" className="btn-primary px-5 py-2 text-sm">
-            Start verification
+          <Link to="/stress" className="btn-primary px-5 py-2 text-sm">
+            Try Action Cards
           </Link>
         )}
 
