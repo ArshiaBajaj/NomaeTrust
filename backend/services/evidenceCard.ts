@@ -32,6 +32,8 @@ export type ComposedEvidenceCard = {
   sourceReferences: SourceReference[];
   translations: EvidenceTranslations;
   urgentReview: boolean;
+  verificationOutcome: "verified" | "not_verified" | "inconclusive";
+  verificationOutcomeConfidence: number;
 };
 
 const TODAY = new Date().toISOString().slice(0, 10);
@@ -57,6 +59,8 @@ function buildDemoEvidenceCard(
     valuesBridge:
       "Everyone deserves accurate information about food and community help — especially when messages spread fast on WhatsApp.",
     confidenceBand: sourceReferences.length >= 2 ? "medium" : "low",
+    verificationOutcome: "not_verified",
+    verificationOutcomeConfidence: 90,
     recommendation:
       "Contact the official source directly before sharing this message further.",
     actionSteps: [
@@ -108,15 +112,17 @@ export async function composeEvidenceCard(
         {
           role: "system",
           content: `You compose Action Cards for NomaeTrust rumor verification (USAII hackathon).
-NEVER label claims TRUE or FALSE. Use 6th-grade reading level.
-Structure: Values → Bridge → Facts (sources) → Action.
-Use only provided source URLs. Today is ${TODAY}.`,
+Use 6th-grade reading level. Structure: Values → Bridge → Facts (sources) → Action.
+Use only provided source URLs. Today is ${TODAY}.
+
+Determine whether trusted sources SUPPORT the claim, REFUTE it, or are MIXED/INCONCLUSIVE.
+Return an explicit verification outcome — users must immediately see if the claim is supported, refuted, or inconclusive.`,
         },
         {
           role: "user",
           content: `Claim: ${claim}
 Transcript: ${transcript.slice(0, 500)}
-Confidence: ${extractionConfidence}
+Extraction confidence: ${extractionConfidence}
 Category: ${intel.claimCategory}
 Locations: ${intel.locations.join(", ")}
 Sources: ${JSON.stringify(sourcesForPrompt, null, 2)}
@@ -127,6 +133,8 @@ Return JSON:
   "plainLanguageSummary": "2-3 simple sentences for a stressed parent at 2am",
   "valuesBridge": "One sentence starting with shared values (safety, fairness, community)",
   "confidenceBand": "low"|"medium"|"high",
+  "verificationOutcome": "verified"|"not_verified"|"inconclusive",
+  "verificationOutcomeConfidence": number 0-100 (confidence in this outcome, not extraction quality),
   "recommendation": "one clear next step",
   "actionSteps": ["3 concrete do-this-now steps with org names/URLs from sources"],
   "doNotDo": ["2-3 things NOT to do yet"],
@@ -148,6 +156,20 @@ Return JSON:
     const confidenceBand: ConfidenceBand =
       band === "high" || band === "medium" || band === "low" ? band : "medium";
 
+    const rawOutcome = parsed.verificationOutcome;
+    const verificationOutcome: ComposedEvidenceCard["verificationOutcome"] =
+      rawOutcome === "verified" ||
+      rawOutcome === "not_verified" ||
+      rawOutcome === "inconclusive"
+        ? rawOutcome
+        : demo.verificationOutcome;
+
+    const rawOutcomeConfidence = parsed.verificationOutcomeConfidence;
+    const verificationOutcomeConfidence =
+      typeof rawOutcomeConfidence === "number"
+        ? Math.round(Math.min(100, Math.max(0, rawOutcomeConfidence)))
+        : demo.verificationOutcomeConfidence;
+
     const refs = Array.isArray(parsed.sourceReferences)
       ? (parsed.sourceReferences as SourceReference[])
       : demo.sourceReferences;
@@ -166,6 +188,8 @@ Return JSON:
           ? parsed.valuesBridge
           : demo.valuesBridge,
       confidenceBand,
+      verificationOutcome,
+      verificationOutcomeConfidence,
       recommendation:
         typeof parsed.recommendation === "string"
           ? parsed.recommendation

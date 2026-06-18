@@ -100,6 +100,8 @@ async function runAnalysisPipeline(
       translations: evidence.translations,
       urgentReview: evidence.urgentReview,
       riskLevel: bandToRisk[evidence.confidenceBand],
+      verificationOutcome: evidence.verificationOutcome,
+      verificationOutcomeConfidence: evidence.verificationOutcomeConfidence,
     },
     demoMode: false as const,
   };
@@ -184,6 +186,8 @@ router.post(
           translations: evidence.translations,
           urgentReview: evidence.urgentReview,
           riskLevel: evidence.confidenceBand,
+          verificationOutcome: evidence.verificationOutcome,
+          verificationOutcomeConfidence: evidence.verificationOutcomeConfidence,
         },
       });
     }

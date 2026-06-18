@@ -6,6 +6,7 @@ import type {
   RiskLevel,
   VerificationStatus,
 } from "../types";
+import { calculateVerificationConfidence } from "./verificationConfidence";
 
 function toVerificationStatus(status: string): VerificationStatus {
   if (
@@ -44,7 +45,7 @@ export function buildEvidenceCardFromAnalysis(
         ? ["Demo Mode", "Regional Intelligence DB"]
         : ["OpenAI Whisper", "GPT-4o-mini", "Regional Intelligence DB"];
 
-  return {
+  const baseCard: EvidenceCard = {
     id: `NT-${Date.now().toString(36).toUpperCase()}`,
     claim: result.claim,
     status: isDemo ? "pending" : toVerificationStatus(result.status),
@@ -73,6 +74,19 @@ export function buildEvidenceCardFromAnalysis(
     demoReason: result.demoReason,
     regionalIntelligence: result.regionalIntelligence,
     urgentReview: payload?.urgentReview,
+    verificationOutcome: payload?.verificationOutcome,
+  };
+
+  const verification = calculateVerificationConfidence({
+    ...baseCard,
+    verificationConfidence: payload?.verificationOutcomeConfidence,
+  });
+
+  return {
+    ...baseCard,
+    verificationOutcome: payload?.verificationOutcome ?? verification.outcome,
+    verificationConfidence: payload?.verificationOutcomeConfidence ?? verification.score,
+    verificationConfidenceSummary: verification.summary,
   };
 }
 
@@ -94,5 +108,7 @@ export function composedPayloadFromCard(
     translations: card.translations ?? { somali: "", spanish: "" },
     urgentReview: card.urgentReview ?? false,
     riskLevel: card.riskLevel,
+    verificationOutcome: card.verificationOutcome,
+    verificationOutcomeConfidence: card.verificationConfidence,
   };
 }

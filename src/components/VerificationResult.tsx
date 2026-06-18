@@ -1,11 +1,18 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import ActionCardPanel from "./ActionCardPanel";
+import ExtractedClaimSection from "./ExtractedClaimSection";
+import SourcesCheckedSection from "./SourcesCheckedSection";
+import VerificationConfidenceGauge from "./VerificationConfidenceGauge";
+import WhatWeHeardSection from "./WhatWeHeardSection";
 import type { EvidenceCard } from "../types";
 import { copyWhatsAppEvidence } from "../utils/reportExport";
 
 type VerificationResultProps = {
   card: EvidenceCard;
+  transcript?: string;
+  transcriptTitle?: string;
+  extractionNote?: string;
   variant?: "light" | "dark";
   syncedToMap?: boolean;
   technicalDetails?: React.ReactNode;
@@ -13,6 +20,9 @@ type VerificationResultProps = {
 
 export default function VerificationResult({
   card,
+  transcript,
+  transcriptTitle,
+  extractionNote,
   variant = "light",
   syncedToMap,
   technicalDetails,
@@ -62,6 +72,24 @@ export default function VerificationResult({
           </Link>
         </div>
       )}
+
+      {transcript && (
+        <WhatWeHeardSection
+          transcript={transcript}
+          variant={variant}
+          title={transcriptTitle}
+        />
+      )}
+
+      <ExtractedClaimSection
+        card={card}
+        variant={variant}
+        extractionNote={extractionNote}
+      />
+
+      <VerificationConfidenceGauge card={card} variant={variant} />
+
+      <SourcesCheckedSection card={card} variant={variant} />
 
       <ActionCardPanel card={card} variant={variant} />
 

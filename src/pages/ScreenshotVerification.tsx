@@ -84,23 +84,11 @@ export default function ScreenshotVerification() {
             <div className="mt-6">
               <VerificationResult
                 card={evidenceCard}
+                transcript={ocrText ?? undefined}
+                transcriptTitle="What We Read"
+                extractionNote="This claim was automatically extracted from the screenshot."
                 syncedToMap={syncedToMap}
-                technicalDetails={
-                  ocrText ? (
-                    <div className="card p-5">
-                      <p className="text-xs font-semibold uppercase text-text-muted">
-                        OCR extraction
-                      </p>
-                      <pre className="mt-3 whitespace-pre-wrap font-sans text-sm text-text-body">
-                        {ocrText}
-                      </pre>
-                      <p className="mt-4 text-xs font-semibold uppercase text-text-muted">
-                        Extracted claim
-                      </p>
-                      <p className="mt-2 text-sm text-text-body">{evidenceCard.claim}</p>
-                    </div>
-                  ) : undefined
-                }
+                technicalDetails={undefined}
               />
             </div>
           </div>

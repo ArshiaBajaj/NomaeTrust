@@ -149,45 +149,35 @@ export default function StressMode() {
   const showResult = card && result && !loading;
 
   return (
-    <div className={mode === "simple" ? "min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950" : "page-shell"}>
-      <div className={`mx-auto max-w-3xl px-6 pb-20 ${mode === "simple" ? "pt-28" : "pt-10 lg:px-8"}`}>
-        {mode === "advanced" && (
+    <div className="min-h-screen bg-bg">
+      <div className="mx-auto max-w-3xl px-6 pb-20 pt-10 lg:px-8">
+        {(!showResult || mode === "advanced") && (
           <PageHeader
-            title="Action Cards"
-            description="Upload a WhatsApp voice note. We extract the claim, check trusted sources, and tell you what to do next."
+            title={
+              mode === "simple" && !showResult
+                ? "Is this rumor true?"
+                : "Action Cards"
+            }
+            description={
+              mode === "simple" && !showResult
+                ? "Forwarded a scary voice note at 2 a.m.? One tap — we tell you what to do next."
+                : "Upload a WhatsApp voice note. We extract the claim, check trusted sources, and tell you what to do next."
+            }
           />
         )}
 
-        {mode === "simple" && !showResult && (
-          <div className="text-center text-white">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-400">
-              Action Cards
-            </p>
-            <h1 className="mt-3 font-serif text-3xl font-medium leading-tight sm:text-4xl">
-              Is this rumor true?
-            </h1>
-            <p className="mt-3 text-sm text-slate-400">
-              Forwarded a scary voice note at 2 a.m.? One tap — we tell you what to do next.
-            </p>
-          </div>
-        )}
-
         {showResult && mode === "simple" && (
-          <div className="mb-8 text-center text-white">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-400">
+          <div className="mb-8">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
               Your Action Card
             </p>
-            <h1 className="mt-2 font-serif text-2xl font-medium">Here&apos;s what to do</h1>
+            <h1 className="mt-2 font-serif text-3xl font-medium text-navy">
+              Here&apos;s what to do
+            </h1>
           </div>
         )}
 
-        <div
-          className={`flex rounded-xl border p-1 ${
-            mode === "simple" && !showResult
-              ? "mt-10 border-slate-700 bg-slate-800/50"
-              : "mb-8 border-[rgba(0,0,0,0.08)] bg-surface-raised"
-          }`}
-        >
+        <div className="mb-8 flex rounded-xl border border-[rgba(0,0,0,0.08)] bg-bg p-1">
           {(["simple", "advanced"] as const).map((m) => (
             <button
               key={m}
@@ -195,12 +185,8 @@ export default function StressMode() {
               onClick={() => switchMode(m)}
               className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold capitalize transition-colors ${
                 mode === m
-                  ? mode === "simple" && !showResult
-                    ? "bg-emerald-500 text-white"
-                    : "bg-white text-navy shadow-sm"
-                  : mode === "simple" && !showResult
-                    ? "text-slate-400 hover:text-white"
-                    : "text-text-muted hover:text-navy"
+                  ? "bg-surface text-navy shadow-sm ring-1 ring-[rgba(0,0,0,0.06)]"
+                  : "bg-transparent text-text-muted hover:text-navy"
               }`}
             >
               {m === "simple" ? "Simple" : "Advanced"}
@@ -240,28 +226,32 @@ export default function StressMode() {
         )}
 
         {simpleUpload && (
-          <div className="mt-6 space-y-4">
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="flex w-full flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-emerald-500/40 bg-emerald-500/10 px-6 py-14 text-white transition-colors hover:border-emerald-400/60 hover:bg-emerald-500/15"
-            >
-              <span className="text-4xl" aria-hidden>
-                🎤
-              </span>
-              <span className="text-lg font-semibold">Tap to upload voice note</span>
-              <span className="text-xs text-slate-400">WhatsApp · MP3 · M4A · MP4 video</span>
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="audio/*,video/*,.mp3,.wav,.m4a,.ogg,.webm,.mp4,.mov"
-              className="hidden"
-              onChange={handleSimpleUpload}
-            />
+          <div className="space-y-4">
+            <div className="card p-6">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex w-full flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-[rgba(0,0,0,0.1)] bg-surface px-6 py-14 shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-colors hover:border-accent/40 hover:bg-accent/5"
+              >
+                <span className="text-4xl" aria-hidden>
+                  🎤
+                </span>
+                <span className="text-lg font-semibold text-navy">Tap to upload voice note</span>
+                <span className="text-xs text-text-muted">
+                  WhatsApp · MP3 · M4A · MP4 video
+                </span>
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="audio/*,video/*,.mp3,.wav,.m4a,.ogg,.webm,.mp4,.mov"
+                className="hidden"
+                onChange={handleSimpleUpload}
+              />
+            </div>
             <Link
               to="/call"
-              className="block w-full rounded-xl border border-slate-700 bg-slate-800/50 py-4 text-center text-sm font-semibold text-slate-200"
+              className="btn-secondary block w-full py-4 text-center text-sm font-semibold"
             >
               Suspicious phone call instead?
             </Link>
@@ -277,21 +267,23 @@ export default function StressMode() {
         {error && (
           <div
             role="alert"
-            className={`mt-8 rounded-xl border px-4 py-3 text-sm ${
-              mode === "simple"
-                ? "border-red-500/30 bg-red-500/10 text-red-200"
-                : "border-secondary/30 bg-secondary/10 text-secondary"
-            }`}
+            className="mt-8 rounded-xl border border-secondary/30 bg-secondary/10 px-4 py-3 text-sm text-secondary"
           >
             {error}
           </div>
         )}
 
         {showResult && (
-          <div className={mode === "simple" ? "mt-6" : "mt-10"}>
+          <div className="mt-10">
+            {mode === "advanced" && (
+              <div className="card mb-6 p-6">
+                <PipelineSteps steps={steps} />
+              </div>
+            )}
             <VerificationResult
               card={card}
-              variant={mode === "simple" ? "dark" : "light"}
+              transcript={result.transcript}
+              variant="light"
               syncedToMap={syncedToMap}
               technicalDetails={
                 mode === "advanced" && result ? (
@@ -300,20 +292,13 @@ export default function StressMode() {
                     result={result}
                     hideActionCard
                   />
-                ) : result ? (
-                  <div className="card p-5 text-sm text-text-body">
-                    <p className="text-xs font-semibold uppercase text-text-muted">Transcript</p>
-                    <p className="mt-2 italic">&ldquo;{result.transcript}&rdquo;</p>
-                  </div>
                 ) : undefined
               }
             />
             <button
               type="button"
               onClick={reset}
-              className={`mt-6 text-sm underline ${
-                mode === "simple" ? "text-slate-500" : "text-text-muted"
-              }`}
+              className="mt-6 text-sm text-text-muted underline"
             >
               Check another voice note
             </button>

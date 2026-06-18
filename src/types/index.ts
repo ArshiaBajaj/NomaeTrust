@@ -10,6 +10,9 @@ export type RiskLevel = "low" | "medium" | "high";
 
 export type ConfidenceBand = "low" | "medium" | "high";
 
+/** Whether trusted sources support, refute, or conflict on the extracted claim */
+export type VerificationOutcome = "verified" | "not_verified" | "inconclusive";
+
 export type SourceCategory =
   | "Education"
   | "Health"
@@ -79,6 +82,10 @@ export type EvidenceCard = {
   statusLabel?: string;
   confidence: number;
   confidenceBand?: ConfidenceBand;
+  /** 0–100 confidence in the verification outcome (support / refute / inconclusive) */
+  verificationConfidence?: number;
+  verificationConfidenceSummary?: string;
+  verificationOutcome?: VerificationOutcome;
   sources: string[];
   sourceReferences?: SourceReference[];
   summary: string;
@@ -164,6 +171,8 @@ export type ComposedEvidencePayload = {
   translations: EvidenceTranslations;
   urgentReview: boolean;
   riskLevel: RiskLevel;
+  verificationOutcome?: VerificationOutcome;
+  verificationOutcomeConfidence?: number;
 };
 
 export type AudioAnalysisResult = {

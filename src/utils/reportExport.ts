@@ -2,6 +2,19 @@ import type {
   AudioAnalysisResult,
   EvidenceCard as EvidenceCardType,
 } from "../types";
+import { resolveVerificationConfidence } from "./verificationConfidence";
+
+function formatVerificationConfidenceBlock(card: EvidenceCardType): string[] {
+  const verification = resolveVerificationConfidence(card);
+  return [
+    "── VERIFICATION RESULT ──",
+    verification.outcomeLabel,
+    verification.headline,
+    verification.evidenceStatement,
+    verification.summary,
+    "",
+  ];
+}
 
 function formatReportText(
   result: AudioAnalysisResult,
@@ -15,9 +28,9 @@ function formatReportText(
     "",
     `Report ID:     ${card.id}`,
     `Generated:     ${new Date(card.verifiedAt).toLocaleString()}`,
-    `Confidence:    ${card.confidenceBand ?? "see score"} (${Math.round(card.confidence * 100)}%)`,
     "",
-    "── CLAIM (NOT A VERDICT) ──",
+    ...formatVerificationConfidenceBlock(card),
+    "── EXTRACTED CLAIM ──",
     card.claim,
     "",
     "── SUMMARY ──",
@@ -72,6 +85,7 @@ function formatReportText(
 }
 
 export function formatWhatsAppEvidence(card: EvidenceCardType): string {
+  const verification = resolveVerificationConfidence(card);
   const sources =
     card.sourceReferences?.slice(0, 3).map((s) => `• ${s.title}: ${s.url}`).join("\n") ??
     card.sources.map((s) => `• ${s}`).join("\n");
@@ -81,6 +95,10 @@ export function formatWhatsAppEvidence(card: EvidenceCardType): string {
 
   const lines = [
     "🛡️ *NomaeTrust Action Card*",
+    "",
+    `*${verification.outcomeLabel}*`,
+    verification.headline,
+    verification.evidenceStatement,
     "",
     `*Claim:* ${card.claim}`,
     "",
@@ -101,7 +119,6 @@ export function formatWhatsAppEvidence(card: EvidenceCardType): string {
   }
 
   lines.push(
-    `*Confidence:* ${card.confidenceBand ?? "medium"} (${Math.round(card.confidence * 100)}%)`,
     card.recommendation ? `*Next step:* ${card.recommendation}` : "",
     "",
     "*Sources:*",
@@ -117,7 +134,7 @@ export function formatWhatsAppEvidence(card: EvidenceCardType): string {
     lines.push("", "*Español:*", card.translations.spanish);
   }
 
-  lines.push("", "_Not a true/false verdict — verify with official sources._");
+  lines.push("", "_Verify important claims with official sources before acting._");
   return lines.filter(Boolean).join("\n");
 }
 
@@ -166,7 +183,14 @@ export async function downloadPdfReport(
 
   addLine("NOMAETRUST EVIDENCE CARD", 16, "bold");
   addLine(`Report ID: ${card.id}`, 9);
-  addLine(`Confidence band: ${card.confidenceBand ?? "medium"}`, 10);
+
+  const verification = resolveVerificationConfidence(card);
+  addLine("VERIFICATION RESULT", 11, "bold");
+  addLine(verification.outcomeLabel, 12, "bold");
+  addLine(verification.headline, 10, "bold");
+  addLine(verification.evidenceStatement, 10);
+  addLine(verification.summary, 9);
+
   addLine("CLAIM", 11, "bold");
   addLine(card.claim, 10);
   addLine("SUMMARY", 11, "bold");
