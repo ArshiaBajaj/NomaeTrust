@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 const footerLinks = [
   { to: "/stress", label: "Action Cards" },
   { to: "/screenshot", label: "Screenshots" },
+  { to: "/context-lens", label: "ContextLens" },
   { to: "/call", label: "Trust Circle" },
   { to: "/trust-map", label: "Confusion Map" },
   { to: "/disclosure", label: "Disclosure" },

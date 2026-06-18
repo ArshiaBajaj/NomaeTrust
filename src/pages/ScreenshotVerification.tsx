@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { Link } from "react-router-dom";
 import LoadingSpinner from "../components/LoadingSpinner";
 import PageHeader from "../components/PageHeader";
 import PipelineSteps from "../components/PipelineSteps";
@@ -63,6 +64,19 @@ export default function ScreenshotVerification() {
       />
 
       <div className="mx-auto max-w-3xl px-6 pb-20 pt-10 lg:px-8">
+        <div className="card mb-8 border-accent/20 bg-accent/5 p-5">
+          <p className="text-xs font-bold uppercase tracking-wide text-accent">
+            ContextLens
+          </p>
+          <p className="mt-2 text-sm text-text-body">
+            See how an image&apos;s story changes over time — trace original context vs.
+            mutated narratives.
+          </p>
+          <Link to="/context-lens" className="btn-primary mt-4 inline-flex text-sm">
+            View ContextLens provenance demo
+          </Link>
+        </div>
+
         <div className="card mb-8 p-6">
           <PipelineSteps steps={steps} />
         </div>

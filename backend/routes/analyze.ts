@@ -9,6 +9,7 @@ import {
   shouldFallbackToDemoMode,
   toUserFacingOpenAIError,
 } from "../services/openaiClient.js";
+import { resolveClaimLocation } from "../services/claimGeolocation.js";
 import { analyzeRegionalIntelligence } from "../services/regionalIntelligence.js";
 import { extractTextFromImage } from "../services/vision.js";
 import { transcribeAudio } from "../services/whisper.js";
@@ -72,12 +73,14 @@ async function runAnalysisPipeline(
     source: sourceType,
     confidence,
     status: status === "verified" ? "verified" : "pending",
-    location: {
-      lat: 33.749,
-      lng: -84.388,
-      label: regionalIntelligence.locations.join(", ") || "Atlanta, GA",
-    },
+    location: resolveClaimLocation(
+      `${transcript} ${claim}`,
+      regionalIntelligence.locations,
+      claim,
+    ),
+    locationHints: regionalIntelligence.locations,
     urgentReview: evidence.urgentReview,
+    category: regionalIntelligence.claimCategory,
   });
 
   return {
