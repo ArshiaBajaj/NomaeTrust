@@ -1,64 +1,55 @@
 import type { VoicePassport } from "../types";
-import {
-  formatTrustWords,
-  getOrCreateFamilySecret,
-  getRotatingTrustWords,
-} from "../utils/trustCircle";
 
-const STORAGE_KEY = "nomae-voice-passports";
+function storageKey(familyId: string): string {
+  return `nomae-voice-passports-${familyId}`;
+}
 
-export function loadVoicePassports(): VoicePassport[] {
+export function loadVoicePassports(familyId: string): VoicePassport[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return getDefaultPassports();
+    const raw = localStorage.getItem(storageKey(familyId));
+    if (!raw) return [];
     const parsed = JSON.parse(raw) as VoicePassport[];
-    return parsed.length > 0 ? parsed : getDefaultPassports();
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
-    return getDefaultPassports();
+    return [];
   }
 }
 
-function getDefaultPassports(): VoicePassport[] {
-  const code = formatTrustWords(getRotatingTrustWords());
-  return [
-    {
-      contactName: "Cousin Amina",
-      voiceprintId: "vp-amina-001",
-      enrolledAt: "2025-11-14T10:00:00Z",
-      trustScore: 0.97,
-      challengeCode: code,
-    },
-    {
-      contactName: "Mom (Fatima)",
-      voiceprintId: "vp-fatima-001",
-      enrolledAt: "2025-11-14T10:05:00Z",
-      trustScore: 0.95,
-      challengeCode: code,
-    },
-  ];
+export function saveVoicePassports(
+  familyId: string,
+  passports: VoicePassport[],
+): void {
+  localStorage.setItem(storageKey(familyId), JSON.stringify(passports));
 }
 
-export function saveVoicePassports(passports: VoicePassport[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(passports));
-}
-
-export function enrollVoicePassport(contactName: string): VoicePassport {
-  const passports = loadVoicePassports();
+export function enrollVoicePassport(
+  familyId: string,
+  contactName: string,
+): VoicePassport {
+  const passports = loadVoicePassports(familyId);
   const passport: VoicePassport = {
     contactName,
     voiceprintId: `vp-${Date.now().toString(36)}`,
     enrolledAt: new Date().toISOString(),
     trustScore: 0.92,
-    challengeCode: formatTrustWords(getRotatingTrustWords()),
   };
-  saveVoicePassports([passport, ...passports]);
+  saveVoicePassports(familyId, [passport, ...passports]);
   return passport;
 }
 
-export function getFamilyChallengeCode(): string {
-  return formatTrustWords(getRotatingTrustWords());
-}
+export function seedPassportsFromMembers(
+  familyId: string,
+  memberNames: string[],
+): VoicePassport[] {
+  const existing = loadVoicePassports(familyId);
+  if (existing.length > 0) return existing;
 
-export function getFamilyPairingCode(): string {
-  return getOrCreateFamilySecret();
+  const seeded = memberNames.slice(0, 4).map((name, i) => ({
+    contactName: name,
+    voiceprintId: `vp-seed-${i}-${Date.now().toString(36)}`,
+    enrolledAt: new Date().toISOString(),
+    trustScore: 0.9 + i * 0.02,
+  }));
+  saveVoicePassports(familyId, seeded);
+  return seeded;
 }

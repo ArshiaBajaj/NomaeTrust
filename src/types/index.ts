@@ -4,7 +4,7 @@ export type VerificationStatus =
   | "disputed"
   | "pending";
 
-export type ClaimSource = "voice" | "screenshot" | "call" | "community";
+export type ClaimSource = "voice" | "screenshot" | "call" | "community" | "deepfake";
 
 export type RiskLevel = "low" | "medium" | "high";
 
@@ -73,6 +73,8 @@ export type Claim = {
   urgentReview?: boolean;
   provenanceBadge?: string;
   validatorId?: string;
+  category?: string;
+  validatedAt?: string;
 };
 
 export type EvidenceCard = {

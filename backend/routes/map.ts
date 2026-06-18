@@ -24,7 +24,7 @@ router.get("/map/validator-queue", (_req, res) => {
 router.post("/map/claims", (req, res) => {
   const { text, source, confidence, urgentReview } = req.body as {
     text?: string;
-    source?: "voice" | "screenshot" | "call" | "community";
+    source?: "voice" | "screenshot" | "call" | "community" | "deepfake";
     confidence?: number;
     urgentReview?: boolean;
   };

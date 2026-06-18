@@ -41,3 +41,56 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Confusion Map — per-rumor pins & clusters */
+.claim-pin-wrap,
+.cluster-pin-wrap {
+  background: transparent !important;
+  border: none !important;
+}
+
+.claim-pin {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 6px rgba(15, 23, 42, 0.35);
+}
+
+.claim-pin--selected {
+  width: 18px;
+  height: 18px;
+  border-width: 3px;
+  box-shadow: 0 0 0 3px rgba(43, 92, 230, 0.35);
+}
+
+.claim-pin--urgent {
+  animation: claim-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes claim-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(220, 38, 38, 0);
+  }
+}
+
+.cluster-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2b5ce6, #1d4ed8);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 10px rgba(43, 92, 230, 0.4);
+}
+
+.confusion-map-frame .leaflet-container {
+  font-family: var(--font-sans);
+}

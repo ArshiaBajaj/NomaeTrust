@@ -40,7 +40,17 @@ export default function Disclosure() {
           <ul className="card-body-text mt-3 list-inside list-disc space-y-2 text-sm">
             <li>Voice passports stored encrypted on-device (localStorage demo).</li>
             <li>Audio processed ephemerally — not persisted after analysis.</li>
-            <li>Confusion Map stores anonymized claim metadata only.</li>
+            <li>Confusion Map stores anonymized claim metadata at neighborhood level — one pin per rumor.</li>
+            <li>
+              Trust Circle uses demo session tokens (stored in localStorage) and
+              in-memory family data on the server — not production authentication.
+              Invite codes connect family members for hackathon demonstration only.
+            </li>
+            <li>
+              ContextLens runs real deepfake risk scans (GPT-4o vision) on uploaded images
+              and URLs. Scores ≥65% are tracked on the Confusion Map as synthetic media
+              alerts — not binary fake/true verdicts.
+            </li>
           </ul>
         </section>
 
