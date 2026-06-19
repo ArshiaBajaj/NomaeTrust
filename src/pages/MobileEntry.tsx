@@ -1,12 +1,10 @@
-import { Navigate } from "react-router-dom";
 import { useIsMobile } from "../hooks/useIsMobile";
 import Home from "./Home";
+import MobileHome from "./MobileHome";
 
-/** On mobile, land on Digital Detective first — feels like opening a game app. */
+/** Mobile lands on app home hub; desktop shows marketing page. */
 export default function MobileEntry() {
   const isMobile = useIsMobile();
-  if (isMobile) {
-    return <Navigate to="/detective" replace />;
-  }
+  if (isMobile) return <MobileHome />;
   return <Home />;
 }

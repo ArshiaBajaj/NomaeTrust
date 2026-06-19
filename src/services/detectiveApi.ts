@@ -16,6 +16,8 @@ type ChallengesResponse = {
 };
 
 /** Video deck from local public clips and/or backend API. Works without backend if clips exist. */
+const API_BASE = import.meta.env.VITE_API_URL ?? "";
+
 export async function fetchDetectiveChallenges(): Promise<{
   deck: DetectiveChallenge[];
   setup?: DetectiveSetup;
@@ -33,7 +35,7 @@ export async function fetchDetectiveChallenges(): Promise<{
   }
 
   try {
-    const res = await fetch("/api/detective/challenges");
+    const res = await fetch(`${API_BASE}/api/detective/challenges`);
     if (!res.ok) throw new Error("API unavailable");
     const data = (await res.json()) as ChallengesResponse;
     const apiVideos = (data.challenges ?? []).filter((c) => Boolean(c.videoUrl));

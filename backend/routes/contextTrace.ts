@@ -4,6 +4,36 @@ import {
   analyzeContextTrace,
   analyzeContextTraceFromUrl,
 } from "../services/contextTrace/analyzeContextTrace.js";
+import { addClaim } from "../store/mapStore.js";
+
+const MAP_VERDICT_LABELS = new Set(["Reused Media", "Misleading", "Out of Context"]);
+
+function maybeAddContextTraceClaim(
+  result: Awaited<ReturnType<typeof analyzeContextTrace>>,
+) {
+  if (!MAP_VERDICT_LABELS.has(result.verdict.label)) return result;
+
+  const claimText =
+    result.currentClaim.summary ||
+    result.currentClaim.title ||
+    result.imageDescription;
+
+  const mapClaim = addClaim({
+    text: claimText,
+    source: "context-trace",
+    confidence: result.verdict.confidence / 100,
+    analysisOutcome: "not_verified",
+    analysisConfidence: result.verdict.confidence / 100,
+    narrativeDriftScore: result.narrativeDriftScore,
+    category: "General",
+    urgentReview: result.narrativeDriftBand === "high",
+    locationHints: result.originalContext.source
+      ? [result.originalContext.source]
+      : [],
+  });
+
+  return { ...result, mapClaimId: mapClaim.id };
+}
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -50,7 +80,7 @@ router.post(
         req.file.originalname || "upload.jpg",
       );
 
-      res.json(result);
+      res.json(maybeAddContextTraceClaim(result));
     } catch (error) {
       console.error("[ContextTrace] analyze failed:", error);
       res.status(500).json({ error: "Context Trace analysis failed" });
@@ -67,7 +97,7 @@ router.post("/context-trace/analyze-url", async (req, res) => {
     }
 
     const result = await analyzeContextTraceFromUrl(url);
-    res.json(result);
+    res.json(maybeAddContextTraceClaim(result));
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Context Trace URL analysis failed";

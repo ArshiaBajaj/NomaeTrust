@@ -17,6 +17,7 @@ import { useIsMobile } from "../hooks/useIsMobile";
 import type { AnswerResult } from "../hooks/useDetectiveProgress";
 import { useDetectiveProgress } from "../hooks/useDetectiveProgress";
 import { fetchDetectiveChallenges } from "../services/detectiveApi";
+import { reportDetectiveCatch } from "../services/map";
 
 type GamePhase = "play" | "result";
 
@@ -134,6 +135,15 @@ export default function DetectiveMode() {
       }
 
       const swipeStamp = challenge.isManipulated ? "DEEPFAKE DETECTED" : "MARKED VERIFIED";
+
+      if (userSaidManipulated && challenge.isManipulated) {
+        void reportDetectiveCatch(
+          challenge.mediaLabel || challenge.artifactLabel,
+          challenge.artifactLabel,
+        ).catch(() => {
+          /* map sync is best-effort */
+        });
+      }
 
       window.setTimeout(() => {
         setSnapshot({

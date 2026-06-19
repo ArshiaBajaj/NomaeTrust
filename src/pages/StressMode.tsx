@@ -6,6 +6,7 @@ import PageHeader from "../components/PageHeader";
 import PipelineSteps from "../components/PipelineSteps";
 import UploadBox from "../components/UploadBox";
 import VerificationResult from "../components/VerificationResult";
+import { useIsMobile } from "../hooks/useIsMobile";
 import { analyzeAudio } from "../services/analyzeAudio";
 import type { AudioAnalysisResult, EvidenceCard, PipelineStep } from "../types";
 import { buildEvidenceCardFromAnalysis } from "../utils/evidenceCardBuilder";
@@ -39,6 +40,7 @@ function delay(ms: number) {
 }
 
 export default function StressMode() {
+  const isMobile = useIsMobile();
   const [steps, setSteps] = useState<PipelineStep[]>(initialSteps);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -106,16 +108,29 @@ export default function StressMode() {
   const showResult = card && result && !loading;
 
   return (
-    <div className="min-h-screen bg-bg">
-      <div className="mx-auto max-w-3xl px-6 pb-20 pt-10 lg:px-8">
-        <PageHeader
-          title={showResult ? "Your Action Card" : "Action Cards"}
-          description={
-            showResult
-              ? "Here's what we heard, what we found, and what to do next."
-              : "Forwarded a scary voice note? Upload it — we extract the claim, check trusted sources, and tell you what to do."
-          }
-        />
+    <div className={`min-h-screen ${isMobile ? "" : "bg-bg"}`}>
+      <div className={`mx-auto max-w-3xl ${isMobile ? "mobile-screen-pad" : "px-6 pb-20 pt-10 lg:px-8"}`}>
+        {isMobile ? (
+          <header className="mobile-screen-intro">
+            <h2 className="mobile-screen-title">
+              {showResult ? "Your Action Card" : "Action Cards"}
+            </h2>
+            <p className="mobile-screen-subtitle">
+              {showResult
+                ? "Here's what we heard, what we found, and what to do next."
+                : "Upload a forwarded voice note — we check trusted sources and tell you what to do."}
+            </p>
+          </header>
+        ) : (
+          <PageHeader
+            title={showResult ? "Your Action Card" : "Action Cards"}
+            description={
+              showResult
+                ? "Here's what we heard, what we found, and what to do next."
+                : "Forwarded a scary voice note? Upload it — we extract the claim, check trusted sources, and tell you what to do."
+            }
+          />
+        )}
 
         <div className="card mb-6 p-6">
           <PipelineSteps steps={steps} />

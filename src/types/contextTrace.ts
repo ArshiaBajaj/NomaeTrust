@@ -60,4 +60,5 @@ export type ContextTraceAnalysis = {
   verdict: ContextTraceVerdict;
   demoMode?: boolean;
   demoReason?: string;
+  mapClaimId?: string;
 };

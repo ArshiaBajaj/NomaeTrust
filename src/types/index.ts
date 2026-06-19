@@ -4,7 +4,15 @@ export type VerificationStatus =
   | "disputed"
   | "pending";
 
-export type ClaimSource = "voice" | "screenshot" | "call" | "community" | "deepfake";
+export type ClaimSource =
+  | "voice"
+  | "screenshot"
+  | "call"
+  | "community"
+  | "deepfake"
+  | "context-trace";
+
+export type AnalysisOutcome = "verified" | "not_verified" | "inconclusive";
 
 export type RiskLevel = "low" | "medium" | "high";
 
@@ -76,6 +84,22 @@ export type Claim = {
   validatorId?: string;
   category?: string;
   validatedAt?: string;
+  /** AI pipeline suggestion — distinct from community verification status */
+  analysisOutcome?: AnalysisOutcome;
+  analysisConfidence?: number;
+  sourceReferences?: SourceReference[];
+  primaryActionLabel?: string;
+  primaryActionUrl?: string;
+  narrativeDriftScore?: number;
+  artifactLabel?: string;
+  validatorNotes?: string;
+  escalated?: boolean;
+  auditTrail?: Array<{
+    at: string;
+    action: string;
+    validatorId?: string;
+    note?: string;
+  }>;
 };
 
 export type EvidenceCard = {
@@ -152,6 +176,24 @@ export type MapHotspot = {
   claimCount: number;
   verifiedCount: number;
   unverifiedCount: number;
+  geohash: string;
+  topCategories: string[];
+};
+
+export type OfficialFeedPin = {
+  id: string;
+  name: string;
+  category: string;
+  url: string;
+  lat: number;
+  lng: number;
+  label: string;
+  summary: string;
+};
+
+export type CategoryStat = {
+  category: string;
+  count: number;
 };
 
 export type PipelineStep = {
@@ -183,6 +225,7 @@ export type AudioAnalysisResult = {
   claim: string;
   confidence: number;
   status: string;
+  mapClaimId?: string;
   demoMode?: boolean;
   demoReason?: string;
   regionalIntelligence?: RegionalIntelligence;

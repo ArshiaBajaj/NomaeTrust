@@ -167,6 +167,88 @@ body {
   color: #16a34a;
 }
 
+.claim-popup-ai {
+  margin: 6px 0 0;
+  font-size: 10px;
+  font-weight: 600;
+  color: #6366f1;
+}
+
+.claim-popup-artifact {
+  margin: 4px 0 0;
+  font-size: 10px;
+  font-weight: 600;
+  color: #dc2626;
+}
+
+.claim-popup-sources {
+  margin: 8px 0 0;
+  padding-left: 16px;
+  font-size: 10px;
+}
+
+.claim-popup-sources a {
+  color: #2b5ce6;
+}
+
+.claim-popup-action {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #2b5ce6;
+  text-decoration: none;
+}
+
+.claim-popup-action--secondary {
+  margin-left: 8px;
+  color: #64748b;
+}
+
+.official-pin {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #2563eb;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.45);
+}
+
+.map-bottom-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+  z-index: 40;
+  max-height: 45vh;
+  overflow-y: auto;
+  border-radius: 16px 16px 0 0;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #fff;
+  box-shadow: 0 -8px 32px rgba(15, 23, 42, 0.12);
+}
+
+.map-bottom-sheet-handle {
+  width: 36px;
+  height: 4px;
+  margin: 8px auto 0;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.map-category-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(43, 92, 230, 0.15);
+  overflow: hidden;
+}
+
+.map-category-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: #2b5ce6;
+}
+
 /* Digital Detective — gamified swipe verification */
 .detective-shell {
   min-height: 100dvh;
@@ -952,10 +1034,26 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
-  max-width: 480px;
+  width: 100%;
+  max-width: 390px;
   margin: 0 auto;
   background: #070b14;
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
+  position: relative;
+}
+
+@media (min-width: 431px) {
+  .mobile-app-frame:not(.mobile-app-frame--immersive):not(.mobile-app-frame--splash) {
+    min-height: min(844px, 100dvh);
+    max-height: 100dvh;
+    margin-top: max(0px, calc((100dvh - 844px) / 2));
+    border-radius: 44px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 10px #1a1a1a,
+      0 0 0 12px #333,
+      0 24px 80px rgba(0, 0, 0, 0.55);
+  }
 }
 
 .mobile-app-content {
@@ -1056,6 +1154,11 @@ body {
 .mobile-tab-icon {
   font-size: 18px;
   line-height: 1;
+}
+
+.mobile-tab-svg {
+  width: 22px;
+  height: 22px;
 }
 
 .mobile-tab-label {

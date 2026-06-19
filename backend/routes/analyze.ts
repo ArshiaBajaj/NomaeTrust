@@ -68,11 +68,17 @@ async function runAnalysisPipeline(
 
   const bandToRisk = { low: "low", medium: "medium", high: "high" } as const;
 
-  addClaim({
+  const analysisOutcome =
+    evidence.verificationOutcome === "verified"
+      ? "verified"
+      : evidence.verificationOutcome === "not_verified"
+        ? "not_verified"
+        : "inconclusive";
+
+  const mapClaim = addClaim({
     text: claim,
     source: sourceType,
     confidence,
-    status: status === "verified" ? "verified" : "pending",
     location: resolveClaimLocation(
       `${transcript} ${claim}`,
       regionalIntelligence.locations,
@@ -81,6 +87,11 @@ async function runAnalysisPipeline(
     locationHints: regionalIntelligence.locations,
     urgentReview: evidence.urgentReview,
     category: regionalIntelligence.claimCategory,
+    analysisOutcome,
+    analysisConfidence: evidence.verificationOutcomeConfidence ?? confidence,
+    sourceReferences: evidence.sourceReferences,
+    primaryActionLabel: evidence.primaryActionLabel,
+    primaryActionUrl: evidence.primaryActionUrl,
   });
 
   return {
@@ -88,6 +99,7 @@ async function runAnalysisPipeline(
     claim,
     confidence,
     status,
+    mapClaimId: mapClaim.id,
     regionalIntelligence,
     evidenceCard: {
       summary: evidence.summary,
@@ -165,14 +177,16 @@ router.post(
         regionalIntelligence,
         demo.confidence,
       );
-      addClaim({
+      const mapClaim = addClaim({
         text: demo.claim,
         source: "voice",
         confidence: demo.confidence,
         urgentReview: true,
+        analysisOutcome: "inconclusive",
       });
       res.json({
         ...demo,
+        mapClaimId: mapClaim.id,
         demoReason,
         regionalIntelligence,
         evidenceCard: {

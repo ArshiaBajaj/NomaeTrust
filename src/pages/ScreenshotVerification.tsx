@@ -5,6 +5,7 @@ import PageHeader from "../components/PageHeader";
 import PipelineSteps from "../components/PipelineSteps";
 import UploadBox from "../components/UploadBox";
 import VerificationResult from "../components/VerificationResult";
+import { useIsMobile } from "../hooks/useIsMobile";
 import { analyzeImage } from "../services/analyzeImage";
 import type { EvidenceCard as EvidenceCardType, PipelineStep } from "../types";
 import { buildEvidenceCardFromAnalysis } from "../utils/evidenceCardBuilder";
@@ -18,6 +19,7 @@ const INITIAL_STEPS: PipelineStep[] = [
 ];
 
 export default function ScreenshotVerification() {
+  const isMobile = useIsMobile();
   const [steps, setSteps] = useState<PipelineStep[]>(INITIAL_STEPS);
   const [loading, setLoading] = useState(false);
   const [evidenceCard, setEvidenceCard] = useState<EvidenceCardType | null>(null);
@@ -55,14 +57,25 @@ export default function ScreenshotVerification() {
   }, []);
 
   return (
-    <div className="page-shell">
-      <PageHeader
-        title="Screenshot verification"
-        description="Upload a forwarded image or screenshot. We read the text, detect the claim, and generate an Action Card."
-      />
+    <div className={isMobile ? "" : "page-shell"}>
+      {!isMobile && (
+        <PageHeader
+          title="Screenshot verification"
+          description="Upload a forwarded image, take a photo with your camera, or drop a screenshot. We read the text, detect the claim, and generate an Action Card."
+        />
+      )}
 
-      <div className="mx-auto max-w-3xl px-6 pb-20 pt-10 lg:px-8">
-        <div className="card mb-8 border-accent/20 bg-accent/5 p-5">
+      <div className={`mx-auto max-w-3xl ${isMobile ? "mobile-screen-pad" : "px-6 pb-20 pt-10 lg:px-8"}`}>
+        {isMobile && (
+          <header className="mobile-screen-intro">
+            <h2 className="mobile-screen-title">Screenshots</h2>
+            <p className="mobile-screen-subtitle">
+              Snap or upload a forwarded image. We read the text and build an Action Card.
+            </p>
+          </header>
+        )}
+
+        <div className="mobile-card mb-6 border-accent/20 bg-accent/5 p-5">
           <p className="text-xs font-bold uppercase tracking-wide text-accent">
             Context Trace
           </p>
@@ -70,22 +83,23 @@ export default function ScreenshotVerification() {
             See how an image&apos;s story changes over time — trace original context vs.
             mutated narratives.
           </p>
-          <Link to="/call" className="btn-primary mt-4 inline-flex text-sm">
+          <Link to="/call" className="ios-btn ios-btn-primary ios-btn-sm mt-4 inline-flex">
             Try Context Trace
           </Link>
         </div>
 
-        <div className="card mb-8 p-6">
+        <div className="mobile-card mb-6 p-5">
           <PipelineSteps steps={steps} />
         </div>
 
         <UploadBox
           accept="image/*,.png,.jpg,.jpeg,.webp"
           label="Drop a screenshot or forwarded image"
-          description="PNG, JPG, WEBP supported"
+          description="PNG, JPG, WEBP — or tap Take photo to use your camera"
           icon="image"
           onFileSelect={handleFileSelect}
           disabled={loading}
+          enableCamera
         />
 
         {loading && <LoadingSpinner label="Processing image…" />}

@@ -9,6 +9,7 @@ import Disclosure from "./pages/Disclosure";
 import Home from "./pages/Home";
 import MobileEntry from "./pages/MobileEntry";
 import ScreenshotVerification from "./pages/ScreenshotVerification";
+import Settings from "./pages/Settings";
 import StressMode from "./pages/StressMode";
 import TrustMap from "./pages/TrustMap";
 import VoiceVerification from "./pages/VoiceVerification";
@@ -29,7 +30,7 @@ export default function App() {
             <Route path="/home" element={<Home />} />
             <Route
               path="/app"
-              element={<Navigate to={isMobile ? "/detective" : "/"} replace />}
+              element={<Navigate to={isMobile ? "/" : "/home"} replace />}
             />
             <Route path="/detective" element={<DetectiveMode />} />
             <Route path="/voice" element={<VoiceVerification />} />
@@ -39,6 +40,7 @@ export default function App() {
             <Route path="/context-trace" element={<ContextTrace />} />
             <Route path="/stress" element={<StressMode />} />
             <Route path="/trust-map" element={<TrustMap />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="/disclosure" element={<Disclosure />} />
           </Routes>
         </main>

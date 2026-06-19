@@ -188,6 +188,8 @@ export const mockMapHotspots: MapHotspot[] = [
     claimCount: 342,
     verifiedCount: 28,
     unverifiedCount: 314,
+    geohash: "1508:-4896",
+    topCategories: ["Public Health"],
   },
   {
     id: "hs-2",
@@ -198,6 +200,8 @@ export const mockMapHotspots: MapHotspot[] = [
     claimCount: 256,
     verifiedCount: 41,
     unverifiedCount: 215,
+    geohash: "1362:-4729",
+    topCategories: ["Transportation"],
   },
   {
     id: "hs-3",
@@ -208,6 +212,8 @@ export const mockMapHotspots: MapHotspot[] = [
     claimCount: 189,
     verifiedCount: 52,
     unverifiedCount: 137,
+    geohash: "1675:-3505",
+    topCategories: ["Schools"],
   },
   {
     id: "hs-4",
@@ -218,6 +224,8 @@ export const mockMapHotspots: MapHotspot[] = [
     claimCount: 278,
     verifiedCount: 63,
     unverifiedCount: 215,
+    geohash: "1630:-2960",
+    topCategories: ["Emergency Alerts"],
   },
   {
     id: "hs-5",
@@ -228,6 +236,8 @@ export const mockMapHotspots: MapHotspot[] = [
     claimCount: 134,
     verifiedCount: 38,
     unverifiedCount: 96,
+    geohash: "1190:-3814",
+    topCategories: ["General"],
   },
   {
     id: "hs-6",
@@ -238,6 +248,8 @@ export const mockMapHotspots: MapHotspot[] = [
     claimCount: 112,
     verifiedCount: 29,
     unverifiedCount: 83,
+    geohash: "1030:-3207",
+    topCategories: ["Public Health"],
   },
 ];
 

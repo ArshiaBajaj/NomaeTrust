@@ -1,4 +1,4 @@
-import { useEffect, useRef, type MutableRefObject } from "react";
+import { useEffect, useMemo, useRef, type MutableRefObject } from "react";
 import L from "leaflet";
 import {
   Circle,
@@ -6,7 +6,8 @@ import {
   TileLayer,
   useMap,
 } from "react-leaflet";
-import type { Claim, MapHotspot } from "../types";
+import type { Claim, MapHotspot, OfficialFeedPin } from "../types";
+import { actionCardUrlForClaim } from "../services/map";
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
@@ -15,10 +16,14 @@ import "leaflet.markercluster";
 type ConfusionMapProps = {
   claims: Claim[];
   hotspots?: MapHotspot[];
+  officialFeeds?: OfficialFeedPin[];
   selectedId?: string | null;
   onSelect?: (id: string) => void;
+  onHotspotClick?: (hotspot: MapHotspot) => void;
   showHeat?: boolean;
+  showOfficialFeeds?: boolean;
   fitBoundsKey?: string;
+  skipAutoFit?: boolean;
 };
 
 const STATUS_COLOR: Record<Claim["status"], string> = {
@@ -29,7 +34,7 @@ const STATUS_COLOR: Record<Claim["status"], string> = {
 };
 
 const STATUS_LABEL: Record<Claim["status"], string> = {
-  verified: "Verified",
+  verified: "Community verified",
   unverified: "Unverified",
   disputed: "Disputed",
   pending: "Pending review",
@@ -41,6 +46,13 @@ const SOURCE_LABEL: Record<Claim["source"], string> = {
   call: "Phone call",
   community: "Community report",
   deepfake: "Synthetic media",
+  "context-trace": "Context Trace",
+};
+
+const ANALYSIS_LABEL: Record<NonNullable<Claim["analysisOutcome"]>, string> = {
+  verified: "AI suggests supported",
+  not_verified: "AI suggests refuted",
+  inconclusive: "AI inconclusive",
 };
 
 function escapeHtml(value: string): string {
@@ -63,6 +75,15 @@ function claimIcon(claim: Claim, selected: boolean): L.DivIcon {
   });
 }
 
+function officialIcon(feed: OfficialFeedPin): L.DivIcon {
+  return L.divIcon({
+    className: "official-pin-wrap",
+    html: `<div class="official-pin" title="${escapeHtml(feed.name)}"></div>`,
+    iconSize: [14, 14],
+    iconAnchor: [7, 7],
+  });
+}
+
 function popupHtml(claim: Claim): string {
   const time = new Date(claim.extractedAt).toLocaleString();
   const conf = Math.round(claim.confidence * 100);
@@ -75,6 +96,27 @@ function popupHtml(claim: Claim): string {
   const urgent = claim.urgentReview
     ? `<span class="claim-popup-urgent">URGENT</span>`
     : "";
+  const analysis = claim.analysisOutcome
+    ? `<p class="claim-popup-ai">${ANALYSIS_LABEL[claim.analysisOutcome]}</p>`
+    : "";
+  const artifact = claim.artifactLabel
+    ? `<p class="claim-popup-artifact">${escapeHtml(claim.artifactLabel)}</p>`
+    : "";
+  const sources =
+    claim.sourceReferences && claim.sourceReferences.length > 0
+      ? `<ul class="claim-popup-sources">${claim.sourceReferences
+          .slice(0, 2)
+          .map(
+            (s) =>
+              `<li><a href="${escapeHtml(s.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(s.title)}</a></li>`,
+          )
+          .join("")}</ul>`
+      : "";
+  const actionCard = `<a class="claim-popup-action" href="${actionCardUrlForClaim(claim.id)}">View Action Card →</a>`;
+  const externalAction =
+    claim.primaryActionUrl && claim.primaryActionLabel
+      ? `<a class="claim-popup-action claim-popup-action--secondary" href="${escapeHtml(claim.primaryActionUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(claim.primaryActionLabel)}</a>`
+      : "";
 
   return `
     <div class="claim-popup">
@@ -88,7 +130,24 @@ function popupHtml(claim: Claim): string {
       </p>
       <p class="claim-popup-time">${time}</p>
       ${urgent}
+      ${analysis}
+      ${artifact}
+      ${sources}
+      ${actionCard}
+      ${externalAction}
       ${badge}
+    </div>
+  `;
+}
+
+function officialPopupHtml(feed: OfficialFeedPin): string {
+  return `
+    <div class="claim-popup claim-popup--official">
+      <p class="claim-popup-meta">Official source · ${escapeHtml(feed.category)}</p>
+      <p class="claim-popup-text">${escapeHtml(feed.name)}</p>
+      <p class="claim-popup-detail">${escapeHtml(feed.label)}</p>
+      <p class="claim-popup-time">${escapeHtml(feed.summary)}</p>
+      <a class="claim-popup-action" href="${escapeHtml(feed.url)}" target="_blank" rel="noopener noreferrer">Open official site →</a>
     </div>
   `;
 }
@@ -105,6 +164,11 @@ function ClaimClusterLayer({
   markersRef: MutableRefObject<Map<string, L.Marker>>;
 }) {
   const map = useMap();
+  const groupRef = useRef<L.MarkerClusterGroup | null>(null);
+  const claimsKey = useMemo(
+    () => claims.map((c) => `${c.id}:${c.status}:${c.urgentReview}`).join("|"),
+    [claims],
+  );
 
   useEffect(() => {
     markersRef.current.clear();
@@ -129,18 +193,47 @@ function ClaimClusterLayer({
       const marker = L.marker([claim.location.lat, claim.location.lng], {
         icon: claimIcon(claim, selectedId === claim.id),
       });
-      marker.bindPopup(popupHtml(claim), { maxWidth: 280 });
+      marker.bindPopup(popupHtml(claim), { maxWidth: 300 });
       marker.on("click", () => onSelect?.(claim.id));
       markersRef.current.set(claim.id, marker);
       group.addLayer(marker);
     }
 
+    groupRef.current = group;
     map.addLayer(group);
     return () => {
       map.removeLayer(group);
+      groupRef.current = null;
       markersRef.current.clear();
     };
-  }, [claims, selectedId, map, onSelect, markersRef]);
+  }, [claimsKey, map, onSelect, markersRef]);
+
+  useEffect(() => {
+    for (const claim of claims) {
+      const marker = markersRef.current.get(claim.id);
+      if (!marker) continue;
+      marker.setIcon(claimIcon(claim, selectedId === claim.id));
+    }
+  }, [selectedId, claims, markersRef]);
+
+  return null;
+}
+
+function OfficialFeedLayer({ feeds }: { feeds: OfficialFeedPin[] }) {
+  const map = useMap();
+
+  useEffect(() => {
+    const layer = L.layerGroup();
+    for (const feed of feeds) {
+      const marker = L.marker([feed.lat, feed.lng], { icon: officialIcon(feed) });
+      marker.bindPopup(officialPopupHtml(feed), { maxWidth: 280 });
+      layer.addLayer(marker);
+    }
+    map.addLayer(layer);
+    return () => {
+      map.removeLayer(layer);
+    };
+  }, [feeds, map]);
 
   return null;
 }
@@ -165,7 +258,7 @@ function SelectClaimHandler({
     }, 700);
 
     return () => window.clearTimeout(timer);
-  }, [claim, map, markersRef]);
+  }, [claim?.id, claim?.location, map, markersRef]);
 
   return null;
 }
@@ -173,13 +266,18 @@ function SelectClaimHandler({
 function FitBoundsToClaims({
   claims,
   fitBoundsKey,
+  skipAutoFit,
 }: {
   claims: Claim[];
   fitBoundsKey?: string;
+  skipAutoFit?: boolean;
 }) {
   const map = useMap();
+  const initialKey = useRef(fitBoundsKey);
 
   useEffect(() => {
+    if (skipAutoFit) return;
+
     const points = claims
       .filter((c) => c.location)
       .map((c) => [c.location!.lat, c.location!.lng] as [number, number]);
@@ -194,33 +292,45 @@ function FitBoundsToClaims({
       return;
     }
 
-    map.fitBounds(L.latLngBounds(points), { padding: [48, 48], maxZoom: 13 });
-  }, [claims, fitBoundsKey, map]);
+    if (fitBoundsKey !== initialKey.current) {
+      map.fitBounds(L.latLngBounds(points), { padding: [48, 48], maxZoom: 13 });
+      initialKey.current = fitBoundsKey;
+    }
+  }, [claims, fitBoundsKey, map, skipAutoFit]);
 
   return null;
 }
 
-function HotspotLayer({ hotspots }: { hotspots: MapHotspot[] }) {
-  return (
-    <>
-      {hotspots
-        .filter((h) => h.unverifiedCount > 0)
-        .map((hotspot) => (
-          <Circle
-            key={`hotspot-${hotspot.id}`}
-            center={[hotspot.lat, hotspot.lng]}
-            radius={600 + hotspot.unverifiedCount * 180}
-            pathOptions={{
-              color: hotspot.intensity > 0.6 ? "#dc2626" : "#f59e0b",
-              fillColor: hotspot.intensity > 0.6 ? "#dc2626" : "#f59e0b",
-              fillOpacity: 0.06 + hotspot.intensity * 0.08,
-              weight: 1.5,
-              opacity: 0.35,
-            }}
-          />
-        ))}
-    </>
-  );
+function HotspotLayer({
+  hotspots,
+  onHotspotClick,
+}: {
+  hotspots: MapHotspot[];
+  onHotspotClick?: (hotspot: MapHotspot) => void;
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    const circles: L.Circle[] = [];
+    for (const hotspot of hotspots.filter((h) => h.unverifiedCount > 0)) {
+      const circle = L.circle([hotspot.lat, hotspot.lng], {
+        radius: 600 + hotspot.unverifiedCount * 180,
+        color: hotspot.intensity > 0.6 ? "#dc2626" : "#f59e0b",
+        fillColor: hotspot.intensity > 0.6 ? "#dc2626" : "#f59e0b",
+        fillOpacity: 0.06 + hotspot.intensity * 0.08,
+        weight: 1.5,
+        opacity: 0.35,
+      });
+      circle.on("click", () => onHotspotClick?.(hotspot));
+      circle.addTo(map);
+      circles.push(circle);
+    }
+    return () => {
+      for (const circle of circles) map.removeLayer(circle);
+    };
+  }, [hotspots, map, onHotspotClick]);
+
+  return null;
 }
 
 function computeCenter(claims: Claim[]): { lat: number; lng: number } {
@@ -244,10 +354,14 @@ function computeCenter(claims: Claim[]): { lat: number; lng: number } {
 export default function ConfusionMap({
   claims,
   hotspots = [],
+  officialFeeds = [],
   selectedId,
   onSelect,
+  onHotspotClick,
   showHeat = true,
+  showOfficialFeeds = true,
   fitBoundsKey,
+  skipAutoFit = false,
 }: ConfusionMapProps) {
   const located = claims.filter((c) => c.location);
   const center = computeCenter(located);
@@ -275,7 +389,9 @@ export default function ConfusionMap({
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         />
 
-        {showHeat && hotspots.length > 0 && <HotspotLayer hotspots={hotspots} />}
+        {showHeat && hotspots.length > 0 && (
+          <HotspotLayer hotspots={hotspots} onHotspotClick={onHotspotClick} />
+        )}
 
         {showHeat &&
           located
@@ -295,7 +411,15 @@ export default function ConfusionMap({
               />
             ))}
 
-        <FitBoundsToClaims claims={located} fitBoundsKey={fitBoundsKey} />
+        {showOfficialFeeds && officialFeeds.length > 0 && (
+          <OfficialFeedLayer feeds={officialFeeds} />
+        )}
+
+        <FitBoundsToClaims
+          claims={located}
+          fitBoundsKey={fitBoundsKey}
+          skipAutoFit={skipAutoFit || Boolean(selectedId)}
+        />
         <ClaimClusterLayer
           claims={located}
           selectedId={selectedId}
@@ -308,13 +432,19 @@ export default function ConfusionMap({
   );
 }
 
-export function MapLegend({ showHotspots = true }: { showHotspots?: boolean }) {
+export function MapLegend({
+  showHotspots = true,
+  showOfficial = true,
+}: {
+  showHotspots?: boolean;
+  showOfficial?: boolean;
+}) {
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-text-muted">
       <span className="font-semibold uppercase tracking-wide text-text-body">Legend</span>
       {(
         [
-          ["verified", "Verified", "#16a34a"],
+          ["verified", "Community verified", "#16a34a"],
           ["pending", "Pending", "#2b5ce6"],
           ["unverified", "Unverified", "#dc2626"],
           ["disputed", "Disputed", "#f59e0b"],
@@ -335,14 +465,26 @@ export function MapLegend({ showHotspots = true }: { showHotspots?: boolean }) {
       {showHotspots && (
         <span className="inline-flex items-center gap-1.5">
           <span className="inline-block h-3 w-3 rounded-full border border-amber-500/40 bg-amber-500/15" />
-          Neighborhood confusion zone
+          Confusion zone (click to drill in)
+        </span>
+      )}
+      {showOfficial && (
+        <span className="inline-flex items-center gap-1.5">
+          <span className="official-pin inline-block h-2.5 w-2.5 rounded-full" />
+          Official feed
         </span>
       )}
     </div>
   );
 }
 
-export function ClaimMapDetail({ claim }: { claim: Claim }) {
+export function ClaimMapDetail({
+  claim,
+  compact = false,
+}: {
+  claim: Claim;
+  compact?: boolean;
+}) {
   return (
     <div className="border-t border-[rgba(0,0,0,0.06)] bg-surface-raised p-4">
       <p className="text-[10px] font-bold uppercase tracking-wide text-text-muted">
@@ -351,9 +493,15 @@ export function ClaimMapDetail({ claim }: { claim: Claim }) {
       <p className="mt-2 text-sm font-semibold leading-snug text-navy">{claim.text}</p>
       <dl className="mt-3 grid gap-1.5 text-xs text-text-muted">
         <div className="flex justify-between gap-2">
-          <dt>Status</dt>
+          <dt>Community status</dt>
           <dd className="capitalize text-text-body">{claim.status}</dd>
         </div>
+        {claim.analysisOutcome && (
+          <div className="flex justify-between gap-2">
+            <dt>AI analysis</dt>
+            <dd className="text-text-body">{ANALYSIS_LABEL[claim.analysisOutcome]}</dd>
+          </div>
+        )}
         <div className="flex justify-between gap-2">
           <dt>Source</dt>
           <dd className="capitalize text-text-body">{claim.source}</dd>
@@ -369,8 +517,42 @@ export function ClaimMapDetail({ claim }: { claim: Claim }) {
           <dd className="text-text-body">{Math.round(claim.confidence * 100)}%</dd>
         </div>
       </dl>
+      {claim.sourceReferences && claim.sourceReferences.length > 0 && !compact && (
+        <ul className="mt-3 space-y-1 text-xs">
+          {claim.sourceReferences.slice(0, 3).map((ref) => (
+            <li key={ref.url}>
+              <a
+                href={ref.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-accent hover:underline"
+              >
+                {ref.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="mt-3 flex flex-wrap gap-2">
+        <a href={actionCardUrlForClaim(claim.id)} className="btn-primary text-xs">
+          View Action Card
+        </a>
+        {claim.primaryActionUrl && claim.primaryActionLabel && (
+          <a
+            href={claim.primaryActionUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-secondary text-xs"
+          >
+            {claim.primaryActionLabel}
+          </a>
+        )}
+      </div>
       {claim.provenanceBadge && (
         <p className="mt-3 text-xs font-semibold text-success">✓ {claim.provenanceBadge}</p>
+      )}
+      {claim.validatorNotes && (
+        <p className="mt-2 text-xs text-text-muted">Validator note: {claim.validatorNotes}</p>
       )}
     </div>
   );
