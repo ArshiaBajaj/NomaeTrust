@@ -6,7 +6,7 @@ import {
   getOutcomeShieldClasses,
   getConfidenceTierLabel,
   resolveVerificationConfidence,
-  VERIFICATION_CONFIDENCE_EXPLANATION,
+  ASSESSMENT_CONFIDENCE_DISCLAIMER,
 } from "../utils/verificationConfidence";
 
 type VerificationConfidenceGaugeProps = {
@@ -67,10 +67,15 @@ export default function VerificationConfidenceGauge({
               ({getConfidenceTierLabel(verification.tier)})
             </span>
           </div>
-          <p className={`mt-3 text-base font-bold tracking-tight sm:text-lg ${accent}`}>
+          <p className={`mt-3 text-base font-bold leading-snug tracking-tight sm:text-lg ${accent}`}>
             {verification.headline}
           </p>
-          <p className={`mt-2 text-sm font-semibold ${isDark ? "text-slate-100" : "text-navy"}`}>
+          <p
+            className={`mt-2 text-xs leading-relaxed ${isDark ? "text-slate-400" : "text-text-muted"}`}
+          >
+            {ASSESSMENT_CONFIDENCE_DISCLAIMER}
+          </p>
+          <p className={`mt-2 text-sm font-medium ${isDark ? "text-slate-100" : "text-navy"}`}>
             {verification.evidenceStatement}
           </p>
           <p className={`mt-2 text-sm leading-relaxed ${isDark ? "text-slate-300" : "text-text-body"}`}>
@@ -91,7 +96,7 @@ export default function VerificationConfidenceGauge({
             <span>100%</span>
           </div>
           <p className={`text-[10px] leading-relaxed ${isDark ? "text-slate-400" : "text-text-muted"}`}>
-            {VERIFICATION_CONFIDENCE_EXPLANATION}
+            Confidence in verification assessment
           </p>
         </div>
       </div>
@@ -115,4 +120,4 @@ export function ConfidenceShieldIcon({
   );
 }
 
-export { getConfidenceTierLabel, VERIFICATION_CONFIDENCE_EXPLANATION };
+export { getConfidenceTierLabel, ASSESSMENT_CONFIDENCE_DISCLAIMER };

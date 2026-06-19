@@ -17,10 +17,10 @@ const features = [
     to: "/screenshot",
   },
   {
-    type: "call" as const,
-    label: "Family Trust Circle.",
+    type: "trace" as const,
+    label: "Context Trace.",
     description:
-      "Rotating family verify codes, voice passports, and deepfake risk on suspicious calls.",
+      "Trace reused images across time — detect when old photos support false modern claims.",
     to: "/call",
   },
   {

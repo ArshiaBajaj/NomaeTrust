@@ -1,5 +1,11 @@
 import { Link } from "react-router-dom";
 import type { EvidenceCard } from "../types";
+import {
+  ASSESSMENT_CONFIDENCE_DISCLAIMER,
+  getOutcomeAccentText,
+  getOutcomeBadgeClasses,
+  resolveVerificationConfidence,
+} from "../utils/verificationConfidence";
 
 type ActionCardPanelProps = {
   card: EvidenceCard;
@@ -13,6 +19,8 @@ export default function ActionCardPanel({
   const isDark = variant === "dark";
   const steps = card.actionSteps ?? [];
   const avoid = card.doNotDo ?? [];
+  const verification = resolveVerificationConfidence(card);
+  const accent = getOutcomeAccentText(verification.outcome, variant);
 
   if (steps.length === 0 && !card.plainLanguageSummary) return null;
 
@@ -27,6 +35,28 @@ export default function ActionCardPanel({
       >
         Action Card — What to do now
       </p>
+
+      <div
+        className={`mt-4 rounded-lg border px-4 py-3 ${
+          isDark
+            ? "border-slate-700/60 bg-slate-900/40"
+            : "border-[rgba(0,0,0,0.06)] bg-surface"
+        }`}
+      >
+        <div className="flex flex-wrap items-center gap-2">
+          <span className={getOutcomeBadgeClasses(verification.outcome, variant)}>
+            {verification.outcomeLabel}
+          </span>
+        </div>
+        <p className={`mt-2 text-sm font-semibold leading-relaxed ${accent}`}>
+          {verification.headline}
+        </p>
+        <p
+          className={`mt-2 text-xs leading-relaxed ${isDark ? "text-slate-400" : "text-text-muted"}`}
+        >
+          {ASSESSMENT_CONFIDENCE_DISCLAIMER}
+        </p>
+      </div>
 
       {card.valuesBridge && (
         <p className={`mt-3 text-sm italic ${isDark ? "text-slate-300" : "text-text-body"}`}>

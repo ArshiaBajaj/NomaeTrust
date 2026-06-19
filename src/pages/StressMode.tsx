@@ -170,7 +170,7 @@ export default function StressMode() {
               to="/call"
               className="btn-secondary block w-full py-4 text-center text-sm font-semibold"
             >
-              Suspicious phone call instead?
+              Reused image out of context?
             </Link>
           </div>
         )}

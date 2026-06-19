@@ -66,14 +66,14 @@ export default function ScreenshotVerification() {
       <div className="mx-auto max-w-3xl px-6 pb-20 pt-10 lg:px-8">
         <div className="card mb-8 border-accent/20 bg-accent/5 p-5">
           <p className="text-xs font-bold uppercase tracking-wide text-accent">
-            ContextLens
+            Context Trace
           </p>
           <p className="mt-2 text-sm text-text-body">
             See how an image&apos;s story changes over time — trace original context vs.
             mutated narratives.
           </p>
-          <Link to="/context-lens" className="btn-primary mt-4 inline-flex text-sm">
-            View ContextLens provenance demo
+          <Link to="/call" className="btn-primary mt-4 inline-flex text-sm">
+            Try Context Trace
           </Link>
         </div>
 

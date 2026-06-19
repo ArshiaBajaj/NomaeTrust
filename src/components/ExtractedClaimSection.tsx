@@ -2,7 +2,7 @@ import type { EvidenceCard } from "../types";
 import {
   ConfidenceShieldIcon,
   getConfidenceTierLabel,
-  VERIFICATION_CONFIDENCE_EXPLANATION,
+  ASSESSMENT_CONFIDENCE_DISCLAIMER,
 } from "./VerificationConfidenceGauge";
 import {
   getConfidenceBadgeClasses,
@@ -46,7 +46,7 @@ export default function ExtractedClaimSection({
             <span
               className={`text-xs font-semibold ${isDark ? "text-slate-300" : "text-text-body"}`}
             >
-              Verification Confidence:
+              Confidence in assessment:
             </span>
             <span className={getConfidenceBadgeClasses(verification.tier, variant)}>
               {verification.score}%
@@ -80,12 +80,16 @@ export default function ExtractedClaimSection({
       >
         <ConfidenceShieldIcon outcome={verification.outcome} variant={variant} />
         <div>
-          <p className={`text-xs leading-relaxed ${isDark ? "text-slate-400" : "text-text-muted"}`}>
-            {VERIFICATION_CONFIDENCE_EXPLANATION}
+          <p className={`text-sm font-semibold leading-relaxed ${accent}`}>
+            {verification.headline}
           </p>
-          <p className={`mt-1 text-sm font-semibold ${accent}`}>{verification.headline}</p>
           <p
-            className={`mt-1 text-sm font-medium ${isDark ? "text-slate-100" : "text-navy"}`}
+            className={`mt-2 text-xs leading-relaxed ${isDark ? "text-slate-400" : "text-text-muted"}`}
+          >
+            {ASSESSMENT_CONFIDENCE_DISCLAIMER}
+          </p>
+          <p
+            className={`mt-2 text-sm font-medium ${isDark ? "text-slate-100" : "text-navy"}`}
           >
             {verification.evidenceStatement}
           </p>

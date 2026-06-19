@@ -47,9 +47,8 @@ export default function Disclosure() {
               Invite codes connect family members for hackathon demonstration only.
             </li>
             <li>
-              ContextLens runs real deepfake risk scans (GPT-4o vision) on uploaded images
-              and URLs. Scores ≥65% are tracked on the Confusion Map as synthetic media
-              alerts — not binary fake/true verdicts.
+              Context Trace runs GPT-4o vision analysis on uploaded images to compare
+              original context vs. viral narratives — not binary fake/true verdicts.
             </li>
           </ul>
         </section>

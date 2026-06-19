@@ -3,7 +3,7 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 const navLinks = [
   { to: "/stress", label: "Action Cards" },
   { to: "/screenshot", label: "Screenshots" },
-  { to: "/call", label: "Trust Circle" },
+  { to: "/call", label: "Context Trace" },
   { to: "/trust-map", label: "Confusion Map" },
 ];
 

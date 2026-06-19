@@ -48,8 +48,11 @@ const SUPPORT_PATTERNS = [
   /emergency alert/,
 ];
 
-export const VERIFICATION_CONFIDENCE_EXPLANATION =
-  "Confidence reflects how strongly trusted sources support this verification outcome.";
+export const ASSESSMENT_CONFIDENCE_DISCLAIMER =
+  "This confidence score reflects confidence in the verification outcome, not the likelihood that the original claim is true.";
+
+/** @deprecated Use ASSESSMENT_CONFIDENCE_DISCLAIMER */
+export const VERIFICATION_CONFIDENCE_EXPLANATION = ASSESSMENT_CONFIDENCE_DISCLAIMER;
 
 export type ConfidenceTier = "high" | "medium" | "low";
 
@@ -92,28 +95,35 @@ export function getConfidenceTierLabel(tier: ConfidenceTier): string {
   }
 }
 
-export function getOutcomeHeadline(
+export function getAssessmentConfidenceStatement(
   score: number,
   outcome: VerificationOutcome,
 ): string {
   switch (outcome) {
     case "verified":
-      return `${score}% confidence trusted sources support this claim`;
+      return `We are ${score}% confident that this claim is true based on the sources reviewed.`;
     case "not_verified":
-      return `${score}% confidence trusted sources do not support this claim`;
+      return `We are ${score}% confident that this claim is false based on the sources reviewed.`;
     case "inconclusive":
-      return `${score}% confidence`;
+      return `We are ${score}% confident that the available evidence is insufficient to verify this claim.`;
   }
+}
+
+export function getOutcomeHeadline(
+  score: number,
+  outcome: VerificationOutcome,
+): string {
+  return getAssessmentConfidenceStatement(score, outcome);
 }
 
 export function getOutcomeEvidenceStatement(outcome: VerificationOutcome): string {
   switch (outcome) {
     case "verified":
-      return "Evidence from trusted sources is consistent with the statement.";
+      return "Based on the sources reviewed, trusted sources align with this claim.";
     case "not_verified":
-      return "Evidence from trusted sources contradicts the statement.";
+      return "Based on the sources reviewed, trusted sources contradict this claim.";
     case "inconclusive":
-      return "Sources provide conflicting information.";
+      return "Based on the sources reviewed, available evidence does not clearly support or refute this claim.";
   }
 }
 
@@ -463,7 +473,7 @@ export function calculateVerificationConfidence(
     evidenceStatement: getOutcomeEvidenceStatement(outcome),
     summary,
     tier,
-    explanation: VERIFICATION_CONFIDENCE_EXPLANATION,
+    explanation: ASSESSMENT_CONFIDENCE_DISCLAIMER,
   };
 }
 

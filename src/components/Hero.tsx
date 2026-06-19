@@ -42,8 +42,8 @@ export default function Hero() {
         <p className="mx-auto mt-6 max-w-[640px] text-center text-base font-light leading-relaxed text-black/85 sm:text-lg">
           At 2 a.m., Fatima gets a frantic WhatsApp voice note: &ldquo;The food bank
           closed — don&apos;t go.&rdquo; NomaeTrust turns rumors into Action Cards with
-          plain-language next steps, multilingual sharing, and a Family Trust Circle
-          for suspicious calls.
+          plain-language next steps, multilingual sharing, and Context Trace for
+          reused images taken out of context.
         </p>
 
         <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row">
@@ -51,7 +51,7 @@ export default function Hero() {
             Try Action Cards
           </Link>
           <Link to="/call" className="btn-secondary w-full sm:w-auto">
-            Verify a call
+            Trace image context
           </Link>
         </div>
       </div>

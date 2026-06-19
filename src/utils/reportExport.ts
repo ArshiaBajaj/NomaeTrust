@@ -2,7 +2,7 @@ import type {
   AudioAnalysisResult,
   EvidenceCard as EvidenceCardType,
 } from "../types";
-import { resolveVerificationConfidence } from "./verificationConfidence";
+import { resolveVerificationConfidence, ASSESSMENT_CONFIDENCE_DISCLAIMER } from "./verificationConfidence";
 
 function formatVerificationConfidenceBlock(card: EvidenceCardType): string[] {
   const verification = resolveVerificationConfidence(card);
@@ -10,6 +10,7 @@ function formatVerificationConfidenceBlock(card: EvidenceCardType): string[] {
     "── VERIFICATION RESULT ──",
     verification.outcomeLabel,
     verification.headline,
+    ASSESSMENT_CONFIDENCE_DISCLAIMER,
     verification.evidenceStatement,
     verification.summary,
     "",
@@ -98,6 +99,7 @@ export function formatWhatsAppEvidence(card: EvidenceCardType): string {
     "",
     `*${verification.outcomeLabel}*`,
     verification.headline,
+    ASSESSMENT_CONFIDENCE_DISCLAIMER,
     verification.evidenceStatement,
     "",
     `*Claim:* ${card.claim}`,
@@ -188,6 +190,7 @@ export async function downloadPdfReport(
   addLine("VERIFICATION RESULT", 11, "bold");
   addLine(verification.outcomeLabel, 12, "bold");
   addLine(verification.headline, 10, "bold");
+  addLine(ASSESSMENT_CONFIDENCE_DISCLAIMER, 9);
   addLine(verification.evidenceStatement, 10);
   addLine(verification.summary, 9);
 

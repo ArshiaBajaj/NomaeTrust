@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-type FeatureType = "action" | "screenshot" | "call" | "map";
+type FeatureType = "action" | "screenshot" | "trace" | "map";
 
 type FeaturePreviewCardProps = {
   type: FeatureType;
@@ -81,32 +81,31 @@ function ScreenshotMockup() {
   );
 }
 
-function CallMockup() {
+function ContextTraceMockup() {
   return (
-    <div className="flex h-full flex-col rounded-xl bg-white p-4 shadow-sm">
+    <div className="flex h-full flex-col rounded-xl bg-slate-900 p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between">
         <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-          Incoming call
+          Context Trace
         </span>
-        <span className="rounded-full bg-red-100 px-2 py-0.5 text-[9px] font-semibold text-red-600">
-          Live
+        <span className="rounded-full bg-red-500/20 px-2 py-0.5 text-[9px] font-semibold text-red-400">
+          90% drift
         </span>
       </div>
-      <div className="flex flex-1 flex-col items-center justify-center rounded-lg bg-[#EEF2F8] p-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/15 text-accent">
-          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 19.5a7.5 7.5 0 0115 0" />
-          </svg>
+      <div className="relative flex-1 rounded-lg border border-slate-700 bg-slate-950 p-3">
+        <div className="flex justify-between text-[8px] font-bold uppercase">
+          <span className="text-emerald-400">The Truth</span>
+          <span className="text-red-400">The Rumor</span>
         </div>
-        <p className="mt-2 text-xs font-semibold text-slate-700">Unknown caller</p>
-        <div className="mt-3 flex w-full items-center justify-between rounded-lg bg-white px-3 py-2 shadow-sm">
-          <span className="text-[9px] text-slate-500">Deepfake risk</span>
-          <span className="text-[9px] font-bold text-red-500">78%</span>
+        <div className="mt-3 h-1 rounded-full bg-gradient-to-r from-emerald-500/50 via-amber-500/40 to-red-500/50" />
+        <div className="mt-3 grid grid-cols-3 gap-1">
+          <div className="rounded bg-emerald-500/10 p-1.5 text-[7px] text-emerald-300">2015</div>
+          <div className="rounded bg-amber-500/10 p-1.5 text-[7px] text-amber-300">2019</div>
+          <div className="rounded bg-red-500/10 p-1.5 text-[7px] text-red-300">2026</div>
         </div>
-        <div className="mt-2 flex items-center gap-1.5">
-          <CheckmarkBadge className="h-3 w-3 [&_svg]:h-1.5 [&_svg]:w-1.5" />
-          <span className="text-[9px] font-semibold text-slate-600">No passport match</span>
-        </div>
+        <p className="mt-3 text-[8px] leading-relaxed text-slate-400">
+          Chennai flood photo reused as Atlanta water scare.
+        </p>
       </div>
     </div>
   );
@@ -150,7 +149,7 @@ function MapMockup() {
 const mockups: Record<FeatureType, () => React.ReactNode> = {
   action: ActionCardMockup,
   screenshot: ScreenshotMockup,
-  call: CallMockup,
+  trace: ContextTraceMockup,
   map: MapMockup,
 };
 

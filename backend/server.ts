@@ -4,7 +4,7 @@ import express from "express";
 import analyzeRouter from "./routes/analyze.js";
 import callRouter from "./routes/call.js";
 import mapRouter from "./routes/map.js";
-import contextLensRouter from "./routes/contextLens.js";
+import contextTraceRouter from "./routes/contextTrace.js";
 import trustCircleRouter from "./routes/trustCircle.js";
 
 dotenv.config();
@@ -33,7 +33,7 @@ app.get("/api/health", (_req, res) => {
 app.use("/api", analyzeRouter);
 app.use("/api", callRouter);
 app.use("/api", mapRouter);
-app.use("/api", contextLensRouter);
+app.use("/api", contextTraceRouter);
 app.use("/api", trustCircleRouter);
 
 app.use(
