@@ -1,5 +1,6 @@
 import {
   CATEGORY_RULES,
+  HIGH_VALUE_SOURCE_IDS,
   LOCATION_PATTERNS,
   TRUSTED_SOURCES,
   type ClaimCategory,
@@ -52,6 +53,11 @@ function scoreSource(
       score += loc === "Atlanta" || loc.includes("County") ? 5 : 3;
     }
   }
+
+  if (source.highValue || HIGH_VALUE_SOURCE_IDS.has(source.id)) {
+    score += 8;
+  }
+
   return score;
 }
 
@@ -68,7 +74,7 @@ function recommendSources(
     .map((source) => ({ source, score: scoreSource(source, locations, claimCategory) }))
     .filter(({ score }) => score > 0)
     .sort((a, b) => b.score - a.score)
-    .slice(0, 4)
+    .slice(0, 6)
     .map(({ source }) => source);
 }
 

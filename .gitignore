@@ -6,3 +6,5 @@ dist
 backend/.env
 backend/dist
 backend/node_modules
+public/assets/detective/clips/*.mp4
+public/assets/detective/thumbs/*.jpg

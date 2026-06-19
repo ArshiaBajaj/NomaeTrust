@@ -1,3 +1,15 @@
+/**
+ * Trusted official sources for RAG verification and regional intelligence.
+ * Built from the Georgia government websites knowledge base:
+ * https://docs.google.com/document/d/16gwFqc6S-zfMo0oYHyeJLT4aXrhqoSoI_yfVtkdXfX0/edit
+ */
+import {
+  GOVERNMENT_KNOWLEDGE_DOC_URL,
+  GOVERNMENT_WEBSITES,
+} from "./governmentWebsites.js";
+
+export { GOVERNMENT_KNOWLEDGE_DOC_URL };
+
 export type SourceCategory =
   | "Education"
   | "Health"
@@ -22,104 +34,40 @@ export type TrustedSource = {
   locations: string[];
   url: string;
   description: string;
+  highValue?: boolean;
 };
 
-export const TRUSTED_SOURCES: TrustedSource[] = [
-  {
-    id: "atlanta-public-schools",
-    name: "Atlanta Public Schools",
-    category: "Education",
-    claimCategories: ["Schools"],
-    locations: ["Atlanta", "Fulton County", "Georgia"],
-    url: "https://www.atlantapublicschools.us",
-    description: "Official closures, schedules, and district announcements.",
-  },
-  {
-    id: "fulton-county-schools",
-    name: "Fulton County Schools",
-    category: "Education",
-    claimCategories: ["Schools"],
-    locations: ["Fulton County", "Atlanta", "Georgia"],
-    url: "https://www.fcschools.org",
-    description: "County-wide school district alerts and calendar updates.",
-  },
-  {
-    id: "dph-georgia",
-    name: "Georgia Department of Public Health",
-    category: "Health",
-    claimCategories: ["Public Health", "Emergency Alerts"],
-    locations: ["Georgia", "Atlanta", "Fulton County"],
-    url: "https://dph.georgia.gov",
-    description: "State health alerts, outbreak notices, and vaccination info.",
-  },
-  {
-    id: "acfb",
-    name: "Atlanta Community Food Bank",
-    category: "Community Services",
-    claimCategories: ["Food Banks"],
-    locations: ["Atlanta", "Fulton County", "Georgia"],
-    url: "https://www.acfb.org",
-    description: "Official food bank hours, closures, and distribution schedules.",
-  },
-  {
-    id: "city-of-atlanta",
-    name: "City of Atlanta Official Website",
-    category: "Government",
-    claimCategories: ["General", "Emergency Alerts"],
-    locations: ["Atlanta", "Georgia"],
-    url: "https://www.atlantaga.gov",
-    description: "Official city announcements, ordinances, and civic updates.",
-  },
-  {
-    id: "fulton-county-gov",
-    name: "Fulton County Government",
-    category: "Government",
-    claimCategories: ["General", "Emergency Alerts"],
-    locations: ["Fulton County", "Atlanta", "Georgia"],
-    url: "https://www.fultoncountyga.gov",
-    description: "County government services, closures, and public notices.",
-  },
-  {
-    id: "gema",
-    name: "Georgia Emergency Management Agency",
-    category: "Public Safety",
-    claimCategories: ["Emergency Alerts"],
-    locations: ["Georgia", "Atlanta", "Fulton County"],
-    url: "https://gema.georgia.gov",
-    description: "Statewide emergency alerts, weather, and disaster response.",
-  },
-  {
-    id: "marta",
-    name: "MARTA",
-    category: "Transportation",
-    claimCategories: ["Transportation"],
-    locations: ["Atlanta", "Fulton County", "Georgia"],
-    url: "https://www.itsmarta.com",
-    description: "Official transit schedules, delays, and service disruptions.",
-  },
-  {
-    id: "united-way-atlanta",
-    name: "United Way of Greater Atlanta",
-    category: "Community Services",
-    claimCategories: ["Food Banks", "General"],
-    locations: ["Atlanta", "Fulton County", "Georgia"],
-    url: "https://www.unitedwayatlanta.org",
-    description: "Community resource referrals and verified assistance programs.",
-  },
-  {
-    id: "grady-health",
-    name: "Grady Health System",
-    category: "Health",
-    claimCategories: ["Public Health", "Emergency Alerts"],
-    locations: ["Atlanta", "Fulton County", "Georgia"],
-    url: "https://www.gradyhealth.org",
-    description: "Atlanta public hospital — emergency and health updates.",
-  },
-];
+export const TRUSTED_SOURCES: TrustedSource[] = GOVERNMENT_WEBSITES.map(
+  ({ id, name, category, claimCategories, locations, url, description, highValue }) => ({
+    id,
+    name,
+    category,
+    claimCategories,
+    locations,
+    url,
+    description,
+    highValue,
+  }),
+);
+
+export const HIGH_VALUE_SOURCE_IDS = new Set(
+  TRUSTED_SOURCES.filter((s) => s.highValue).map((s) => s.id),
+);
 
 export const LOCATION_PATTERNS: { name: string; pattern: RegExp }[] = [
   { name: "Fulton County", pattern: /\bfulton county\b/i },
-  { name: "Atlanta", pattern: /\batlanta\b/i },
+  { name: "DeKalb County", pattern: /\bdekalb county\b|\bdekalb\b/i },
+  { name: "Gwinnett County", pattern: /\bgwinnett county\b|\bgwinnett\b/i },
+  { name: "Cobb County", pattern: /\bcobb county\b|\bcobb\b/i },
+  { name: "Forsyth County", pattern: /\bforsyth county\b|\bforsyth\b/i },
+  { name: "Clayton County", pattern: /\bclayton county\b|\bclayton\b/i },
+  { name: "Cherokee County", pattern: /\bcherokee county\b/i },
+  { name: "Hall County", pattern: /\bhall county\b/i },
+  { name: "Atlanta", pattern: /\batlanta\b|\bATL\b/ },
+  { name: "Decatur", pattern: /\bdecatur\b/i },
+  { name: "Marietta", pattern: /\bmarietta\b/i },
+  { name: "Sandy Springs", pattern: /\bsandy springs\b/i },
+  { name: "Roswell", pattern: /\broswell\b/i },
   { name: "Georgia", pattern: /\bgeorgia\b|\b(?:^|\s)GA(?:\s|$|[.,])/i },
 ];
 
@@ -136,12 +84,21 @@ export const CATEGORY_RULES: {
       /\bfood pantry\b/i,
       /\bfood assistance\b/i,
       /\bfood distribution\b/i,
+      /\bhunger\b/i,
+      /\bSNAP\b/i,
     ],
   },
   {
     claimCategory: "Schools",
     sourceCategory: "Education",
-    keywords: [/\bschool\b/i, /\bstudent/i, /\bdistrict\b/i, /\bclass(es)?\b/i],
+    keywords: [
+      /\bschool\b/i,
+      /\bstudent/i,
+      /\bdistrict\b/i,
+      /\bclass(es)?\b/i,
+      /\buniversity\b/i,
+      /\bcampus\b/i,
+    ],
   },
   {
     claimCategory: "Public Health",
@@ -150,15 +107,31 @@ export const CATEGORY_RULES: {
       /\bhealth department\b/i,
       /\bpublic health\b/i,
       /\boutbreak\b/i,
+      /\bvaccin/i,
       /\bcontamin/i,
       /\bwater supply\b/i,
+      /\bboil water\b/i,
+      /\bvirus\b/i,
+      /\bdisease\b/i,
       /\bhospital\b/i,
+      /\bmedicaid\b/i,
     ],
   },
   {
     claimCategory: "Transportation",
     sourceCategory: "Transportation",
-    keywords: [/\btraffic\b/i, /\btransit\b/i, /\bmarta\b/i, /\bairport\b/i],
+    keywords: [
+      /\btraffic\b/i,
+      /\btransit\b/i,
+      /\bmarta\b/i,
+      /\bhighway\b/i,
+      /\broad closure\b/i,
+      /\bairport\b/i,
+      /\bflight\b/i,
+      /\bbus\b/i,
+      /\btrain\b/i,
+      /\bcobblinc\b/i,
+    ],
   },
   {
     claimCategory: "Emergency Alerts",
@@ -167,8 +140,28 @@ export const CATEGORY_RULES: {
       /\bemergency\b/i,
       /\balert\b/i,
       /\bcurfew\b/i,
+      /\bevacuat/i,
       /\bwarning\b/i,
+      /\bdisaster\b/i,
+      /\btornado\b/i,
+      /\bflood\b/i,
       /\blockdown\b/i,
+      /\bgema\b/i,
+    ],
+  },
+  {
+    claimCategory: "General",
+    sourceCategory: "Community Services",
+    keywords: [
+      /\b211\b/i,
+      /\bhomeless\b/i,
+      /\bshelter\b/i,
+      /\bhousing\b/i,
+      /\brent assist/i,
+      /\butility assist/i,
+      /\blibrary\b/i,
+      /\bpark\b/i,
+      /\brecreation center\b/i,
     ],
   },
 ];

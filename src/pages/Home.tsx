@@ -24,6 +24,13 @@ const features = [
     to: "/call",
   },
   {
+    type: "detective" as const,
+    label: "Digital Detective.",
+    description:
+      "Swipe through mystery clips — spot deepfakes, earn XP, and train your media forensics instincts.",
+    to: "/detective",
+  },
+  {
     type: "map" as const,
     label: "Community Confusion Map.",
     description:
@@ -40,7 +47,7 @@ export default function Home() {
         <div className="mx-auto max-w-[1200px]">
           <div className="mx-auto max-w-[600px] text-center">
             <h2 className="font-serif text-[2.75rem] font-normal leading-[1.15] tracking-tight sm:text-5xl lg:text-[3.5rem]">
-              <span className="text-[#0D1B2A]">Four tools for </span>
+              <span className="text-[#0D1B2A]">Five tools for </span>
               <span className="font-normal italic text-[#9CA3AF]">
                 stressed families
               </span>
@@ -51,7 +58,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {features.map((feature) => (
               <FeaturePreviewCard key={feature.type} {...feature} />
             ))}

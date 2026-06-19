@@ -7,7 +7,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import PageHeader from "../components/PageHeader";
 import NarrativeComparison from "../components/contextTrace/NarrativeComparison";
 import NarrativeDriftGauge from "../components/contextTrace/NarrativeDriftGauge";
-import { analyzeContextTraceImage } from "../services/contextTraceApi";
+import { analyzeContextTraceImage, analyzeContextTraceUrl } from "../services/contextTraceApi";
 import type { ContextTraceAnalysis } from "../types/contextTrace";
 
 export default function ContextTrace() {
@@ -15,17 +15,25 @@ export default function ContextTrace() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleUpload = async (file: File) => {
+  const runAnalysis = async (task: () => Promise<ContextTraceAnalysis>) => {
     setLoading(true);
     setError(null);
     try {
-      const result = await analyzeContextTraceImage(file);
+      const result = await task();
       setAnalysis(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Analysis failed.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleUpload = (file: File) => {
+    void runAnalysis(() => analyzeContextTraceImage(file));
+  };
+
+  const handleUrlSubmit = (url: string) => {
+    void runAnalysis(() => analyzeContextTraceUrl(url));
   };
 
   const previewUrl = analysis?.previewDataUrl ?? null;
@@ -52,10 +60,11 @@ export default function ContextTrace() {
             fileName={analysis?.fileName ?? null}
             loading={loading}
             onFileSelect={handleUpload}
+            onUrlSubmit={handleUrlSubmit}
           />
 
           {loading && (
-            <LoadingSpinner label="Running GPT-4o vision analysis, EXIF extraction, and context trace…" />
+            <LoadingSpinner label="Fetching image, running reverse image search, and tracing context…" />
           )}
 
           {error && (

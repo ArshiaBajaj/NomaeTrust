@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "detective:import-ff++": "node scripts/import-faceforensics.mjs",
+    "detective:import-sdfvd": "node scripts/import-sdfvd.mjs",
+    "detective:transcode-clips": "node scripts/transcode-detective-clips.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.1",
@@ -26,6 +29,7 @@
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.4.1",
+    "ffmpeg-static": "^5.3.0",
     "typescript": "^5.8.3",
     "vite": "^6.3.5"
   }

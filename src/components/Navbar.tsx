@@ -1,6 +1,7 @@
 import { Link, NavLink, useLocation } from "react-router-dom";
 
 const navLinks = [
+  { to: "/detective", label: "Digital Detective" },
   { to: "/stress", label: "Action Cards" },
   { to: "/screenshot", label: "Screenshots" },
   { to: "/call", label: "Context Trace" },

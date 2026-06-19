@@ -7,7 +7,6 @@ import PipelineSteps from "../components/PipelineSteps";
 import UploadBox from "../components/UploadBox";
 import VerificationResult from "../components/VerificationResult";
 import { analyzeAudio } from "../services/analyzeAudio";
-import { syncClaimToMap } from "../services/map";
 import type { AudioAnalysisResult, EvidenceCard, PipelineStep } from "../types";
 import { buildEvidenceCardFromAnalysis } from "../utils/evidenceCardBuilder";
 
@@ -70,12 +69,6 @@ export default function StressMode() {
       setSteps(setStepStatus(base, "evidence", ["upload", "transcribe", "extract", "regional"]));
 
       const evidenceCard = buildEvidenceCardFromAnalysis(analysis, "voice");
-      await syncClaimToMap(
-        analysis.claim,
-        "voice",
-        analysis.confidence,
-        evidenceCard.urgentReview,
-      );
       setSyncedToMap(true);
 
       await delay(300);

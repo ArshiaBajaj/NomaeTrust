@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { resolveClaimLocation } from "../services/claimGeolocation.js";
 
 export type ClaimSource = "voice" | "screenshot" | "call" | "community" | "deepfake";
@@ -131,6 +132,17 @@ const seedClaims: Claim[] = [
     location: resolveClaimLocation("Decatur food pantry", ["Decatur"], "cm-seed-8"),
     category: "Food Banks",
   },
+  {
+    id: "cm-seed-9",
+    text: "AI-generated flood photo shared as live Atlanta water crisis footage.",
+    source: "deepfake",
+    status: "unverified",
+    confidence: 0.71,
+    extractedAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+    location: resolveClaimLocation("Atlanta water infrastructure", ["Atlanta"], "cm-seed-9"),
+    urgentReview: true,
+    category: "Emergency Alerts",
+  },
 ];
 
 let claims: Claim[] = [...seedClaims];
@@ -216,7 +228,7 @@ export function addClaim(input: ReportClaimInput): Claim {
     );
 
   const claim: Claim = {
-    id: `cm-${Date.now()}`,
+    id: `cm-${randomUUID()}`,
     text: input.text,
     source: input.source ?? "community",
     status: input.status ?? "pending",

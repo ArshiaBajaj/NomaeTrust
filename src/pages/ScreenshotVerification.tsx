@@ -6,7 +6,6 @@ import PipelineSteps from "../components/PipelineSteps";
 import UploadBox from "../components/UploadBox";
 import VerificationResult from "../components/VerificationResult";
 import { analyzeImage } from "../services/analyzeImage";
-import { syncClaimToMap } from "../services/map";
 import type { EvidenceCard as EvidenceCardType, PipelineStep } from "../types";
 import { buildEvidenceCardFromAnalysis } from "../utils/evidenceCardBuilder";
 
@@ -42,7 +41,6 @@ export default function ScreenshotVerification() {
       const result = await analyzeImage(file);
       setOcrText(result.ocr.text);
       const card = buildEvidenceCardFromAnalysis(result, "screenshot");
-      await syncClaimToMap(result.claim, "screenshot", result.confidence, card.urgentReview);
       setSyncedToMap(true);
 
       setSteps(INITIAL_STEPS.map((s) => ({ ...s, status: "complete" as const })));

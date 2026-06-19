@@ -3,6 +3,35 @@ import { CONTEXT_TRACE_DEMO } from "../data/contextTraceDemo";
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? "";
 
+export async function analyzeContextTraceUrl(url: string): Promise<ContextTraceAnalysis> {
+  const trimmed = url.trim();
+  if (!trimmed) {
+    throw new Error("Image URL is required.");
+  }
+
+  const res = await fetch(`${API_BASE}/api/context-trace/analyze-url`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url: trimmed }),
+  });
+
+  const contentType = res.headers.get("content-type") ?? "";
+  const body = contentType.includes("application/json")
+    ? ((await res.json()) as { error?: string } & Partial<ContextTraceAnalysis>)
+    : {};
+
+  if (!res.ok) {
+    if (res.status === 404) {
+      throw new Error(
+        "Analysis server is missing the URL endpoint — restart the backend (cd backend && npm run dev).",
+      );
+    }
+    throw new Error(body.error ?? `Could not analyze that image URL (${res.status}).`);
+  }
+
+  return body as ContextTraceAnalysis;
+}
+
 export async function analyzeContextTraceImage(file: File): Promise<ContextTraceAnalysis> {
   const form = new FormData();
   form.append("image", file);

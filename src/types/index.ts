@@ -37,6 +37,7 @@ export type TrustedSource = {
   locations: string[];
   url: string;
   description: string;
+  highValue?: boolean;
 };
 
 export type RegionalIntelligence = {

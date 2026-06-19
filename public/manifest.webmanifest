@@ -1,0 +1,19 @@
+{
+  "name": "NomaeTrust",
+  "short_name": "NomaeTrust",
+  "description": "Verify rumors, spot deepfakes, and trace misinformation before harm spreads.",
+  "start_url": "/detective",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#070b14",
+  "theme_color": "#070b14",
+  "categories": ["news", "utilities", "education"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

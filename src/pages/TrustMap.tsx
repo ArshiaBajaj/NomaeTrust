@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import ConfusionMap, { MapLegend } from "../components/ConfusionMap";
+import ConfusionMap, { ClaimMapDetail, MapLegend } from "../components/ConfusionMap";
 import LoadingSpinner from "../components/LoadingSpinner";
 import PageHeader from "../components/PageHeader";
 import {
   getCommunityClaims,
+  getMapHotspots,
   getValidatorQueue,
   reportClaim,
   validateClaimApi,
 } from "../services/map";
-import type { Claim, ClaimSource } from "../types";
+import type { Claim, ClaimSource, MapHotspot } from "../types";
 import { isAwaitingValidation, QUEUE_STATUS_LABEL } from "../utils/claimQueue";
 
 type Tab = "map" | "feed" | "validators";
@@ -25,8 +26,11 @@ function formatRelativeTime(iso: string): string {
 
 export default function TrustMap() {
   const [claims, setClaims] = useState<Claim[]>([]);
+  const [hotspots, setHotspots] = useState<MapHotspot[]>([]);
   const [validatorQueue, setValidatorQueue] = useState<Claim[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
   const [reportText, setReportText] = useState("");
   const [reporting, setReporting] = useState(false);
   const [filter, setFilter] = useState<"all" | "verified" | "unverified">("all");
@@ -40,16 +44,31 @@ export default function TrustMap() {
   const [verifySuccess, setVerifySuccess] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
-    const [claimData, queueData] = await Promise.all([
-      getCommunityClaims(),
-      getValidatorQueue(),
-    ]);
-    setClaims(claimData);
-    setValidatorQueue(queueData);
+    try {
+      const [claimData, queueData, hotspotData] = await Promise.all([
+        getCommunityClaims(),
+        getValidatorQueue(),
+        getMapHotspots(),
+      ]);
+      setClaims(claimData);
+      setValidatorQueue(queueData);
+      setHotspots(hotspotData);
+      setFetchError(null);
+      setLastRefreshed(new Date());
+    } catch (err) {
+      setFetchError(err instanceof Error ? err.message : "Could not load map data.");
+    }
   }, []);
 
   useEffect(() => {
     refresh().finally(() => setLoading(false));
+  }, [refresh]);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      void refresh();
+    }, 30_000);
+    return () => window.clearInterval(interval);
   }, [refresh]);
 
   const stats = useMemo(() => {
@@ -76,6 +95,16 @@ export default function TrustMap() {
       return claim.source === mapFilter;
     });
   }, [claims, mapFilter]);
+
+  const selectedClaim = useMemo(
+    () => claims.find((c) => c.id === selectedClaimId) ?? null,
+    [claims, selectedClaimId],
+  );
+
+  const topHotspots = useMemo(
+    () => [...hotspots].sort((a, b) => b.unverifiedCount - a.unverifiedCount).slice(0, 3),
+    [hotspots],
+  );
 
   const sidebarClaims = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -141,6 +170,18 @@ export default function TrustMap() {
       />
 
       <div className="mx-auto max-w-[1400px] px-6 pb-20 pt-10 lg:px-8">
+        {fetchError && (
+          <div
+            role="alert"
+            className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-secondary/30 bg-secondary/10 px-4 py-3 text-sm text-secondary"
+          >
+            <span>{fetchError} — is the backend running on port 3001?</span>
+            <button type="button" onClick={() => void refresh()} className="btn-secondary text-xs">
+              Retry
+            </button>
+          </div>
+        )}
+
         <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
             { label: "Total rumors", value: stats.total, accent: "text-navy" },
@@ -192,18 +233,48 @@ export default function TrustMap() {
                 <h2 className="card-title text-xl">Every rumor — Atlanta metro</h2>
                 <p className="mt-1 text-sm text-text-muted">
                   {mapClaims.length} pins on map · click a pin or list item for details
+                  {lastRefreshed && (
+                    <span className="ml-2 text-text-muted/80">
+                      · updated {formatRelativeTime(lastRefreshed.toISOString())}
+                    </span>
+                  )}
                 </p>
               </div>
-              <label className="flex items-center gap-2 text-sm text-text-muted">
-                <input
-                  type="checkbox"
-                  checked={showHeat}
-                  onChange={(e) => setShowHeat(e.target.checked)}
-                  className="rounded border-gray-300"
-                />
-                Confusion heat halos
-              </label>
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => void refresh()}
+                  className="btn-secondary text-xs"
+                >
+                  Refresh map
+                </button>
+                <label className="flex items-center gap-2 text-sm text-text-muted">
+                  <input
+                    type="checkbox"
+                    checked={showHeat}
+                    onChange={(e) => setShowHeat(e.target.checked)}
+                    className="rounded border-gray-300"
+                  />
+                  Confusion heat halos
+                </label>
+              </div>
             </div>
+
+            {topHotspots.length > 0 && (
+              <div className="mb-4 flex flex-wrap gap-2">
+                <span className="self-center text-xs font-semibold uppercase tracking-wide text-text-muted">
+                  Hot zones
+                </span>
+                {topHotspots.map((zone) => (
+                  <span
+                    key={zone.id}
+                    className="rounded-full border border-amber-500/25 bg-amber-500/10 px-3 py-1 text-xs text-amber-900"
+                  >
+                    {zone.label} · {zone.unverifiedCount} unverified
+                  </span>
+                ))}
+              </div>
+            )}
 
             <div className="mb-4 flex flex-wrap gap-2">
               {(
@@ -222,7 +293,10 @@ export default function TrustMap() {
                 <button
                   key={id}
                   type="button"
-                  onClick={() => setMapFilter(id)}
+                  onClick={() => {
+                    setMapFilter(id);
+                    setSelectedClaimId(null);
+                  }}
                   className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
                     mapFilter === id
                       ? "bg-navy text-white"
@@ -238,12 +312,14 @@ export default function TrustMap() {
               <div>
                 <ConfusionMap
                   claims={mapClaims}
+                  hotspots={hotspots}
                   selectedId={selectedClaimId}
                   onSelect={setSelectedClaimId}
                   showHeat={showHeat}
+                  fitBoundsKey={mapFilter}
                 />
                 <div className="mt-4">
-                  <MapLegend />
+                  <MapLegend showHotspots={showHeat} />
                 </div>
               </div>
 
@@ -309,8 +385,29 @@ export default function TrustMap() {
                     ))
                   )}
                 </ul>
+                {selectedClaim && <ClaimMapDetail claim={selectedClaim} />}
               </aside>
             </div>
+
+            <section className="card mt-8 p-6">
+              <h2 className="card-title text-xl">Community reporting</h2>
+              <form onSubmit={handleReport} className="mt-4 flex flex-col gap-3 sm:flex-row">
+                <input
+                  type="text"
+                  value={reportText}
+                  onChange={(e) => setReportText(e.target.value)}
+                  placeholder="Describe the claim or rumor"
+                  className="input-field flex-1"
+                />
+                <button
+                  type="submit"
+                  disabled={reporting || !reportText.trim()}
+                  className="btn-primary px-6 py-3"
+                >
+                  {reporting ? "Submitting…" : "Submit report"}
+                </button>
+              </form>
+            </section>
           </section>
         )}
 
@@ -436,28 +533,29 @@ export default function TrustMap() {
           </section>
         )}
 
-        <section className="card mb-10 p-6">
-          <h2 className="card-title text-xl">Community reporting</h2>
-          <form onSubmit={handleReport} className="mt-4 flex flex-col gap-3 sm:flex-row">
-            <input
-              type="text"
-              value={reportText}
-              onChange={(e) => setReportText(e.target.value)}
-              placeholder="Describe the claim or rumor"
-              className="input-field flex-1"
-            />
-            <button
-              type="submit"
-              disabled={reporting || !reportText.trim()}
-              className="btn-primary px-6 py-3"
-            >
-              {reporting ? "Submitting…" : "Submit report"}
-            </button>
-          </form>
-        </section>
+        {tab === "feed" && (
+          <>
+            <section className="card mb-10 p-6">
+              <h2 className="card-title text-xl">Community reporting</h2>
+              <form onSubmit={handleReport} className="mt-4 flex flex-col gap-3 sm:flex-row">
+                <input
+                  type="text"
+                  value={reportText}
+                  onChange={(e) => setReportText(e.target.value)}
+                  placeholder="Describe the claim or rumor"
+                  className="input-field flex-1"
+                />
+                <button
+                  type="submit"
+                  disabled={reporting || !reportText.trim()}
+                  className="btn-primary px-6 py-3"
+                >
+                  {reporting ? "Submitting…" : "Submit report"}
+                </button>
+              </form>
+            </section>
 
-        {tab !== "validators" && (
-          <section>
+            <section>
             <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
               <h2 className="card-title text-xl">Claims feed</h2>
               <div className="flex gap-1">
@@ -512,6 +610,7 @@ export default function TrustMap() {
               ))}
             </ul>
           </section>
+          </>
         )}
       </div>
     </div>

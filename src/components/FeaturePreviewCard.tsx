@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-type FeatureType = "action" | "screenshot" | "trace" | "map";
+type FeatureType = "action" | "screenshot" | "trace" | "map" | "detective";
 
 type FeaturePreviewCardProps = {
   type: FeatureType;
@@ -146,11 +146,53 @@ function MapMockup() {
   );
 }
 
+function DetectiveMockup() {
+  return (
+    <div className="flex h-full flex-col rounded-xl bg-[#0a0e17] p-4 shadow-sm ring-1 ring-cyan-500/20">
+      <div className="mb-2 flex items-center justify-between">
+        <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+          Digital Detective
+        </span>
+        <span className="rounded-full bg-orange-500/20 px-2 py-0.5 text-[9px] font-bold text-orange-400">
+          🔥 15
+        </span>
+      </div>
+      <div className="relative flex-1 overflow-hidden rounded-lg border border-slate-700 bg-slate-950">
+        <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/10 to-transparent" />
+        <div className="absolute left-3 top-3 h-8 w-12 rounded border border-emerald-400/60" />
+        <div className="absolute bottom-6 left-0 right-0 flex h-4 items-end justify-center gap-0.5 px-3">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <span
+              key={i}
+              className="w-1 rounded-sm bg-cyan-400/70"
+              style={{ height: `${8 + ((i * 5) % 16)}px` }}
+            />
+          ))}
+        </div>
+        <div className="absolute inset-0 flex rotate-[-12deg] items-center justify-center">
+          <span className="rounded bg-red-600/90 px-2 py-1 text-[8px] font-black tracking-wider text-white">
+            DEEPFAKE
+          </span>
+        </div>
+      </div>
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        <div className="rounded-lg bg-red-600/90 py-1.5 text-center text-[8px] font-bold text-white">
+          FAKE
+        </div>
+        <div className="rounded-lg bg-emerald-600/90 py-1.5 text-center text-[8px] font-bold text-white">
+          REAL
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const mockups: Record<FeatureType, () => React.ReactNode> = {
   action: ActionCardMockup,
   screenshot: ScreenshotMockup,
   trace: ContextTraceMockup,
   map: MapMockup,
+  detective: DetectiveMockup,
 };
 
 export default function FeaturePreviewCard({

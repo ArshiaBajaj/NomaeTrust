@@ -1,243 +1,47 @@
-import type {
-  ClaimCategory,
-  SourceCategory,
-  TrustedSource,
-} from "../types";
+/**
+ * Trusted official sources for RAG verification and regional intelligence.
+ * Built from the Georgia government websites knowledge base:
+ * https://docs.google.com/document/d/16gwFqc6S-zfMo0oYHyeJLT4aXrhqoSoI_yfVtkdXfX0/edit
+ */
+import type { ClaimCategory, SourceCategory, TrustedSource } from "../types";
+import {
+  GOVERNMENT_KNOWLEDGE_DOC_URL,
+  GOVERNMENT_WEBSITES,
+} from "./governmentWebsites";
 
-export const TRUSTED_SOURCES: TrustedSource[] = [
-  // ── Education ──
-  {
-    id: "atlanta-public-schools",
-    name: "Atlanta Public Schools",
-    category: "Education",
-    claimCategories: ["Schools"],
-    locations: ["Atlanta", "Fulton County", "Georgia"],
-    url: "https://www.atlantapublicschools.us",
-    description: "Official closures, schedules, and district announcements.",
-  },
-  {
-    id: "fulton-county-schools",
-    name: "Fulton County Schools",
-    category: "Education",
-    claimCategories: ["Schools"],
-    locations: ["Fulton County", "Atlanta", "Georgia"],
-    url: "https://www.fcschools.org",
-    description: "County-wide school district alerts and calendar updates.",
-  },
-  {
-    id: "forsyth-county-schools",
-    name: "Forsyth County Schools",
-    category: "Education",
-    claimCategories: ["Schools"],
-    locations: ["Forsyth County", "Georgia"],
-    url: "https://www.forsyth.k12.ga.us",
-    description: "Official Forsyth County school district communications.",
-  },
-  {
-    id: "gadoe",
-    name: "Georgia Department of Education",
-    category: "Education",
-    claimCategories: ["Schools"],
-    locations: ["Georgia"],
-    url: "https://www.gadoe.org",
-    description: "State-level education policy and statewide school guidance.",
-  },
+export { GOVERNMENT_KNOWLEDGE_DOC_URL };
 
-  // ── Health ──
-  {
-    id: "dph-georgia",
-    name: "Georgia Department of Public Health",
-    category: "Health",
-    claimCategories: ["Public Health", "Emergency Alerts"],
-    locations: ["Georgia", "Atlanta", "Fulton County", "Forsyth County"],
-    url: "https://dph.georgia.gov",
-    description: "State health alerts, outbreak notices, and vaccination info.",
-  },
-  {
-    id: "fulton-dph",
-    name: "Fulton County Board of Health",
-    category: "Health",
-    claimCategories: ["Public Health"],
-    locations: ["Fulton County", "Atlanta", "Georgia"],
-    url: "https://www.fultoncountyboh.org",
-    description: "Local public health advisories for Fulton County residents.",
-  },
-  {
-    id: "grady-health",
-    name: "Grady Health System",
-    category: "Health",
-    claimCategories: ["Public Health", "Emergency Alerts"],
-    locations: ["Atlanta", "Fulton County", "Georgia"],
-    url: "https://www.gradyhealth.org",
-    description: "Atlanta's public hospital system — emergency and health updates.",
-  },
-  {
-    id: "cdc-atlanta",
-    name: "CDC (Atlanta Headquarters)",
-    category: "Health",
-    claimCategories: ["Public Health", "Emergency Alerts"],
-    locations: ["Atlanta", "Georgia"],
-    url: "https://www.cdc.gov",
-    description: "National public health guidance headquartered in Atlanta.",
-  },
+export const TRUSTED_SOURCES: TrustedSource[] = GOVERNMENT_WEBSITES.map(
+  ({ id, name, category, claimCategories, locations, url, description, highValue }) => ({
+    id,
+    name,
+    category,
+    claimCategories,
+    locations,
+    url,
+    description,
+    highValue,
+  }),
+);
 
-  // ── Public Safety ──
-  {
-    id: "atlanta-police",
-    name: "Atlanta Police Department",
-    category: "Public Safety",
-    claimCategories: ["Emergency Alerts"],
-    locations: ["Atlanta", "Georgia"],
-    url: "https://www.atlantapd.org",
-    description: "City crime alerts, curfews, and public safety notices.",
-  },
-  {
-    id: "fulton-sheriff",
-    name: "Fulton County Sheriff's Office",
-    category: "Public Safety",
-    claimCategories: ["Emergency Alerts"],
-    locations: ["Fulton County", "Atlanta", "Georgia"],
-    url: "https://www.fultonsheriff.org",
-    description: "County law enforcement alerts and emergency notifications.",
-  },
-  {
-    id: "forsyth-sheriff",
-    name: "Forsyth County Sheriff's Office",
-    category: "Public Safety",
-    claimCategories: ["Emergency Alerts"],
-    locations: ["Forsyth County", "Georgia"],
-    url: "https://www.forsythco.com/departments-departments/sheriffs-office",
-    description: "Forsyth County public safety and emergency alerts.",
-  },
-  {
-    id: "gema",
-    name: "Georgia Emergency Management Agency",
-    category: "Public Safety",
-    claimCategories: ["Emergency Alerts"],
-    locations: ["Georgia", "Atlanta", "Fulton County", "Forsyth County"],
-    url: "https://gema.georgia.gov",
-    description: "Statewide emergency alerts, weather, and disaster response.",
-  },
-
-  // ── Government ──
-  {
-    id: "city-of-atlanta",
-    name: "City of Atlanta Official Website",
-    category: "Government",
-    claimCategories: ["General", "Emergency Alerts"],
-    locations: ["Atlanta", "Georgia"],
-    url: "https://www.atlantaga.gov",
-    description: "Official city announcements, ordinances, and civic updates.",
-  },
-  {
-    id: "fulton-county-gov",
-    name: "Fulton County Government",
-    category: "Government",
-    claimCategories: ["General", "Emergency Alerts"],
-    locations: ["Fulton County", "Atlanta", "Georgia"],
-    url: "https://www.fultoncountyga.gov",
-    description: "County government services, closures, and public notices.",
-  },
-  {
-    id: "forsyth-county-gov",
-    name: "Forsyth County Government",
-    category: "Government",
-    claimCategories: ["General", "Emergency Alerts"],
-    locations: ["Forsyth County", "Georgia"],
-    url: "https://www.forsythco.com",
-    description: "Official Forsyth County government communications.",
-  },
-  {
-    id: "state-of-georgia",
-    name: "State of Georgia Official Portal",
-    category: "Government",
-    claimCategories: ["General"],
-    locations: ["Georgia"],
-    url: "https://georgia.gov",
-    description: "State government news, services, and official announcements.",
-  },
-
-  // ── Community Services ──
-  {
-    id: "acfb",
-    name: "Atlanta Community Food Bank",
-    category: "Community Services",
-    claimCategories: ["Food Banks"],
-    locations: ["Atlanta", "Fulton County", "Georgia"],
-    url: "https://www.acfb.org",
-    description: "Official food bank hours, closures, and distribution schedules.",
-  },
-  {
-    id: "fulton-dfcs",
-    name: "Fulton County DFCS",
-    category: "Community Services",
-    claimCategories: ["Food Banks", "General"],
-    locations: ["Fulton County", "Atlanta", "Georgia"],
-    url: "https://dfcs.georgia.gov",
-    description: "Georgia Division of Family & Children Services — assistance programs.",
-  },
-  {
-    id: "united-way-atlanta",
-    name: "United Way of Greater Atlanta",
-    category: "Community Services",
-    claimCategories: ["Food Banks", "General"],
-    locations: ["Atlanta", "Fulton County", "Georgia"],
-    url: "https://www.unitedwayatlanta.org",
-    description: "Community resource referrals and verified assistance programs.",
-  },
-  {
-    id: "forsyth-community",
-    name: "Forsyth County Community Services",
-    category: "Community Services",
-    claimCategories: ["Food Banks", "General"],
-    locations: ["Forsyth County", "Georgia"],
-    url: "https://www.forsythco.com/departments-departments/community-services",
-    description: "Local food assistance and community support resources.",
-  },
-
-  // ── Transportation ──
-  {
-    id: "marta",
-    name: "MARTA (Metro Atlanta Rapid Transit)",
-    category: "Transportation",
-    claimCategories: ["Transportation"],
-    locations: ["Atlanta", "Fulton County", "Georgia"],
-    url: "https://www.itsmarta.com",
-    description: "Official transit schedules, delays, and service disruptions.",
-  },
-  {
-    id: "gdot",
-    name: "Georgia Department of Transportation",
-    category: "Transportation",
-    claimCategories: ["Transportation", "Emergency Alerts"],
-    locations: ["Georgia", "Atlanta", "Fulton County", "Forsyth County"],
-    url: "https://www.dot.ga.gov",
-    description: "Road closures, construction, and statewide traffic alerts.",
-  },
-  {
-    id: "hartsfield-jackson",
-    name: "Hartsfield-Jackson Atlanta International Airport",
-    category: "Transportation",
-    claimCategories: ["Transportation", "Emergency Alerts"],
-    locations: ["Atlanta", "Fulton County", "Georgia"],
-    url: "https://www.atl.com",
-    description: "Official airport operations, delays, and security notices.",
-  },
-  {
-    id: "gwinnett-transit",
-    name: "Georgia Regional Transit Info",
-    category: "Transportation",
-    claimCategories: ["Transportation"],
-    locations: ["Georgia", "Forsyth County", "Fulton County"],
-    url: "https://www.dot.ga.gov/GDOT/Pages/Transit.aspx",
-    description: "Regional transit updates across metro Atlanta counties.",
-  },
-];
+export const HIGH_VALUE_SOURCE_IDS = new Set(
+  TRUSTED_SOURCES.filter((s) => s.highValue).map((s) => s.id),
+);
 
 export const LOCATION_PATTERNS: { name: string; pattern: RegExp }[] = [
   { name: "Fulton County", pattern: /\bfulton county\b/i },
-  { name: "Forsyth County", pattern: /\bforsyth county\b/i },
-  { name: "Atlanta", pattern: /\batlanta\b/i },
+  { name: "DeKalb County", pattern: /\bdekalb county\b|\bdekalb\b/i },
+  { name: "Gwinnett County", pattern: /\bgwinnett county\b|\bgwinnett\b/i },
+  { name: "Cobb County", pattern: /\bcobb county\b|\bcobb\b/i },
+  { name: "Forsyth County", pattern: /\bforsyth county\b|\bforsyth\b/i },
+  { name: "Clayton County", pattern: /\bclayton county\b|\bclayton\b/i },
+  { name: "Cherokee County", pattern: /\bcherokee county\b/i },
+  { name: "Hall County", pattern: /\bhall county\b/i },
+  { name: "Atlanta", pattern: /\batlanta\b|\bATL\b/ },
+  { name: "Decatur", pattern: /\bdecatur\b/i },
+  { name: "Marietta", pattern: /\bmarietta\b/i },
+  { name: "Sandy Springs", pattern: /\bsandy springs\b/i },
+  { name: "Roswell", pattern: /\broswell\b/i },
   { name: "Georgia", pattern: /\bgeorgia\b|\b(?:^|\s)GA(?:\s|$|[.,])/i },
 ];
 
@@ -255,6 +59,7 @@ export const CATEGORY_RULES: {
       /\bfood assistance\b/i,
       /\bfood distribution\b/i,
       /\bhunger\b/i,
+      /\bSNAP\b/i,
     ],
   },
   {
@@ -279,9 +84,11 @@ export const CATEGORY_RULES: {
       /\bvaccin/i,
       /\bcontamin/i,
       /\bwater supply\b/i,
+      /\bboil water\b/i,
       /\bvirus\b/i,
       /\bdisease\b/i,
       /\bhospital\b/i,
+      /\bmedicaid\b/i,
     ],
   },
   {
@@ -297,6 +104,7 @@ export const CATEGORY_RULES: {
       /\bflight\b/i,
       /\bbus\b/i,
       /\btrain\b/i,
+      /\bcobblinc\b/i,
     ],
   },
   {
@@ -311,8 +119,23 @@ export const CATEGORY_RULES: {
       /\bdisaster\b/i,
       /\btornado\b/i,
       /\bflood\b/i,
-      /\bshooting\b/i,
       /\blockdown\b/i,
+      /\bgema\b/i,
+    ],
+  },
+  {
+    claimCategory: "General",
+    sourceCategory: "Community Services",
+    keywords: [
+      /\b211\b/i,
+      /\bhomeless\b/i,
+      /\bshelter\b/i,
+      /\bhousing\b/i,
+      /\brent assist/i,
+      /\butility assist/i,
+      /\blibrary\b/i,
+      /\bpark\b/i,
+      /\brecreation center\b/i,
     ],
   },
 ];

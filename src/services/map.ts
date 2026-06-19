@@ -1,8 +1,8 @@
-import type { Claim, ClaimSource } from "../types";
+import type { Claim, ClaimSource, MapHotspot } from "../types";
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "";
 
-export async function getMapHotspots() {
+export async function getMapHotspots(): Promise<MapHotspot[]> {
   const res = await fetch(`${API_BASE}/api/map/hotspots`);
   if (!res.ok) throw new Error("Failed to load hotspots");
   return res.json();

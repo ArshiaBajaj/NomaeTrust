@@ -5,6 +5,7 @@ type ContextTraceUploadProps = {
   fileName: string | null;
   loading: boolean;
   onFileSelect: (file: File) => void;
+  onUrlSubmit: (url: string) => void;
 };
 
 export default function ContextTraceUpload({
@@ -12,9 +13,11 @@ export default function ContextTraceUpload({
   fileName,
   loading,
   onFileSelect,
+  onUrlSubmit,
 }: ContextTraceUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
 
   const handleFile = useCallback(
     (file: File) => {
@@ -32,7 +35,7 @@ export default function ContextTraceUpload({
         </p>
         <h2 className="mt-1 text-lg font-semibold text-navy">Image Upload</h2>
         <p className="mt-1 text-sm text-text-muted">
-          Drop a forwarded image to trace its history across the web.
+          Drop a forwarded image or paste a link to trace where it came from across the web.
         </p>
       </div>
 
@@ -108,6 +111,40 @@ export default function ContextTraceUpload({
             <p className="mt-3 truncate font-mono text-xs text-text-muted">{fileName}</p>
           )}
         </div>
+      </div>
+
+      <div className="border-t border-[rgba(0,0,0,0.06)] px-6 py-5">
+        <p className="text-xs font-bold uppercase tracking-widest text-text-muted">
+          Or paste image URL
+        </p>
+        <p className="mt-1 text-sm text-text-muted">
+          Works with direct image links and Google Images URLs — we fetch the photo and run reverse
+          image search to find the original source.
+        </p>
+        <form
+          className="mt-4 flex flex-col gap-3 sm:flex-row"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (loading || !imageUrl.trim()) return;
+            onUrlSubmit(imageUrl.trim());
+          }}
+        >
+          <input
+            type="url"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+            placeholder="https://… or Google Images imgres link"
+            disabled={loading}
+            className="flex-1 rounded-xl border border-[rgba(0,0,0,0.1)] bg-surface px-4 py-3 text-sm text-navy outline-none transition focus:border-accent disabled:opacity-60"
+          />
+          <button
+            type="submit"
+            disabled={loading || !imageUrl.trim()}
+            className="rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-white transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {loading ? "Tracing…" : "Trace URL"}
+          </button>
+        </form>
       </div>
     </section>
   );

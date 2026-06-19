@@ -1,6 +1,9 @@
 import { Router } from "express";
 import multer from "multer";
-import { analyzeContextTrace } from "../services/contextTrace/analyzeContextTrace.js";
+import {
+  analyzeContextTrace,
+  analyzeContextTraceFromUrl,
+} from "../services/contextTrace/analyzeContextTrace.js";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -54,5 +57,23 @@ router.post(
     }
   },
 );
+
+router.post("/context-trace/analyze-url", async (req, res) => {
+  try {
+    const url = typeof req.body?.url === "string" ? req.body.url.trim() : "";
+    if (!url) {
+      res.status(400).json({ error: "Image URL is required." });
+      return;
+    }
+
+    const result = await analyzeContextTraceFromUrl(url);
+    res.json(result);
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Context Trace URL analysis failed";
+    console.error("[ContextTrace] analyze-url failed:", error);
+    res.status(400).json({ error: message });
+  }
+});
 
 export default router;

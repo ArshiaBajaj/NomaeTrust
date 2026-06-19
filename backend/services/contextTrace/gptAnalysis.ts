@@ -9,6 +9,7 @@ import type {
   TimelineAppearance,
   TimelineRole,
 } from "../../types/contextTrace.js";
+import type { WebImageMatch } from "../contextLens/googleLens.js";
 import {
   attachPreviewToTimeline,
   driftBandFromScore,
@@ -17,6 +18,14 @@ import {
   normalizeVerdictLabel,
   statusesForVerdict,
 } from "./demoAnalysis.js";
+
+export type ContextTraceWebContext = {
+  submittedUrl: string;
+  resolvedUrl: string;
+  webMatches: WebImageMatch[];
+  reverseImageQuery?: string;
+  reverseImageTotalResults?: number;
+};
 
 type GptContextPayload = {
   imageDescription?: string;
@@ -147,21 +156,52 @@ function buildVerdictSummary(
   }
 }
 
+function formatWebMatchesBlock(web?: ContextTraceWebContext): string {
+  if (!web || web.webMatches.length === 0) {
+    return "No reverse image web matches returned. Base analysis on EXIF and visible image content only.";
+  }
+
+  const header = [
+    `Submitted URL: ${web.submittedUrl}`,
+    `Resolved image URL: ${web.resolvedUrl}`,
+    web.reverseImageQuery ? `Google subject guess: ${web.reverseImageQuery}` : "",
+    web.reverseImageTotalResults != null
+      ? `Reverse image hit count: ${web.reverseImageTotalResults}`
+      : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const matches = web.webMatches
+    .map(
+      (m, i) =>
+        `${i + 1}. ${m.title} — ${m.link}${m.source ? ` (${m.source})` : ""}${m.date ? ` [${m.date}]` : ""}${m.snippet ? `\n   ${m.snippet}` : ""}`,
+    )
+    .join("\n");
+
+  return `${header}\n\nWeb matches (earlier listings are often the original source):\n${matches}`;
+}
+
 export async function analyzeContextTraceWithGpt(input: {
   imageDataUrl: string;
   fileName: string;
   exifSummary: string;
+  webContext?: ContextTraceWebContext;
 }): Promise<Omit<ContextTraceAnalysis, "previewDataUrl" | "fileName" | "exif">> {
+  const hasWebMatches = Boolean(input.webContext?.webMatches.length);
   const prompt = `You are a misinformation analyst for NomaeTrust Context Trace.
 
-Analyze this uploaded image for CONTEXT MANIPULATION — when an old or unrelated photo is reused to support a false modern claim.
+Analyze this image for CONTEXT MANIPULATION — when an old or unrelated photo is reused to support a false modern claim.
 
-Use visual evidence only. Infer plausible original vs viral narratives when reverse search is unavailable. Be cautious — use "likely", "appears", "consistent with" when uncertain.
+${hasWebMatches ? "Use the reverse image search matches below as primary evidence for the earliest credible source and timeline. Prefer real match titles, domains, and URLs in your timeline sourceUrl fields." : "Use visual evidence only. Infer plausible original vs viral narratives when reverse search is unavailable."} Be cautious — use "likely", "appears", "consistent with" when uncertain.
 
 EXIF/metadata from file:
 ${input.exifSummary}
 
 File name: ${input.fileName}
+
+Reverse image search:
+${formatWebMatchesBlock(input.webContext)}
 
 Tasks:
 1. Describe what is visibly in the image.
@@ -255,6 +295,7 @@ export async function tryGptContextTraceAnalysis(input: {
   imageDataUrl: string;
   fileName: string;
   exifSummary: string;
+  webContext?: ContextTraceWebContext;
 }): Promise<Omit<ContextTraceAnalysis, "previewDataUrl" | "fileName" | "exif"> | null> {
   try {
     return await analyzeContextTraceWithGpt(input);
