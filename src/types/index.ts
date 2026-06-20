@@ -10,7 +10,42 @@ export type ClaimSource =
   | "call"
   | "community"
   | "deepfake"
-  | "context-trace";
+  | "context-trace"
+  | "news";
+
+export type OutletTier = "A" | "B" | "C" | "D";
+
+export type NewsOutlet = {
+  id: string;
+  name: string;
+  domains: string[];
+  tier: OutletTier;
+  tierLabel: string;
+  ifcnSignatory?: boolean;
+  nutritionSummary: string;
+  homepageUrl: string;
+  factCheckUrl?: string;
+};
+
+export type FactCheckHit = {
+  id: string;
+  publisher: string;
+  rating: string;
+  claim: string;
+  url: string;
+  date: string;
+  reviewUrl?: string;
+};
+
+export type NewsWatchCheckResult = {
+  claim: string;
+  headline: string;
+  outlet: NewsOutlet | null;
+  factChecks: FactCheckHit[];
+  evidenceCard: ComposedEvidencePayload;
+  mapClaimId: string;
+  demoMode: boolean;
+};
 
 export type AnalysisOutcome = "verified" | "not_verified" | "inconclusive";
 

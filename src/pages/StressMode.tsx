@@ -6,7 +6,8 @@ import PageHeader from "../components/PageHeader";
 import PipelineSteps from "../components/PipelineSteps";
 import UploadBox from "../components/UploadBox";
 import VerificationResult from "../components/VerificationResult";
-import { useIsMobile } from "../hooks/useIsMobile";
+import { useMapClaimDeepLink } from "../hooks/useMapClaimDeepLink";
+import { usePortalLayout } from "../hooks/usePortalLayout";
 import { analyzeAudio } from "../services/analyzeAudio";
 import type { AudioAnalysisResult, EvidenceCard, PipelineStep } from "../types";
 import { buildEvidenceCardFromAnalysis } from "../utils/evidenceCardBuilder";
@@ -40,7 +41,8 @@ function delay(ms: number) {
 }
 
 export default function StressMode() {
-  const isMobile = useIsMobile();
+  const { isMobile, content } = usePortalLayout();
+  const mapClaim = useMapClaimDeepLink();
   const [steps, setSteps] = useState<PipelineStep[]>(initialSteps);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -105,11 +107,13 @@ export default function StressMode() {
     setSteps(initialSteps());
   };
 
-  const showResult = card && result && !loading;
+  const showResult = (card && result && !loading) || (mapClaim.card && !mapClaim.loading);
+  const displayCard = mapClaim.card ?? card;
+  const displayTranscript = mapClaim.claim?.text ?? result?.transcript;
 
   return (
-    <div className={`min-h-screen ${isMobile ? "" : "bg-bg"}`}>
-      <div className={`mx-auto max-w-3xl ${isMobile ? "mobile-screen-pad" : "px-6 pb-20 pt-10 lg:px-8"}`}>
+    <div className={`min-h-screen ${isMobile ? "mobile-page-bg" : "bg-bg"}`}>
+      <div className={`mx-auto max-w-3xl ${content}`}>
         {isMobile ? (
           <header className="mobile-screen-intro">
             <h2 className="mobile-screen-title">
@@ -136,7 +140,7 @@ export default function StressMode() {
           <PipelineSteps steps={steps} />
         </div>
 
-        {!showResult && !loading && (
+        {!showResult && !loading && !mapClaim.loading && (
           <div className="space-y-4">
             <div className="card p-6">
               <button
@@ -183,30 +187,38 @@ export default function StressMode() {
           </div>
         )}
 
-        {loading && (
+        {(loading || mapClaim.loading) && (
           <div className="mt-4">
-            <LoadingSpinner label="Checking rumor against trusted sources…" />
+            <LoadingSpinner
+              label={
+                mapClaim.loading
+                  ? "Loading Action Card from Confusion Map…"
+                  : "Checking rumor against trusted sources…"
+              }
+            />
           </div>
         )}
 
-        {error && (
+        {(error || mapClaim.error) && (
           <div
             role="alert"
             className="mt-6 rounded-xl border border-secondary/30 bg-secondary/10 px-4 py-3 text-sm text-secondary"
           >
-            {error}
+            {error ?? mapClaim.error}
           </div>
         )}
 
-        {showResult && (
+        {showResult && displayCard && (
           <div className="mt-6">
             <VerificationResult
-              card={card}
-              transcript={result.transcript}
+              card={displayCard}
+              transcript={displayTranscript}
               variant="light"
-              syncedToMap={syncedToMap}
+              syncedToMap={mapClaim.card ? true : syncedToMap}
               technicalDetails={
-                <IntelligenceReportCard card={card} result={result} hideActionCard />
+                result ? (
+                  <IntelligenceReportCard card={displayCard} result={result} hideActionCard />
+                ) : undefined
               }
             />
             <button

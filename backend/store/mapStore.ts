@@ -3,7 +3,7 @@ import { OFFICIAL_FEED_PINS, type OfficialFeedPin } from "../data/officialFeeds.
 import { resolveClaimLocation } from "../services/claimGeolocation.js";
 import { exportClaimsSnapshot, loadPersistedClaims, persistClaims } from "./mapPersistence.js";
 
-export type ClaimSource = "voice" | "screenshot" | "call" | "community" | "deepfake" | "context-trace";
+export type ClaimSource = "voice" | "screenshot" | "call" | "community" | "deepfake" | "context-trace" | "news";
 
 export type VerificationStatus =
   | "verified"
@@ -371,6 +371,31 @@ export function getValidatorQueue(): Claim[] {
       }
       return new Date(a.extractedAt).getTime() - new Date(b.extractedAt).getTime();
     });
+}
+
+const MAJOR_CATEGORIES = new Set(["News", "Reddit", "Discord", "Schools", "Transit", "Health"]);
+
+function majorClaimScore(claim: Claim): number {
+  let score = confusionIntensity(claim);
+  if (claim.urgentReview) score += 0.35;
+  if (claim.analysisOutcome === "not_verified") score += 0.25;
+  if (claim.category && MAJOR_CATEGORIES.has(claim.category)) score += 0.15;
+  if (claim.source === "news") score += 0.1;
+  return score;
+}
+
+/** High-impact claims for individual users — urgent, refuted, or platform-sourced. */
+export function getMajorClaims(limit = 12): Claim[] {
+  return getClaims({ sinceHours: 168 })
+    .filter(
+      (c) =>
+        c.urgentReview ||
+        c.analysisOutcome === "not_verified" ||
+        (c.category && MAJOR_CATEGORIES.has(c.category)) ||
+        c.source === "news",
+    )
+    .sort((a, b) => majorClaimScore(b) - majorClaimScore(a))
+    .slice(0, limit);
 }
 
 export type ReportClaimInput = {

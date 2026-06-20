@@ -47,6 +47,7 @@ const SOURCE_LABEL: Record<Claim["source"], string> = {
   community: "Community report",
   deepfake: "Synthetic media",
   "context-trace": "Context Trace",
+  news: "News Watch",
 };
 
 const ANALYSIS_LABEL: Record<NonNullable<Claim["analysisOutcome"]>, string> = {
@@ -112,7 +113,7 @@ function popupHtml(claim: Claim): string {
           )
           .join("")}</ul>`
       : "";
-  const actionCard = `<a class="claim-popup-action" href="${actionCardUrlForClaim(claim.id)}">View Action Card →</a>`;
+  const actionCard = `<a class="claim-popup-action" href="${actionCardUrlForClaim(claim)}">View Action Card →</a>`;
   const externalAction =
     claim.primaryActionUrl && claim.primaryActionLabel
       ? `<a class="claim-popup-action claim-popup-action--secondary" href="${escapeHtml(claim.primaryActionUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(claim.primaryActionLabel)}</a>`
@@ -534,7 +535,7 @@ export function ClaimMapDetail({
         </ul>
       )}
       <div className="mt-3 flex flex-wrap gap-2">
-        <a href={actionCardUrlForClaim(claim.id)} className="btn-primary text-xs">
+        <a href={actionCardUrlForClaim(claim)} className="btn-primary text-xs">
           View Action Card
         </a>
         {claim.primaryActionUrl && claim.primaryActionLabel && (

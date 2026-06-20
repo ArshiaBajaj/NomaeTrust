@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { homeForAudience } from "../config/navigation";
+import { useAudience } from "../context/AudienceContext";
 import AchievementToast from "../components/detective/AchievementToast";
 import DetectiveOnboarding from "../components/detective/DetectiveOnboarding";
 import DetectiveResultPanel from "../components/detective/DetectiveResultPanel";
@@ -30,6 +32,8 @@ type RoundSnapshot = {
 
 export default function DetectiveMode() {
   const isMobile = useIsMobile();
+  const { audience } = useAudience();
+  const backTo = homeForAudience(audience);
   const { progress, xpInLevel, xpToNext, accuracy, completeOnboarding, recordAnswer } =
     useDetectiveProgress();
 
@@ -181,7 +185,7 @@ export default function DetectiveMode() {
   return (
     <div className={`detective-shell ${flashRed ? "detective-shell--alert" : ""}`}>
       <header className="detective-topbar">
-        <Link to="/home" className="detective-back" aria-label="Back">
+        <Link to={backTo} className="detective-back" aria-label="Back">
           ←
         </Link>
         <div className="detective-profile">

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import ConfusionMap, { ClaimMapDetail, MapLegend } from "../components/ConfusionMap";
 import LoadingSpinner from "../components/LoadingSpinner";
 import PageHeader from "../components/PageHeader";
@@ -52,6 +52,7 @@ function mergeClaimLists(existing: Claim[], incoming: Claim[]): Claim[] {
 
 export default function TrustMap() {
   const isMobile = useIsMobile();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [claims, setClaims] = useState<Claim[]>([]);
   const [hotspots, setHotspots] = useState<MapHotspot[]>([]);
   const [officialFeeds, setOfficialFeeds] = useState<OfficialFeedPin[]>([]);
@@ -110,6 +111,14 @@ export default function TrustMap() {
   useEffect(() => {
     refresh().finally(() => setLoading(false));
   }, [refresh]);
+
+  useEffect(() => {
+    const claimId = searchParams.get("claim");
+    if (!claimId) return;
+    setSelectedClaimId(claimId);
+    setTab("map");
+    setSearchParams({}, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   useEffect(() => {
     const unsubscribe = subscribeMapStream(() => {
@@ -319,9 +328,9 @@ export default function TrustMap() {
 
   if (loading) {
     return (
-      <div className="page-shell">
-        <PageHeader title="Community Confusion Map" description="Loading…" />
-        <div className="flex justify-center px-6 py-20">
+      <div className={isMobile ? "mobile-screen" : "page-shell"}>
+        {!isMobile && <PageHeader title="Confusion Map" description="Loading…" />}
+        <div className={`flex justify-center py-20 ${isMobile ? "mobile-screen-pad" : "px-6"}`}>
           <LoadingSpinner size="lg" />
         </div>
       </div>
@@ -329,13 +338,22 @@ export default function TrustMap() {
   }
 
   return (
-    <div className="page-shell">
-      <PageHeader
-        title="Community Confusion Map"
-        description="Live rumor intelligence — AI analysis is separate from community verification. Every pin links to an Action Card."
-      />
+    <div className={isMobile ? "mobile-screen" : "page-shell"}>
+      {isMobile ? (
+        <header className="mobile-screen-intro mobile-screen-pad">
+          <h2 className="mobile-screen-title">Confusion Map</h2>
+          <p className="mobile-screen-subtitle">
+            Live rumor intelligence — every pin links to an Action Card.
+          </p>
+        </header>
+      ) : (
+        <PageHeader
+          title="Confusion Map"
+          description="Live rumor intelligence — AI analysis is separate from community verification. Every pin links to an Action Card."
+        />
+      )}
 
-      <div className="mx-auto max-w-[1400px] px-6 pb-20 pt-10 lg:px-8">
+      <div className={`mx-auto max-w-[1400px] ${isMobile ? "mobile-screen-pad pb-24" : "px-6 pb-20 pt-10 lg:px-8"}`}>
         {(fetchError || actionError || actionSuccess) && (
           <div className="mb-6 space-y-2">
             {fetchError && (
@@ -556,6 +574,7 @@ export default function TrustMap() {
                   ["community", "Community"],
                   ["deepfake", "Deepfakes"],
                   ["context-trace", "Context Trace"],
+                  ["news", "News"],
                 ] as const
               ).map(([id, label]) => (
                 <button
@@ -836,7 +855,7 @@ export default function TrustMap() {
                           Escalate
                         </button>
                         <Link
-                          to={actionCardUrlForClaim(claim.id)}
+                          to={actionCardUrlForClaim(claim)}
                           className="btn-secondary text-sm"
                         >
                           Action Card
@@ -917,7 +936,7 @@ export default function TrustMap() {
                       {claim.provenanceBadge && (
                         <span className="text-success">✓ {claim.provenanceBadge}</span>
                       )}
-                      <Link to={actionCardUrlForClaim(claim.id)} className="text-accent hover:underline">
+                      <Link to={actionCardUrlForClaim(claim)} className="text-accent hover:underline">
                         Action Card
                       </Link>
                     </div>

@@ -1,4 +1,17 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import {
+  INDIVIDUAL_TABS,
+  PLATFORM_TABS,
+  ROUTES,
+  type TabItem,
+} from "../../config/navigation";
+import { useAudience } from "../../context/AudienceContext";
+import {
+  profileAvatarUrl,
+  profileDisplayName,
+  usePortalAuth,
+} from "../../context/PortalAuthContext";
+import ProfileAvatar from "../auth/ProfileAvatar";
 
 function TabIcon({ name }: { name: string }) {
   const props = {
@@ -36,10 +49,10 @@ function TabIcon({ name }: { name: string }) {
           <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
         </svg>
       );
-    case "profile":
+    case "queue":
       return (
         <svg {...props}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm0 5.25h.007v.008H3.75v-.008zm0 5.25h.007v.008H3.75v-.008z" />
         </svg>
       );
     default:
@@ -47,30 +60,90 @@ function TabIcon({ name }: { name: string }) {
   }
 }
 
-const tabs = [
-  { to: "/", label: "Home", icon: "home" },
-  { to: "/stress", label: "Verify", icon: "verify" },
-  { to: "/detective", label: "Detective", icon: "detective" },
-  { to: "/trust-map", label: "Map", icon: "map" },
-  { to: "/settings", label: "Profile", icon: "profile" },
-] as const;
+function scrollToQueue() {
+  document.getElementById("platform-queue")?.scrollIntoView({ behavior: "smooth" });
+}
 
-export default function MobileTabBar() {
-  return (
-    <nav className="mobile-tab-bar" aria-label="Main navigation">
-      {tabs.map((tab) => (
-        <NavLink
-          key={tab.to}
-          to={tab.to}
-          end={tab.to === "/"}
-          className={({ isActive }) =>
-            `mobile-tab ios-btn ${isActive ? "mobile-tab--active" : ""}`
+function TabLink({
+  tab,
+  onOpenProfile,
+}: {
+  tab: TabItem;
+  onOpenProfile: () => void;
+}) {
+  const navigate = useNavigate();
+
+  if (tab.action === "menu") {
+    return (
+      <button type="button" className="mobile-tab ios-btn" onClick={onOpenProfile}>
+        <TabIcon name={tab.icon} />
+        <span className="mobile-tab-label">{tab.label}</span>
+      </button>
+    );
+  }
+
+  if (tab.action === "queue") {
+    return (
+      <button
+        type="button"
+        className="mobile-tab ios-btn"
+        onClick={() => {
+          if (window.location.pathname !== ROUTES.platform) {
+            navigate(`${ROUTES.platform}#queue`);
+            return;
           }
-        >
-          <TabIcon name={tab.icon} />
-          <span className="mobile-tab-label">{tab.label}</span>
-        </NavLink>
-      ))}
+          scrollToQueue();
+        }}
+      >
+        <TabIcon name={tab.icon} />
+        <span className="mobile-tab-label">{tab.label}</span>
+      </button>
+    );
+  }
+
+  return (
+    <NavLink
+      to={tab.to ?? ROUTES.landing}
+      end={tab.end}
+      className={({ isActive }) =>
+        `mobile-tab ios-btn ${isActive ? "mobile-tab--active" : ""}`
+      }
+    >
+      <TabIcon name={tab.icon} />
+      <span className="mobile-tab-label">{tab.label}</span>
+    </NavLink>
+  );
+}
+
+export default function MobileTabBar({ onOpenProfile }: { onOpenProfile: () => void }) {
+  const { audience } = useAudience();
+  const { individual, platform } = usePortalAuth();
+  const tabs = audience === "platform" ? PLATFORM_TABS : INDIVIDUAL_TABS;
+  const name = profileDisplayName(audience, { individual, platform });
+  const avatar = profileAvatarUrl(audience, { individual, platform });
+
+  return (
+    <nav
+      className="mobile-tab-bar"
+      aria-label="Main navigation"
+      style={{ gridTemplateColumns: `repeat(${tabs.length}, 1fr)` }}
+    >
+      {tabs.map((tab) =>
+        tab.action === "menu" ? (
+          <button
+            key={tab.label}
+            type="button"
+            className="mobile-tab ios-btn"
+            onClick={onOpenProfile}
+            aria-label="Open profile menu"
+          >
+            <ProfileAvatar name={name} avatarUrl={avatar} size="sm" />
+            <span className="mobile-tab-label">{tab.label}</span>
+          </button>
+        ) : (
+          <TabLink key={`${tab.to}-${tab.label}`} tab={tab} onOpenProfile={onOpenProfile} />
+        ),
+      )}
     </nav>
   );
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { ROUTES } from "../config/navigation";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { useTrustCircle } from "../context/TrustCircleContext";
 import { formatInviteCodeInput } from "../services/trustCircleApi";
@@ -18,7 +19,7 @@ export default function TrustCircleLogin() {
 
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
-      navigate("/call", { replace: true });
+      navigate(ROUTES.trustCircle, { replace: true });
     }
   }, [authLoading, isAuthenticated, navigate]);
 
@@ -48,7 +49,7 @@ export default function TrustCircleLogin() {
         }
         await joinFamily(inviteCode.trim(), displayName.trim());
       }
-      navigate("/call", { replace: true });
+      navigate(ROUTES.trustCircle, { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -60,7 +61,7 @@ export default function TrustCircleLogin() {
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-bg to-white">
       <div className="mx-auto grid min-h-screen max-w-6xl lg:grid-cols-2">
         <div className="flex flex-col justify-center px-8 py-16 lg:px-12">
-          <Link to="/" className="text-sm text-text-muted hover:text-navy">
+          <Link to={ROUTES.landing} className="text-sm text-text-muted hover:text-navy">
             ← Back to NomaeTrust
           </Link>
           <p className="mt-8 text-xs font-bold uppercase tracking-[0.2em] text-emerald-600">

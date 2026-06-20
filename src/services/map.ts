@@ -35,6 +35,15 @@ export async function getCommunityClaims(filters?: ClaimFilters): Promise<Claim[
   return res.json();
 }
 
+export async function getClaimById(id: string): Promise<Claim> {
+  const res = await fetch(`${API_BASE}/api/map/claims/${encodeURIComponent(id)}`);
+  if (!res.ok) {
+    const body = (await res.json().catch(() => null)) as { error?: string } | null;
+    throw new Error(body?.error ?? "Claim not found");
+  }
+  return res.json() as Promise<Claim>;
+}
+
 export async function getValidatorQueue(): Promise<Claim[]> {
   const res = await fetch(`${API_BASE}/api/map/validator-queue`);
   if (!res.ok) throw new Error("Failed to load validator queue");
@@ -170,8 +179,22 @@ export async function reportDetectiveCatch(
   return data.claim;
 }
 
-export function actionCardUrlForClaim(claimId: string): string {
-  return `/stress?mapClaimId=${encodeURIComponent(claimId)}`;
+export function actionCardUrlForClaim(claim: Pick<Claim, "id" | "source" | "text">): string {
+  if (claim.source === "news") {
+    const params = new URLSearchParams({
+      headline: claim.text,
+      share: "1",
+      from: "web",
+    });
+    return `/news-watch?${params.toString()}`;
+  }
+  if (claim.source === "screenshot") {
+    return `/screenshot?mapClaimId=${encodeURIComponent(claim.id)}`;
+  }
+  if (claim.source === "context-trace") {
+    return `/call?mapClaimId=${encodeURIComponent(claim.id)}`;
+  }
+  return `/stress?mapClaimId=${encodeURIComponent(claim.id)}`;
 }
 
 export async function syncClaimToMap(

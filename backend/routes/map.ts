@@ -9,6 +9,7 @@ import {
   getClaims,
   getHotspotClaims,
   getHotspots,
+  getMajorClaims,
   getNearbyClaims,
   getOfficialFeeds,
   getValidatorQueue,
@@ -60,6 +61,10 @@ router.get("/map/claims", (req, res) => {
       category,
     }),
   );
+});
+
+router.get("/map/claims/major", (_req, res) => {
+  res.json({ claims: getMajorClaims() });
 });
 
 router.get("/map/claims/:id", (req, res) => {

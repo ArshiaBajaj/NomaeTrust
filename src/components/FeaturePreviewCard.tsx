@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-type FeatureType = "action" | "screenshot" | "trace" | "map" | "detective";
+type FeatureType = "action" | "screenshot" | "trace" | "map" | "detective" | "news";
 
 type FeaturePreviewCardProps = {
   type: FeatureType;
@@ -193,6 +193,7 @@ const mockups: Record<FeatureType, () => React.ReactNode> = {
   trace: ContextTraceMockup,
   map: MapMockup,
   detective: DetectiveMockup,
+  news: ActionCardMockup,
 };
 
 export default function FeaturePreviewCard({

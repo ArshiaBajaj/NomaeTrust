@@ -48,7 +48,8 @@ export default function InstallPrompt() {
     return (
       <div className="mobile-install-banner">
         <p className="mobile-install-text">
-          Tap <strong>Share</strong> → <strong>Add to Home Screen</strong> to install NomaeTrust
+          Tap <strong>Share</strong> → <strong>Add to Home Screen</strong> to install NomaeTrust.
+          Then share any Apple News story → <strong>NomaeTrust</strong> to verify.
         </p>
         <button
           type="button"

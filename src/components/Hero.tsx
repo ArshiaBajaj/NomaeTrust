@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { ROUTES } from "../config/navigation";
 import ProductPreview from "./ProductPreview";
 
 function MountainSilhouettes() {
@@ -47,11 +48,11 @@ export default function Hero() {
         </p>
 
         <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row">
-          <Link to="/stress" className="btn-primary w-full sm:w-auto">
-            Try Action Cards
+          <Link to={ROUTES.loginIndividual} className="btn-primary w-full sm:w-auto">
+            Sign in — individuals
           </Link>
-          <Link to="/call" className="btn-secondary w-full sm:w-auto">
-            Trace image context
+          <Link to={ROUTES.loginPlatform} className="btn-secondary w-full sm:w-auto">
+            Sign in — companies
           </Link>
         </div>
       </div>

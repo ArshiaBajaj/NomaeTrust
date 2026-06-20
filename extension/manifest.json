@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "NomaeTrust Verify",
+  "version": "1.0.0",
+  "description": "Verify Reddit and Discord claims with NomaeTrust Action Cards — outlet context, fact-checks, and next steps.",
+  "permissions": ["storage", "activeTab"],
+  "host_permissions": [
+    "https://www.reddit.com/*",
+    "https://old.reddit.com/*",
+    "https://discord.com/*",
+    "http://localhost:3001/*",
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "action": {
+    "default_popup": "src/popup.html",
+    "default_title": "NomaeTrust"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.reddit.com/*", "https://old.reddit.com/*"],
+      "js": ["src/content-reddit.js"],
+      "css": ["styles/badge.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://discord.com/*"],
+      "js": ["src/content-discord.js"],
+      "css": ["styles/badge.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "128": "icons/icon128.png"
+  }
+}

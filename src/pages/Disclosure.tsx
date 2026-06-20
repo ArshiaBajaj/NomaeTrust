@@ -4,6 +4,7 @@ import PageHeader from "../components/PageHeader";
 const MODELS = [
   { name: "OpenAI Whisper", tier: "Open-source / API", cost: "Free tier available" },
   { name: "GPT-4o-mini", tier: "Claim extraction, OCR, evidence cards", cost: "Paid API" },
+  { name: "Google Fact Check Tools API", tier: "News Watch — ClaimReview search", cost: "Free API key" },
   { name: "Leaflet + OpenStreetMap", tier: "Confusion Map", cost: "Free" },
   { name: "Local voice passports", tier: "On-device localStorage", cost: "Free" },
 ];
@@ -54,7 +55,74 @@ export default function Disclosure() {
         </section>
 
         <section className="card p-6">
-          <h2 className="card-title text-lg">Models &amp; APIs</h2>
+          <h2 className="card-title text-lg">News Watch methodology</h2>
+          <p className="card-body-text mt-3 text-sm">
+            News Watch does not label outlets as &quot;fake news.&quot; Outlet tiers (A–D) are
+            curated using public criteria: wire services, IFCN signatory status, established
+            newsroom practices, and documented fact-check history. Claim matches come from
+            third-party fact-checkers via Google&apos;s ClaimReview search (or demo data when
+            the API key is unavailable). AI output is always presented as a suggestion with
+            confidence bands — not a verdict.
+          </p>
+          <p className="card-body-text mt-3 text-sm">
+            <strong>Share from news apps:</strong> After adding NomaeTrust to your Home Screen,
+            use Share in Apple News, Google News, Safari, or other news apps and choose
+            NomaeTrust to verify the story (Web Share Target API, iOS 16.4+).
+          </p>
+        </section>
+
+        <section className="card p-6">
+          <h2 className="card-title text-lg">Two products, one trust layer</h2>
+          <p className="card-body-text mt-3 text-sm">
+            NomaeTrust is split by audience. Platforms use a publish gate to regulate
+            what content goes live; individuals use a major-claims feed to focus on
+            high-impact rumors — not every forwarded meme.
+          </p>
+          <ul className="card-body-text mt-3 list-inside list-disc space-y-2 text-sm">
+            <li>
+              <strong>Platforms:</strong> <code>POST /api/platform/submit</code> returns
+              <code>approved</code>, <code>hold</code>, or <code>blocked</code> before
+              publication. Human moderators can override any decision.
+            </li>
+            <li>
+              <strong>Individuals:</strong> <code>GET /api/map/claims/major</code> surfaces
+              urgent, refuted, and news-sourced claims from the Confusion Map.
+            </li>
+          </ul>
+        </section>
+
+        <section className="card p-6">
+          <h2 className="card-title text-lg">Reddit &amp; Discord extensions</h2>
+          <p className="card-body-text mt-3 text-sm">
+            NomaeTrust meets rumors where they spread — without auto-scanning messages or
+            spamming TRUE/FALSE labels. All surfaces are opt-in only.
+          </p>
+          <ul className="card-body-text mt-3 list-inside list-disc space-y-2 text-sm">
+            <li>
+              <strong>Discord bot:</strong> Use <code>/verify</code> or right-click a message
+              and choose &quot;Verify with NomaeTrust.&quot; Replies include outlet context,
+              ClaimReview citations, and action steps — not a verdict. Rate limited to 10
+              verifies per user per hour.
+            </li>
+            <li>
+              <strong>Browser extension (Chrome MV3):</strong> On reddit.com and discord.com,
+              click &quot;Verify with NomaeTrust&quot; on posts and messages. Calls the same
+              Extension API and links to the full Action Card PWA.
+            </li>
+            <li>
+              <strong>Extension API:</strong> <code>POST /api/extension/verify</code> with
+              platform <code>reddit</code>, <code>discord</code>, or <code>web</code>. Protected
+              by <code>X-NomaeTrust-Key</code> when configured. Results sync to the Confusion
+              Map under News with platform-specific categories.
+            </li>
+          </ul>
+          <p className="card-body-text mt-3 text-sm">
+            Discord desktop and Reddit mobile apps cannot run browser extensions — the bot
+            covers those surfaces. We do not auto-moderate channels or replace human moderators.
+          </p>
+        </section>
+
+        <section className="card p-6">
           <ul className="mt-4 space-y-3">
             {MODELS.map((m) => (
               <li

@@ -1,0 +1,62 @@
+.nomae-verify-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 999px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: system-ui, sans-serif;
+}
+
+.nomae-verify-btn:hover {
+  background: #1d4ed8;
+}
+
+.nomae-verify-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.nomae-result-panel {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(37, 99, 235, 0.35);
+  background: rgba(15, 23, 42, 0.92);
+  color: #e2e8f0;
+  font-family: system-ui, sans-serif;
+  font-size: 13px;
+  max-width: 480px;
+}
+
+.nomae-result-panel h4 {
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: #38bdf8;
+}
+
+.nomae-result-panel p {
+  margin: 4px 0;
+  line-height: 1.45;
+}
+
+.nomae-result-panel a {
+  color: #38bdf8;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.nomae-result-panel a:hover {
+  text-decoration: underline;
+}
+
+.nomae-tier-a { border-left: 3px solid #4ade80; }
+.nomae-tier-b { border-left: 3px solid #38bdf8; }
+.nomae-tier-c { border-left: 3px solid #fbbf24; }
+.nomae-tier-d { border-left: 3px solid #f87171; }

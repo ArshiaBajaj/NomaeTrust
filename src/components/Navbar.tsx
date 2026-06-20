@@ -1,16 +1,18 @@
 import { Link, NavLink, useLocation } from "react-router-dom";
-
-const navLinks = [
-  { to: "/detective", label: "Digital Detective" },
-  { to: "/stress", label: "Action Cards" },
-  { to: "/screenshot", label: "Screenshots" },
-  { to: "/call", label: "Context Trace" },
-  { to: "/trust-map", label: "Confusion Map" },
-];
+import {
+  homeForAudience,
+  INDIVIDUAL_NAV,
+  PLATFORM_NAV,
+  ROUTES,
+} from "../config/navigation";
+import { useAudience } from "../context/AudienceContext";
 
 export default function Navbar() {
   const { pathname } = useLocation();
-  const isHero = pathname === "/";
+  const { audience } = useAudience();
+  const isHero = pathname === ROUTES.home;
+  const navLinks = audience === "platform" ? PLATFORM_NAV : INDIVIDUAL_NAV;
+  const homeTo = homeForAudience(audience);
 
   return (
     <header
@@ -22,7 +24,7 @@ export default function Navbar() {
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6 lg:px-8">
         <Link
-          to="/"
+          to={homeTo}
           className={`flex items-center gap-2.5 ${
             isHero ? "text-white" : "text-text"
           }`}
@@ -63,11 +65,30 @@ export default function Navbar() {
               {link.label}
             </NavLink>
           ))}
+          <NavLink
+            to={ROUTES.settings}
+            className={({ isActive }) =>
+              `text-sm font-normal transition-opacity duration-150 ${
+                isHero
+                  ? isActive
+                    ? "nav-link-active-hero"
+                    : "text-white/75 hover:text-white"
+                  : isActive
+                    ? "nav-link-active"
+                    : "text-text-muted hover:text-text"
+              }`
+            }
+          >
+            Settings
+          </NavLink>
         </nav>
 
         {!isHero && (
-          <Link to="/stress" className="btn-primary px-5 py-2 text-sm">
-            Try Action Cards
+          <Link
+            to={audience === "platform" ? ROUTES.platform : ROUTES.newsWatch}
+            className="btn-primary px-5 py-2 text-sm"
+          >
+            {audience === "platform" ? "Publish gate" : "Verify a claim"}
           </Link>
         )}
 
