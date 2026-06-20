@@ -205,9 +205,9 @@ export default function DetectiveMode() {
 
   return (
     <div
-      className="relative flex w-full flex-col overflow-hidden"
+      className="relative flex w-full flex-col"
       style={{
-        minHeight: "100dvh",
+        minHeight: "100%",
         background: SHELL_BG,
         color: "#ffffff",
         paddingTop: "max(14px, env(safe-area-inset-top))",
