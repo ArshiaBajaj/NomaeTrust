@@ -39,10 +39,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
     <div className="nt-app">
       <div className={`nt-frame ${immersive ? "nt-frame--immersive" : ""}`}>
         {!immersive && !HEADERLESS_ROUTES.has(pathname) && <MobileHeader />}
-        <div
-          key={pathname}
-          className={`nt-scroll ${immersive ? "nt-scroll--locked" : ""}`}
-        >
+        <div key={pathname} className="nt-scroll">
           {!immersive && <InstallPrompt />}
           {children}
         </div>
