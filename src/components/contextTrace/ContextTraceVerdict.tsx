@@ -1,31 +1,37 @@
-import type { ContextTraceVerdict, ExifMetadata, ManipulationRiskLevel } from "../../types/contextTrace";
+import type {
+  ContextTraceVerdict,
+  ExifMetadata,
+  ManipulationRiskLevel,
+} from "../../types/contextTrace";
 
 type ContextTraceVerdictCardProps = {
   verdict: ContextTraceVerdict;
   exif: ExifMetadata;
 };
 
-function riskColor(risk: ManipulationRiskLevel): string {
+type Theme = { bg: string; text: string };
+
+function riskTheme(risk: ManipulationRiskLevel): Theme {
   switch (risk) {
     case "Low":
-      return "text-emerald-700 bg-emerald-500/10 border-emerald-500/25";
+      return { bg: "var(--color-mint-soft)", text: "#2f9e78" };
     case "Medium":
-      return "text-amber-700 bg-amber-500/10 border-amber-500/25";
+      return { bg: "var(--color-yellow-soft)", text: "#a87a14" };
     case "High":
-      return "text-red-700 bg-red-500/10 border-red-500/25";
+      return { bg: "var(--color-pink-soft)", text: "#d24668" };
   }
 }
 
-function verdictColor(label: ContextTraceVerdict["label"]): string {
+function verdictTheme(label: ContextTraceVerdict["label"]): Theme & { grad: string } {
   switch (label) {
     case "Authentic":
-      return "text-emerald-700 bg-emerald-500/10 border-emerald-500/25";
+      return { bg: "var(--color-mint-soft)", text: "#2f9e78", grad: "var(--grad-mint)" };
     case "Reused Media":
-      return "text-amber-700 bg-amber-500/10 border-amber-500/25";
+      return { bg: "var(--color-yellow-soft)", text: "#a87a14", grad: "var(--grad-butter)" };
     case "Out of Context":
-      return "text-orange-700 bg-orange-500/10 border-orange-500/25";
+      return { bg: "var(--color-lilac-soft)", text: "#7c5fd6", grad: "var(--grad-lilac)" };
     case "Misleading":
-      return "text-red-700 bg-red-500/10 border-red-500/25";
+      return { bg: "var(--color-pink-soft)", text: "#d24668", grad: "var(--grad-pink)" };
   }
 }
 
@@ -33,71 +39,91 @@ export default function ContextTraceVerdictCard({
   verdict,
   exif,
 }: ContextTraceVerdictCardProps) {
-  return (
-    <section className="card overflow-hidden border-accent/20 p-0">
-      <div className="border-b border-[rgba(0,0,0,0.06)] bg-accent/5 px-6 py-4">
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">
-          Section 5
-        </p>
-        <h2 className="mt-1 text-lg font-semibold text-navy">Context Trace Verdict</h2>
-      </div>
+  const vTheme = verdictTheme(verdict.label);
+  const rTheme = riskTheme(verdict.manipulationRisk);
 
-      <div className="p-6">
-        <div className="flex flex-wrap items-center gap-3">
+  return (
+    <section className="nt-card relative overflow-hidden p-5">
+      <div
+        className="nt-blob"
+        style={{ width: 150, height: 150, top: -60, right: -50, background: vTheme.grad }}
+        aria-hidden
+      />
+
+      <div className="relative">
+        <p className="nt-kicker">The verdict</p>
+        <h2 className="mt-1 text-lg font-extrabold tracking-tight text-ink">
+          Context Trace Verdict
+        </h2>
+
+        <div className="mt-4 flex flex-wrap items-center gap-2">
           <span
-            className={`rounded-full border px-4 py-1.5 text-sm font-bold uppercase tracking-wide ${verdictColor(verdict.label)}`}
+            className="rounded-full px-4 py-1.5 text-sm font-extrabold uppercase tracking-wide"
+            style={{ background: vTheme.bg, color: vTheme.text }}
           >
             {verdict.label}
           </span>
           <span
-            className={`rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wide ${riskColor(verdict.manipulationRisk)}`}
+            className="rounded-full px-3 py-1 text-xs font-extrabold uppercase tracking-wide"
+            style={{ background: rTheme.bg, color: rTheme.text }}
           >
-            {verdict.manipulationRisk} Manipulation Risk
+            {verdict.manipulationRisk} risk
           </span>
         </div>
 
-        <div className="mt-4 flex flex-wrap gap-2">
-          {verdict.statuses.map((status) => (
-            <span
-              key={status}
-              className="rounded-full border border-[rgba(0,0,0,0.08)] bg-surface-raised px-3 py-1 text-xs font-semibold text-text-body"
+        {verdict.statuses.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {verdict.statuses.map((status) => (
+              <span key={status} className="nt-chip">
+                {status}
+              </span>
+            ))}
+          </div>
+        )}
+
+        <p className="mt-4 text-base font-bold leading-relaxed text-ink">{verdict.summary}</p>
+
+        <div
+          className="mt-3 rounded-3xl p-4"
+          style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-line)" }}
+        >
+          <p className="nt-kicker">Explanation</p>
+          <p className="mt-2 text-sm leading-relaxed text-body">{verdict.explanation}</p>
+        </div>
+
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          <div
+            className="rounded-3xl p-4 text-center"
+            style={{ background: vTheme.bg }}
+          >
+            <p className="nt-kicker">Confidence</p>
+            <p
+              className="mt-1 text-3xl font-extrabold tabular-nums"
+              style={{ color: vTheme.text }}
             >
-              {status}
-            </span>
-          ))}
-        </div>
-
-        <p className="mt-5 text-base font-medium leading-relaxed text-navy">
-          {verdict.summary}
-        </p>
-
-        <div className="mt-4 rounded-xl border border-[rgba(0,0,0,0.08)] bg-surface-raised p-4">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">
-            Explanation
-          </p>
-          <p className="mt-2 text-sm leading-relaxed text-text-body">{verdict.explanation}</p>
-        </div>
-
-        <div className="mt-6 flex flex-wrap items-center gap-4">
-          <div className="rounded-xl border border-[rgba(0,0,0,0.08)] bg-surface-raised px-4 py-3">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">
-              Confidence
-            </p>
-            <p className="mt-1 text-2xl font-bold tabular-nums text-emerald-700">
               {verdict.confidence}%
             </p>
           </div>
-
-          <div className="rounded-xl border border-[rgba(0,0,0,0.08)] bg-surface-raised px-4 py-3">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">
-              EXIF metadata
+          <div
+            className="rounded-3xl p-4"
+            style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-line)" }}
+          >
+            <p className="nt-kicker">EXIF metadata</p>
+            <p className="mt-1 flex items-center gap-1.5 text-sm font-bold text-ink">
+              <span
+                className="h-2 w-2 rounded-full"
+                style={{ background: exif.found ? "var(--color-mint)" : "var(--color-pink-deep)" }}
+                aria-hidden
+              />
+              {exif.found ? "Found" : "Not found"}
             </p>
-            <p className="mt-1 text-sm font-medium text-navy">
-              {exif.found ? "Found in uploaded file" : "Not found — stripped on re-upload"}
+            <p className="mt-1 text-[11px] leading-snug text-muted">
+              {exif.found
+                ? exif.captured
+                  ? `Captured ${exif.captured}`
+                  : "Present in file"
+                : "Stripped on re-upload"}
             </p>
-            {exif.captured && (
-              <p className="mt-1 text-xs text-text-muted">Captured: {exif.captured}</p>
-            )}
           </div>
         </div>
       </div>

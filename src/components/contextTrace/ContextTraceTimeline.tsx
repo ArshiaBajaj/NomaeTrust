@@ -1,30 +1,49 @@
 import { useMemo, useState } from "react";
 import type { TimelineAppearance } from "../../types/contextTrace";
+import { useHaptic } from "../../hooks/useHaptic";
 
 type ContextTraceTimelineProps = {
   appearances: TimelineAppearance[];
   previewUrl?: string;
 };
 
-function roleStyles(role: TimelineAppearance["role"]) {
+type RoleTheme = {
+  tag: string;
+  dot: string;
+  ring: string;
+  chipBg: string;
+  chipText: string;
+  grad: string;
+};
+
+function roleTheme(role: TimelineAppearance["role"]): RoleTheme {
   switch (role) {
     case "earliest":
       return {
-        dot: "bg-emerald-500 ring-emerald-500/25",
-        label: "text-emerald-700",
-        card: "border-emerald-500/30 bg-emerald-500/5",
+        tag: "The Truth",
+        dot: "var(--color-mint)",
+        ring: "rgba(143, 227, 198, 0.35)",
+        chipBg: "var(--color-mint-soft)",
+        chipText: "#2f9e78",
+        grad: "var(--grad-mint)",
       };
     case "intermediate":
       return {
-        dot: "bg-amber-500 ring-amber-500/25",
-        label: "text-amber-700",
-        card: "border-amber-500/25 bg-amber-500/5",
+        tag: "Reuse",
+        dot: "var(--color-yellow)",
+        ring: "rgba(255, 211, 110, 0.4)",
+        chipBg: "var(--color-yellow-soft)",
+        chipText: "#a87a14",
+        grad: "var(--grad-butter)",
       };
     case "current":
       return {
-        dot: "bg-red-500 ring-red-500/25",
-        label: "text-red-700",
-        card: "border-red-500/30 bg-red-500/5",
+        tag: "The Rumor",
+        dot: "var(--color-pink-deep)",
+        ring: "rgba(255, 123, 162, 0.35)",
+        chipBg: "var(--color-pink-soft)",
+        chipText: "#d24668",
+        grad: "var(--grad-pink)",
       };
   }
 }
@@ -33,116 +52,154 @@ export default function ContextTraceTimeline({
   appearances,
   previewUrl,
 }: ContextTraceTimelineProps) {
+  const haptic = useHaptic();
   const sorted = useMemo(
     () => [...appearances].sort((a, b) => a.year - b.year),
     [appearances],
   );
-  const [activeId, setActiveId] = useState(sorted[sorted.length - 1]?.id ?? sorted[0]?.id);
+  const [activeId, setActiveId] = useState(
+    sorted[sorted.length - 1]?.id ?? sorted[0]?.id,
+  );
   const active = sorted.find((item) => item.id === activeId) ?? sorted[0];
 
   if (!active) return null;
 
   const earliest = sorted.find((item) => item.role === "earliest");
   const current = sorted.find((item) => item.role === "current");
+  const activeTheme = roleTheme(active.role);
 
   return (
-    <section className="card overflow-hidden p-0">
-      <div className="border-b border-[rgba(0,0,0,0.06)] px-6 py-4">
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">
-          Section 2
-        </p>
-        <h2 className="mt-1 text-lg font-semibold text-navy">Context Timeline</h2>
-        <div className="mt-3 flex justify-between text-xs font-bold uppercase tracking-widest">
-          <span className="text-emerald-700">The Truth</span>
-          <span className="text-red-700">The Rumor</span>
+    <section className="nt-card overflow-hidden p-5">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="nt-kicker">How it traveled</p>
+          <h2 className="mt-1 text-lg font-extrabold tracking-tight text-ink">
+            Context Timeline
+          </h2>
+        </div>
+        <div className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wide">
+          <span className="rounded-full bg-mint-soft px-2.5 py-1 text-[#2f9e78]">Truth</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="h-3 w-3 text-muted">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+          </svg>
+          <span className="rounded-full bg-pink-soft px-2.5 py-1 text-[#d24668]">Rumor</span>
         </div>
       </div>
 
-      <div className="relative px-6 py-8">
-        <div className="absolute left-6 right-6 top-[4.5rem] hidden h-1 rounded-full bg-gradient-to-r from-emerald-500/30 via-amber-500/25 to-red-500/30 lg:block" />
-
-        <div className="grid gap-6 lg:grid-cols-3">
-          {sorted.map((item) => {
-            const styles = roleStyles(item.role);
-            const isActive = item.id === active.id;
-            const cornerLabel =
-              item.role === "earliest"
-                ? "The Truth"
-                : item.role === "current"
-                  ? "The Rumor"
-                  : "Reuse";
-
-            return (
+      {/* Stepper rail */}
+      <ol className="relative mt-5 space-y-3 pl-7">
+        <span
+          className="absolute left-[9px] top-2 bottom-2 w-0.5 rounded-full"
+          style={{
+            background:
+              "linear-gradient(180deg, var(--color-mint) 0%, var(--color-yellow) 50%, var(--color-pink-deep) 100%)",
+          }}
+          aria-hidden
+        />
+        {sorted.map((item) => {
+          const theme = roleTheme(item.role);
+          const isActive = item.id === active.id;
+          return (
+            <li key={item.id} className="relative">
+              <span
+                className="absolute -left-7 top-3 h-[18px] w-[18px] rounded-full"
+                style={{
+                  background: theme.dot,
+                  boxShadow: isActive
+                    ? `0 0 0 3px var(--color-surface), 0 0 0 7px ${theme.ring}`
+                    : "0 0 0 3px var(--color-surface)",
+                }}
+                aria-hidden
+              />
               <button
-                key={item.id}
                 type="button"
-                onClick={() => setActiveId(item.id)}
-                className={`relative rounded-xl border p-4 text-left transition-all ${
-                  isActive
-                    ? `${styles.card} shadow-md ring-2 ring-accent/10`
-                    : "border-[rgba(0,0,0,0.08)] bg-surface hover:border-accent/20"
-                }`}
+                onClick={() => {
+                  haptic("light");
+                  setActiveId(item.id);
+                }}
+                className="nt-press w-full rounded-3xl border p-3.5 text-left transition-all"
+                style={{
+                  borderColor: isActive ? theme.dot : "var(--color-line)",
+                  background: isActive ? theme.chipBg : "var(--color-surface)",
+                  boxShadow: isActive ? "var(--shadow-soft)" : "none",
+                }}
               >
-                <div className="mb-4 flex items-center gap-3">
+                <div className="flex items-center justify-between gap-2">
                   <span
-                    className={`h-4 w-4 shrink-0 rounded-full ring-4 ${styles.dot} ${
-                      isActive ? "scale-110" : "opacity-80"
-                    }`}
-                  />
-                  <span className={`text-[10px] font-bold uppercase tracking-widest ${styles.label}`}>
-                    {cornerLabel}
+                    className="rounded-full px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide"
+                    style={{ background: theme.chipBg, color: theme.chipText }}
+                  >
+                    {theme.tag}
+                  </span>
+                  <span className="font-mono text-[11px] font-semibold text-muted">
+                    {item.year}
                   </span>
                 </div>
-                <p className="font-mono text-xs text-text-muted">{item.date}</p>
-                <p className="mt-1 text-sm font-semibold text-navy">{item.source}</p>
-                <p className="mt-2 text-xs leading-relaxed text-text-body">
+                <p className="mt-2 text-sm font-bold text-ink">{item.source}</p>
+                <p className="mt-1 text-xs leading-relaxed text-body line-clamp-2">
                   {item.contextSummary}
                 </p>
               </button>
-            );
-          })}
-        </div>
+            </li>
+          );
+        })}
+      </ol>
 
-        <div className="mt-8 rounded-xl border border-[rgba(0,0,0,0.08)] bg-surface-raised p-5">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">
-                Selected appearance · {active.year}
-              </p>
-              <p className="mt-2 text-base font-semibold text-navy">{active.source}</p>
-              <p className="mt-2 text-sm leading-relaxed text-text-body">
-                {active.contextSummary}
-              </p>
-              <a
-                href={active.sourceUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 inline-block text-xs font-semibold text-accent hover:underline"
-                onClick={(e) => e.stopPropagation()}
-              >
-                View source ↗
-              </a>
-            </div>
-            {(active.imageUrl || (active.role === "earliest" && previewUrl)) && (
-              <img
-                src={active.imageUrl ?? previewUrl}
-                alt=""
-                className="h-24 w-24 rounded-lg border border-[rgba(0,0,0,0.08)] object-cover"
-              />
-            )}
+      {/* Selected detail */}
+      <div
+        className="mt-4 overflow-hidden rounded-3xl p-4"
+        style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-line)" }}
+      >
+        <div className="flex items-start gap-4">
+          <div className="min-w-0 flex-1">
+            <p
+              className="text-[10px] font-extrabold uppercase tracking-wide"
+              style={{ color: activeTheme.chipText }}
+            >
+              Selected · {active.year}
+            </p>
+            <p className="mt-1.5 text-base font-bold text-ink">{active.source}</p>
+            <p className="mt-2 text-sm leading-relaxed text-body">{active.contextSummary}</p>
+            <a
+              href={active.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center gap-1 text-xs font-extrabold text-blue-deep"
+              onClick={(e) => e.stopPropagation()}
+            >
+              View source
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="h-3.5 w-3.5">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+                />
+              </svg>
+            </a>
           </div>
+          {(active.imageUrl || (active.role === "earliest" && previewUrl)) && (
+            <img
+              src={active.imageUrl ?? previewUrl}
+              alt=""
+              className="h-20 w-20 shrink-0 rounded-2xl object-cover"
+              style={{ border: "1px solid var(--color-line)" }}
+            />
+          )}
         </div>
-
-        {earliest && current && (
-          <p className="mt-4 text-center text-xs text-text-muted">
-            Earliest known: <span className="font-semibold text-emerald-700">{earliest.year}</span>
-            {" · "}
-            Current viral claim: <span className="font-semibold text-red-700">{current.year}</span>
-            {" · "}
-            <span className="text-text-body">{current.year - earliest.year} years of drift</span>
-          </p>
-        )}
       </div>
+
+      {earliest && current && (
+        <p className="mt-3 text-center text-xs text-muted">
+          Earliest <span className="font-extrabold text-[#2f9e78]">{earliest.year}</span>
+          {" → "}
+          viral <span className="font-extrabold text-[#d24668]">{current.year}</span>
+          {" · "}
+          <span className="font-semibold text-body">
+            {current.year - earliest.year} years of drift
+          </span>
+        </p>
+      )}
     </section>
   );
 }

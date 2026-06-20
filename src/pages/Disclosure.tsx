@@ -1,14 +1,15 @@
+import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
-import PageHeader from "../components/PageHeader";
+import Icon3D, { type Icon3DName } from "../components/Icon3D";
 
 const MODELS = [
-  { name: "OpenAI Whisper", tier: "Open-source / API", cost: "Free tier available" },
-  { name: "GPT-4o-mini", tier: "Claim extraction, OCR, evidence cards", cost: "Paid API" },
+  { name: "OpenAI Whisper", tier: "Transcription", cost: "Free tier" },
+  { name: "GPT-4o-mini", tier: "Claims · OCR · evidence", cost: "Paid API" },
   { name: "Leaflet + OpenStreetMap", tier: "Confusion Map", cost: "Free" },
-  { name: "Local voice passports", tier: "On-device localStorage", cost: "Free" },
+  { name: "Local voice passports", tier: "On-device storage", cost: "Free" },
 ];
 
-const PUBLIC_SOURCES = [
+const SOURCES = [
   { name: "Atlanta Community Food Bank", url: "https://www.acfb.org" },
   { name: "Georgia DPH", url: "https://dph.georgia.gov" },
   { name: "City of Atlanta", url: "https://www.atlantaga.gov" },
@@ -17,98 +18,107 @@ const PUBLIC_SOURCES = [
   { name: "United Way of Greater Atlanta", url: "https://www.unitedwayatlanta.org" },
 ];
 
+const PRIVACY = [
+  "Voice passports stored on-device (localStorage demo).",
+  "Audio processed ephemerally — not persisted after analysis.",
+  "Confusion Map keeps anonymized, neighborhood-level metadata — one pin per rumor.",
+  "Trust Circle uses demo session tokens, not production auth.",
+  "Context Trace compares original vs. viral context — never a binary fake/true verdict.",
+];
+
+const FAILURES = [
+  "Low confidence → recommend human review or calling back a known number.",
+  "Validator authentication + rate limits on fast-lane badges.",
+  "Community opt-out for map pin aggregation (planned).",
+];
+
+function Card({ tone = "blue", icon, title, children }: { tone?: string; icon: Icon3DName; title: string; children: ReactNode }) {
+  return (
+    <section className="nt-card p-5">
+      <div className="flex items-center gap-3">
+        <span className={`nt-tile nt-tile--${tone}`} style={{ width: 42, height: 42 }} aria-hidden>
+          <Icon3D name={icon} />
+        </span>
+        <h2 className="text-[16px] font-bold text-ink">{title}</h2>
+      </div>
+      <div className="mt-3 text-[13.5px] leading-relaxed text-body">{children}</div>
+    </section>
+  );
+}
+
 export default function Disclosure() {
   return (
-    <div className="page-shell">
-      <PageHeader
-        title="Responsible AI & data disclosure"
-        description="Models, sources, privacy practices, and failure modes for judges and reviewers."
-      />
+    <div className="nt-screen nt-stagger">
+      <header className="pt-1">
+        <p className="nt-kicker nt-kicker--news">Responsible AI</p>
+        <h1 className="nt-h1 mt-1">How we earn your trust</h1>
+        <p className="mt-2 text-[14px] leading-relaxed text-body">
+          Models, sources, privacy, and failure modes — written plainly for families and reviewers.
+        </p>
+      </header>
 
-      <div className="mx-auto max-w-[900px] space-y-8 px-6 pb-20 pt-10 lg:px-8">
-        <section className="card p-6">
-          <h2 className="card-title text-lg">No binary verdicts</h2>
-          <p className="card-body-text mt-3 text-sm">
-            NomaeTrust presents sources, dates, and confidence bands. We do not
-            auto-label claims TRUE or FALSE. Urgent or low-confidence items route
-            to human validators who can attach provenance badges.
-          </p>
-        </section>
+      <Card tone="blue" icon="scale" title="No binary verdicts">
+        NomaeTrust shows sources, dates, and confidence bands. We never auto-label a claim TRUE or FALSE. Urgent or
+        low-confidence items route to human validators who can attach a provenance badge.
+      </Card>
 
-        <section className="card p-6">
-          <h2 className="card-title text-lg">Privacy</h2>
-          <ul className="card-body-text mt-3 list-inside list-disc space-y-2 text-sm">
-            <li>Voice passports stored encrypted on-device (localStorage demo).</li>
-            <li>Audio processed ephemerally — not persisted after analysis.</li>
-            <li>Confusion Map stores anonymized claim metadata at neighborhood level — one pin per rumor.</li>
-            <li>
-              Trust Circle uses demo session tokens (stored in localStorage) and
-              in-memory family data on the server — not production authentication.
-              Invite codes connect family members for hackathon demonstration only.
+      <Card tone="lilac" icon="lock" title="Privacy">
+        <ul className="space-y-2">
+          {PRIVACY.map((p) => (
+            <li key={p} className="flex gap-2">
+              <span className="text-lilac">•</span>
+              <span>{p}</span>
             </li>
-            <li>
-              Context Trace runs GPT-4o vision analysis on uploaded images to compare
-              original context vs. viral narratives — not binary fake/true verdicts.
+          ))}
+        </ul>
+      </Card>
+
+      <Card tone="mint" icon="chip" title="Models & APIs">
+        <ul className="space-y-2">
+          {MODELS.map((m) => (
+            <li key={m.name} className="flex flex-wrap items-center justify-between gap-1 rounded-2xl bg-surface-2 px-3.5 py-2.5">
+              <span className="font-bold text-ink">{m.name}</span>
+              <span className="text-[12px] text-muted">{m.tier}</span>
+              <span className="rounded-full bg-blue-soft px-2 py-0.5 text-[11px] font-bold text-blue-deep">{m.cost}</span>
             </li>
-          </ul>
-        </section>
+          ))}
+        </ul>
+      </Card>
 
-        <section className="card p-6">
-          <h2 className="card-title text-lg">Models &amp; APIs</h2>
-          <ul className="mt-4 space-y-3">
-            {MODELS.map((m) => (
-              <li
-                key={m.name}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[rgba(0,0,0,0.06)] bg-surface-raised px-4 py-3 text-sm"
-              >
-                <span className="font-semibold text-navy">{m.name}</span>
-                <span className="text-text-muted">{m.tier}</span>
-                <span className="text-xs text-accent">{m.cost}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
+      <Card tone="pink" icon="book" title="Public demo sources">
+        <div className="flex flex-wrap gap-2">
+          {SOURCES.map((s) => (
+            <a
+              key={s.url}
+              href={s.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="nt-chip nt-press"
+            >
+              {s.name} ↗
+            </a>
+          ))}
+        </div>
+      </Card>
 
-        <section className="card p-6">
-          <h2 className="card-title text-lg">Public demo sources (RAG whitelist)</h2>
-          <ul className="mt-4 space-y-2">
-            {PUBLIC_SOURCES.map((s) => (
-              <li key={s.url}>
-                <a
-                  href={s.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-accent hover:underline"
-                >
-                  {s.name} ↗
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
+      <Card tone="butter" icon="flask" title="Synthetic test data">
+        Demo voice scenarios use volunteer-style scripts; low-bitrate audio can be simulated by re-encoding to 12 kbps
+        MP3. Call verification uses simulated speaker matching — disclosed to judges.
+      </Card>
 
-        <section className="card p-6">
-          <h2 className="card-title text-lg">Synthetic test data</h2>
-          <p className="card-body-text mt-3 text-sm">
-            Demo voice scenarios use volunteer-style scripts. Low-bitrate audio can
-            be simulated by re-encoding clips to 12 kbps MP3. Call verification
-            uses simulated speaker matching for hackathon demonstration — disclosed
-            to judges.
-          </p>
-        </section>
-
-        <section className="card border-accent/20 p-6">
-          <h2 className="card-title text-lg">Failure modes &amp; mitigations</h2>
-          <ul className="card-body-text mt-3 list-inside list-disc space-y-2 text-sm">
-            <li>Low confidence → recommend human review / call back known number.</li>
-            <li>Validator authentication + rate limits on fast-lane badges.</li>
-            <li>Community opt-out for Confusion Map pin aggregation (future).</li>
-          </ul>
-          <Link to="/trust-map" className="btn-primary mt-6 inline-flex">
-            View Confusion Map &amp; validator queue
-          </Link>
-        </section>
-      </div>
+      <Card tone="blue" icon="lifebuoy" title="Failure modes & mitigations">
+        <ul className="space-y-2">
+          {FAILURES.map((f) => (
+            <li key={f} className="flex gap-2">
+              <span className="text-blue">•</span>
+              <span>{f}</span>
+            </li>
+          ))}
+        </ul>
+        <Link to="/trust-map" className="nt-btn nt-btn-primary nt-press mt-4 inline-flex" style={{ fontSize: 14, padding: "11px 18px" }}>
+          View Confusion Map & validators
+        </Link>
+      </Card>
     </div>
   );
 }

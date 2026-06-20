@@ -32,22 +32,26 @@ export default function IOSAlert({
   if (!open) return null;
 
   return createPortal(
-    <div className="ios-alert-root" role="presentation">
-      <button type="button" className="ios-alert-backdrop" aria-label="Dismiss" onClick={onCancel} />
-      <div className="ios-alert-panel" role="alertdialog" aria-modal="true">
-        <div className="ios-alert-content">
-          <h2 className="ios-alert-title">{title}</h2>
-          {message && <p className="ios-alert-message">{message}</p>}
+    <div className="nt-overlay" role="presentation">
+      <button type="button" className="nt-overlay-backdrop" aria-label="Dismiss" onClick={onCancel} />
+      <div className="nt-alert" role="alertdialog" aria-modal="true">
+        <div className="px-5 pb-4 pt-6 text-center">
+          <h2 className="text-[17px] font-bold text-ink">{title}</h2>
+          {message && <p className="mt-1.5 text-[13px] leading-snug text-body">{message}</p>}
         </div>
-        <div className={`ios-alert-actions ${cancelLabel ? "ios-alert-actions--split" : ""}`}>
+        <div className={`flex ${cancelLabel ? "flex-row" : "flex-col"} border-t border-line`}>
           {cancelLabel && (
-            <button type="button" className="ios-alert-btn" onClick={onCancel}>
+            <button
+              type="button"
+              className="nt-press flex-1 border-r border-line py-3.5 text-[16px] font-medium text-blue"
+              onClick={onCancel}
+            >
               {cancelLabel}
             </button>
           )}
           <button
             type="button"
-            className={`ios-alert-btn ios-alert-btn--confirm ${destructive ? "ios-alert-btn--destructive" : ""}`}
+            className={`nt-press flex-1 py-3.5 text-[16px] font-bold ${destructive ? "text-danger" : "text-blue"}`}
             onClick={onConfirm}
           >
             {confirmLabel}

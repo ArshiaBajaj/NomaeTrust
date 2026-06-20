@@ -9,91 +9,83 @@ export default function PipelineSteps({ steps }: PipelineStepsProps) {
   const progress = (completedCount / steps.length) * 100;
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between text-xs">
-        <span className="font-medium uppercase tracking-widest text-slate-400">
-          AI Analysis Pipeline
-        </span>
-        <span className="font-mono text-slate-500">
-          {completedCount}/{steps.length} complete
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <span className="nt-kicker">Analysis pipeline</span>
+        <span className="text-[11px] font-extrabold tabular-nums text-muted">
+          {completedCount}/{steps.length}
         </span>
       </div>
 
-      <div className="h-1 overflow-hidden rounded-full bg-slate-800">
+      <div className="h-2 overflow-hidden rounded-full bg-surface-2">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-blue-600 via-indigo-500 to-emerald-500 transition-all duration-700 ease-out"
-          style={{ width: `${progress}%` }}
+          className="h-full rounded-full transition-all duration-700 ease-out"
+          style={{ width: `${progress}%`, background: "var(--grad-blue)" }}
         />
       </div>
 
-      <ol className="grid gap-3 sm:grid-cols-5">
+      <ol className="relative flex flex-col gap-3 pl-1">
         {steps.map((step, index) => {
           const isComplete = step.status === "complete";
           const isActive = step.status === "active";
           const isError = step.status === "error";
+          const last = index === steps.length - 1;
+
+          const node = isComplete
+            ? "text-white"
+            : isActive
+              ? "text-white"
+              : isError
+                ? "text-white"
+                : "text-muted";
+
+          const nodeBg = isComplete
+            ? "var(--grad-mint)"
+            : isActive
+              ? "var(--grad-blue)"
+              : isError
+                ? "var(--grad-pink)"
+                : "var(--color-surface-2)";
 
           return (
-            <li
-              key={step.id}
-              className={`relative rounded-lg border px-3 py-3 transition-all duration-500 ${
-                isComplete
-                  ? "border-emerald-500/30 bg-emerald-500/5"
-                  : isActive
-                    ? "border-blue-500/40 bg-blue-500/10 shadow-lg shadow-blue-500/10"
-                    : isError
-                      ? "border-red-500/30 bg-red-500/5"
-                      : "border-slate-700/50 bg-slate-900/30"
-              } ${isActive ? "animate-pulse-subtle" : ""}`}
-            >
-              {index < steps.length - 1 && (
-                <div
+            <li key={step.id} className="relative flex items-center gap-3">
+              {!last && (
+                <span
                   aria-hidden
-                  className="absolute -right-2 top-1/2 hidden h-px w-4 -translate-y-1/2 bg-slate-700 sm:block"
+                  className={`absolute left-[13px] top-7 h-[calc(100%-4px)] w-0.5 rounded-full ${
+                    isComplete ? "bg-mint" : "bg-line"
+                  }`}
                 />
               )}
-
-              <div className="flex items-center gap-2 sm:flex-col sm:gap-2 sm:text-center">
-                <span
-                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all duration-500 ${
-                    isComplete
-                      ? "bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/40"
-                      : isActive
-                        ? "bg-blue-500/25 text-blue-300 ring-1 ring-blue-400/50"
-                        : isError
-                          ? "bg-red-500/20 text-red-400 ring-1 ring-red-500/40"
-                          : "bg-slate-800 text-slate-500 ring-1 ring-slate-700"
-                  }`}
-                >
-                  {isComplete ? (
-                    <svg
-                      className="h-3.5 w-3.5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={3}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M4.5 12.75l6 6 9-13.5"
-                      />
-                    </svg>
-                  ) : (
-                    index + 1
-                  )}
-                </span>
-                <span
-                  className={`text-xs leading-tight transition-colors duration-300 ${
-                    isActive
-                      ? "font-semibold text-white"
-                      : isComplete
-                        ? "text-slate-300"
-                        : "text-slate-500"
-                  }`}
-                >
-                  {step.label}
-                </span>
-              </div>
+              <span
+                className={`relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-extrabold ${node} ${
+                  isActive ? "animate-pulse" : ""
+                }`}
+                style={{ background: nodeBg }}
+              >
+                {isComplete ? (
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                ) : isError ? (
+                  "!"
+                ) : (
+                  index + 1
+                )}
+              </span>
+              <span
+                className={`text-[14px] leading-tight transition-colors ${
+                  isActive
+                    ? "font-bold text-ink"
+                    : isComplete
+                      ? "font-semibold text-body"
+                      : isError
+                        ? "font-semibold text-pink-deep"
+                        : "text-muted"
+                }`}
+              >
+                {step.label}
+              </span>
             </li>
           );
         })}

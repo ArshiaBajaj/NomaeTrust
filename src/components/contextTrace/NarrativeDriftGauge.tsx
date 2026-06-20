@@ -7,27 +7,41 @@ type NarrativeDriftGaugeProps = {
   manipulationRisk?: "Low" | "Medium" | "High";
 };
 
-function bandColor(band: NarrativeDriftBand): string {
+type BandTheme = {
+  color: string;
+  soft: string;
+  text: string;
+  grad: string;
+};
+
+function bandTheme(band: NarrativeDriftBand): BandTheme {
   switch (band) {
     case "low":
-      return "text-emerald-700";
+      return {
+        color: "var(--color-mint)",
+        soft: "var(--color-mint-soft)",
+        text: "#2f9e78",
+        grad: "var(--grad-mint)",
+      };
     case "moderate":
-      return "text-amber-700";
+      return {
+        color: "var(--color-yellow-deep)",
+        soft: "var(--color-yellow-soft)",
+        text: "#a87a14",
+        grad: "var(--grad-butter)",
+      };
     case "high":
-      return "text-red-700";
+      return {
+        color: "var(--color-pink-deep)",
+        soft: "var(--color-pink-soft)",
+        text: "#d24668",
+        grad: "var(--grad-pink)",
+      };
   }
 }
 
-function barColor(band: NarrativeDriftBand): string {
-  switch (band) {
-    case "low":
-      return "from-emerald-500 to-emerald-400";
-    case "moderate":
-      return "from-amber-500 to-amber-400";
-    case "high":
-      return "from-red-600 to-red-400";
-  }
-}
+const RADIUS = 54;
+const CIRC = 2 * Math.PI * RADIUS;
 
 export default function NarrativeDriftGauge({
   score,
@@ -35,88 +49,103 @@ export default function NarrativeDriftGauge({
   label,
   manipulationRisk,
 }: NarrativeDriftGaugeProps) {
-  return (
-    <section className="card overflow-hidden p-0">
-      <div className="border-b border-[rgba(0,0,0,0.06)] px-6 py-4">
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">
-          Section 4
-        </p>
-        <h2 className="mt-1 text-lg font-semibold text-navy">Narrative Drift Score</h2>
-      </div>
+  const theme = bandTheme(band);
+  const clamped = Math.max(0, Math.min(100, score));
 
-      <div className="grid gap-8 p-6 lg:grid-cols-[auto_1fr] lg:items-center">
-        <div className="relative mx-auto flex h-36 w-36 items-center justify-center">
-          <svg className="h-full w-full -rotate-90" viewBox="0 0 120 120">
+  const legend: { band: NarrativeDriftBand; dot: string; text: string }[] = [
+    { band: "low", dot: "var(--color-mint)", text: "0–34% Low context drift" },
+    { band: "moderate", dot: "var(--color-yellow-deep)", text: "35–69% Moderate drift" },
+    { band: "high", dot: "var(--color-pink-deep)", text: "70–100% High manipulation" },
+  ];
+
+  return (
+    <section className="nt-card overflow-hidden p-5">
+      <p className="nt-kicker">How far it drifted</p>
+      <h2 className="mt-1 text-lg font-extrabold tracking-tight text-ink">
+        Narrative Drift Score
+      </h2>
+
+      <div className="mt-5 flex flex-col items-center gap-5">
+        <div className="relative h-40 w-40">
+          <svg viewBox="0 0 128 128" className="h-full w-full -rotate-90">
             <circle
-              cx="60"
-              cy="60"
-              r="52"
+              cx="64"
+              cy="64"
+              r={RADIUS}
               fill="none"
-              stroke="currentColor"
-              strokeWidth="8"
-              className="text-surface-raised"
+              stroke="var(--color-surface-2)"
+              strokeWidth="11"
             />
             <circle
-              cx="60"
-              cy="60"
-              r="52"
+              cx="64"
+              cy="64"
+              r={RADIUS}
               fill="none"
-              stroke="currentColor"
-              strokeWidth="8"
+              stroke={theme.color}
+              strokeWidth="11"
               strokeLinecap="round"
-              strokeDasharray={`${(score / 100) * 327} 327`}
-              className={bandColor(band)}
+              strokeDasharray={`${(clamped / 100) * CIRC} ${CIRC}`}
+              style={{ transition: "stroke-dasharray 0.8s cubic-bezier(0.22,0.85,0.3,1)" }}
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className={`text-3xl font-bold tabular-nums ${bandColor(band)}`}>
-              {score}%
+            <span
+              className="text-4xl font-extrabold tabular-nums"
+              style={{ color: theme.text }}
+            >
+              {score}
             </span>
+            <span className="text-xs font-bold text-muted">/ 100</span>
           </div>
         </div>
 
-        <div>
-          <div className="flex flex-wrap items-center gap-3">
-            <p className={`text-xl font-bold ${bandColor(band)}`}>{label}</p>
-            {manipulationRisk && (
-              <span className="rounded-full border border-[rgba(0,0,0,0.08)] bg-surface-raised px-3 py-1 text-xs font-bold uppercase tracking-wide text-text-body">
-                {manipulationRisk} manipulation risk
-              </span>
-            )}
-          </div>
-          <p className="mt-2 text-sm text-text-muted">
-            Measures how far the current viral narrative has drifted from the image&apos;s
-            original documented context.
+        <div className="w-full text-center">
+          <span
+            className="inline-block rounded-full px-4 py-1.5 text-sm font-extrabold"
+            style={{ background: theme.soft, color: theme.text }}
+          >
+            {label}
+          </span>
+          {manipulationRisk && (
+            <p className="mt-2 text-xs font-bold uppercase tracking-wide text-muted">
+              {manipulationRisk} manipulation risk
+            </p>
+          )}
+          <p className="mx-auto mt-2 max-w-[18rem] text-xs leading-relaxed text-body">
+            How far the current viral narrative has drifted from the image&apos;s original
+            documented context.
           </p>
+        </div>
 
-          <div className="mt-6">
-            <div className="h-3 overflow-hidden rounded-full bg-surface-raised">
-              <div
-                className={`h-full rounded-full bg-gradient-to-r transition-all duration-700 ${barColor(band)}`}
-                style={{ width: `${score}%` }}
-              />
-            </div>
-            <div className="mt-2 flex justify-between text-[10px] text-text-muted">
-              <span>0%</span>
-              <span>Low drift</span>
-              <span>High manipulation</span>
-              <span>100%</span>
-            </div>
+        <div className="w-full">
+          <div className="h-3 w-full overflow-hidden rounded-full bg-surface-2">
+            <div
+              className="h-full rounded-full"
+              style={{
+                width: `${clamped}%`,
+                background: theme.grad,
+                transition: "width 0.8s cubic-bezier(0.22,0.85,0.3,1)",
+              }}
+            />
           </div>
-
-          <ul className="mt-5 space-y-2 text-xs text-text-muted">
-            <li className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              0–34% Low Context Drift
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-amber-500" />
-              35–69% Moderate Context Drift
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-red-500" />
-              70–100% High Context Manipulation Risk
-            </li>
+          <ul className="mt-3 grid gap-1.5">
+            {legend.map((row) => (
+              <li
+                key={row.band}
+                className="flex items-center gap-2 text-[11px]"
+                style={{
+                  color: row.band === band ? theme.text : "var(--color-muted)",
+                  fontWeight: row.band === band ? 800 : 500,
+                }}
+              >
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ background: row.dot }}
+                  aria-hidden
+                />
+                {row.text}
+              </li>
+            ))}
           </ul>
         </div>
       </div>

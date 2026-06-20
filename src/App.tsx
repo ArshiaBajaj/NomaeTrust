@@ -1,51 +1,37 @@
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
-import Footer from "./components/Footer";
-import MobileAppShell from "./components/mobile/MobileAppShell";
-import Navbar from "./components/Navbar";
-import { useIsMobile } from "./hooks/useIsMobile";
+import { Navigate, Route, Routes } from "react-router-dom";
+import AppShell from "./components/mobile/MobileAppShell";
 import ContextTrace from "./pages/ContextTrace";
 import DetectiveMode from "./pages/DetectiveMode";
 import Disclosure from "./pages/Disclosure";
-import Home from "./pages/Home";
-import MobileEntry from "./pages/MobileEntry";
+import HomeHub from "./pages/MobileHome";
 import ScreenshotVerification from "./pages/ScreenshotVerification";
 import Settings from "./pages/Settings";
 import StressMode from "./pages/StressMode";
 import TrustMap from "./pages/TrustMap";
-import VoiceVerification from "./pages/VoiceVerification";
 
+/**
+ * Single responsive mobile-first app. Every route renders inside one shell;
+ * the legacy desktop/mobile fork has been retired.
+ */
 export default function App() {
-  const { pathname } = useLocation();
-  const isMobile = useIsMobile();
-  const immersive = pathname === "/detective";
-  const showDesktopChrome = !isMobile && !immersive;
-
   return (
-    <MobileAppShell>
-      <div className={`min-h-screen ${isMobile ? "mobile-page-bg" : "bg-bg"}`}>
-        {showDesktopChrome && <Navbar />}
-        <main className={isMobile && !immersive ? "mobile-main-pad" : undefined}>
-          <Routes>
-            <Route path="/" element={<MobileEntry />} />
-            <Route path="/home" element={<Home />} />
-            <Route
-              path="/app"
-              element={<Navigate to={isMobile ? "/" : "/home"} replace />}
-            />
-            <Route path="/detective" element={<DetectiveMode />} />
-            <Route path="/voice" element={<VoiceVerification />} />
-            <Route path="/screenshot" element={<ScreenshotVerification />} />
-            <Route path="/context-lens" element={<Navigate to="/call" replace />} />
-            <Route path="/call" element={<ContextTrace />} />
-            <Route path="/context-trace" element={<ContextTrace />} />
-            <Route path="/stress" element={<StressMode />} />
-            <Route path="/trust-map" element={<TrustMap />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/disclosure" element={<Disclosure />} />
-          </Routes>
-        </main>
-        {showDesktopChrome && <Footer />}
-      </div>
-    </MobileAppShell>
+    <AppShell>
+      <Routes>
+        <Route path="/" element={<HomeHub />} />
+        <Route path="/home" element={<Navigate to="/" replace />} />
+        <Route path="/app" element={<Navigate to="/" replace />} />
+        <Route path="/detective" element={<DetectiveMode />} />
+        <Route path="/voice" element={<Navigate to="/stress" replace />} />
+        <Route path="/stress" element={<StressMode />} />
+        <Route path="/screenshot" element={<ScreenshotVerification />} />
+        <Route path="/call" element={<ContextTrace />} />
+        <Route path="/context-trace" element={<ContextTrace />} />
+        <Route path="/context-lens" element={<Navigate to="/call" replace />} />
+        <Route path="/trust-map" element={<TrustMap />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/disclosure" element={<Disclosure />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </AppShell>
   );
 }
