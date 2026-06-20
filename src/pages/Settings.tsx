@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ProfileAvatar from "../components/auth/ProfileAvatar";
 import ActionSheet from "../components/mobile/ActionSheet";
@@ -13,11 +13,59 @@ import {
   usePortalAuth,
 } from "../context/PortalAuthContext";
 import { useHaptic } from "../hooks/useHaptic";
-import { usePortalLayout } from "../hooks/usePortalLayout";
 import {
   isAutoVerifyShareEnabled,
   setAutoVerifyShare,
 } from "../utils/shareTarget";
+
+type RowProps = {
+  label: string;
+  value?: string;
+  chevron?: boolean;
+  to?: string;
+  onClick?: () => void;
+  children?: ReactNode;
+};
+
+function Row({ label, value, chevron, to, onClick, children }: RowProps) {
+  if (children) {
+    return <div className="flex w-full items-center justify-between px-4 py-[15px]">{children}</div>;
+  }
+  const inner = (
+    <>
+      <span className="text-[16px] font-medium text-ink">{label}</span>
+      <span className="flex items-center gap-1.5 text-[15px] text-muted">
+        {value}
+        {chevron && <span className="text-[18px] leading-none text-muted">›</span>}
+      </span>
+    </>
+  );
+  const cls = "nt-press flex w-full items-center justify-between px-4 py-[15px] text-left";
+  if (to) {
+    return (
+      <Link to={to} className={cls} onClick={onClick}>
+        {inner}
+      </Link>
+    );
+  }
+  if (onClick) {
+    return (
+      <button type="button" className={cls} onClick={onClick}>
+        {inner}
+      </button>
+    );
+  }
+  return <div className="flex w-full items-center justify-between px-4 py-[15px]">{inner}</div>;
+}
+
+function Group({ title, children }: { title?: string; children: ReactNode }) {
+  return (
+    <section className="flex flex-col gap-2">
+      {title && <h2 className="nt-kicker px-4">{title}</h2>}
+      <div className="nt-card divide-y divide-[var(--color-line)] overflow-hidden p-0">{children}</div>
+    </section>
+  );
+}
 
 export default function Settings() {
   const haptic = useHaptic();
@@ -25,7 +73,6 @@ export default function Settings() {
   const { resetOnboarding } = useAppBoot();
   const { audience } = useAudience();
   const { individual, platform, updateIndividual, updatePlatform, logout } = usePortalAuth();
-  const { shell, content } = usePortalLayout();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [resetAlert, setResetAlert] = useState(false);
   const [logoutAlert, setLogoutAlert] = useState(false);
@@ -54,9 +101,8 @@ export default function Settings() {
   };
 
   return (
-    <div className={shell}>
-      <div className={content}>
-      <header className="mobile-profile-header">
+    <div className="nt-screen nt-stagger">
+      <header className="flex items-center gap-4 pt-1">
         <ProfileAvatar
           name={profileName}
           avatarUrl={avatar}
@@ -65,64 +111,46 @@ export default function Settings() {
           onPhotoSelect={handlePhoto}
         />
         <div>
-          <h1 className="mobile-profile-name">{profileName}</h1>
-          <p className="mobile-profile-meta">{profileMeta}</p>
+          <h1 className="text-[24px] font-extrabold tracking-tight text-ink">{profileName}</h1>
+          <p className="mt-0.5 text-[13px] text-muted">{profileMeta}</p>
         </div>
       </header>
 
-      <section className="mobile-settings-group">
-        <h2 className="mobile-section-label">Experience</h2>
-        <div className="mobile-settings-list">
-          <Link
-            to={ROUTES.loginIndividual}
-            className={`mobile-settings-row ios-btn ${audience === "individual" ? "mobile-settings-row--active" : ""}`}
-            onClick={() => haptic("light")}
-          >
-            <span>Individuals — major claims</span>
-            {audience === "individual" && (
-              <span className="mobile-settings-value">Active</span>
-            )}
-          </Link>
-          <Link
-            to={ROUTES.loginPlatform}
-            className={`mobile-settings-row ios-btn ${audience === "platform" ? "mobile-settings-row--active" : ""}`}
-            onClick={() => haptic("light")}
-          >
-            <span>Platforms — publish gate</span>
-            {audience === "platform" && (
-              <span className="mobile-settings-value">Active</span>
-            )}
-          </Link>
-          <button
-            type="button"
-            className="mobile-settings-row ios-btn"
-            onClick={() => {
-              haptic("light");
-              navigate(ROUTES.choose);
-            }}
-          >
-            <span>Switch portal</span>
-            <span className="mobile-settings-chevron" aria-hidden>›</span>
-          </button>
-          <button
-            type="button"
-            className="mobile-settings-row ios-btn"
-            onClick={() => {
-              haptic("light");
-              setLogoutAlert(true);
-            }}
-          >
-            <span>Sign out</span>
-            <span className="mobile-settings-chevron" aria-hidden>›</span>
-          </button>
-        </div>
-      </section>
+      <Group title="Experience">
+        <Row
+          label="Individuals — major claims"
+          value={audience === "individual" ? "Active" : undefined}
+          to={ROUTES.loginIndividual}
+          onClick={() => haptic("light")}
+        />
+        <Row
+          label="Platforms — publish gate"
+          value={audience === "platform" ? "Active" : undefined}
+          to={ROUTES.loginPlatform}
+          onClick={() => haptic("light")}
+        />
+        <Row
+          label="Switch portal"
+          chevron
+          onClick={() => {
+            haptic("light");
+            navigate(ROUTES.choose);
+          }}
+        />
+        <Row
+          label="Sign out"
+          chevron
+          onClick={() => {
+            haptic("light");
+            setLogoutAlert(true);
+          }}
+        />
+      </Group>
 
-      <section className="mobile-settings-group">
-        <h2 className="mobile-section-label">News verification</h2>
-        <div className="mobile-settings-list">
-          <label className="mobile-settings-row mobile-settings-row--toggle">
-            <span>Auto-verify shared stories</span>
+      <Group title="News verification">
+        <Row label="Auto-verify shared stories">
+          <label className="flex w-full cursor-pointer items-center justify-between">
+            <span className="text-[16px] font-medium text-ink">Auto-verify shared stories</span>
             <input
               type="checkbox"
               checked={autoVerifyShare}
@@ -134,77 +162,49 @@ export default function Settings() {
               }}
             />
           </label>
-          <Link
-            to={ROUTES.newsWatch}
-            className="mobile-settings-row ios-btn"
-            onClick={() => haptic("light")}
-          >
-            <span>Set up Share → NomaeTrust</span>
-            <span className="mobile-settings-chevron" aria-hidden>›</span>
-          </Link>
-        </div>
-        <div className="mt-4">
-          <NewsShareSetup compact />
-        </div>
-      </section>
+        </Row>
+        <Row
+          label="Set up Share → NomaeTrust"
+          chevron
+          to={ROUTES.newsWatch}
+          onClick={() => haptic("light")}
+        />
+      </Group>
+      <div className="px-4">
+        <NewsShareSetup compact />
+      </div>
 
-      <section className="mobile-settings-group">
-        <h2 className="mobile-section-label">Preferences</h2>
-        <div className="mobile-settings-list">
-          <button
-            type="button"
-            className="mobile-settings-row ios-btn"
-            onClick={() => {
-              haptic("light");
-              setSheetOpen(true);
-            }}
-          >
-            <span>Language</span>
-            <span className="mobile-settings-value">English</span>
-          </button>
-          <div className="mobile-settings-row mobile-settings-row--static">
-            <span>Notifications</span>
-            <span className="mobile-settings-value">On</span>
-          </div>
-        </div>
-      </section>
+      <Group title="Preferences">
+        <Row
+          label="Language"
+          value="English"
+          onClick={() => {
+            haptic("light");
+            setSheetOpen(true);
+          }}
+        />
+        <Row label="Notifications" value="On" />
+      </Group>
 
-      <section className="mobile-settings-group">
-        <h2 className="mobile-section-label">About</h2>
-        <div className="mobile-settings-list">
-          <Link to={ROUTES.disclosure} className="mobile-settings-row ios-btn" onClick={() => haptic("light")}>
-            <span>Trust & disclosure</span>
-            <span className="mobile-settings-chevron" aria-hidden>›</span>
-          </Link>
-          <Link to={ROUTES.trustCircle} className="mobile-settings-row ios-btn" onClick={() => haptic("light")}>
-            <span>Trust Circle (family)</span>
-            <span className="mobile-settings-chevron" aria-hidden>›</span>
-          </Link>
-          <button
-            type="button"
-            className="mobile-settings-row ios-btn"
-            onClick={() => {
-              haptic("light");
-              setResetAlert(true);
-            }}
-          >
-            <span>Replay onboarding</span>
-            <span className="mobile-settings-chevron" aria-hidden>›</span>
-          </button>
-        </div>
-      </section>
+      <Group title="About">
+        <Row label="Trust & disclosure" chevron to={ROUTES.disclosure} onClick={() => haptic("light")} />
+        <Row label="Trust Circle (family)" chevron to={ROUTES.trustCircle} onClick={() => haptic("light")} />
+        <Row
+          label="Replay onboarding"
+          chevron
+          onClick={() => {
+            haptic("light");
+            setResetAlert(true);
+          }}
+        />
+      </Group>
 
-      <section className="mobile-settings-group">
-        <div className="mobile-settings-list">
-          <div className="mobile-settings-row mobile-settings-row--static">
-            <span>Version</span>
-            <span className="mobile-settings-value">1.0 · Hackathon</span>
-          </div>
-        </div>
-      </section>
+      <Group>
+        <Row label="Version" value="1.0 · Hackathon" />
+      </Group>
 
-      <p className="mobile-settings-footnote">
-        Add to Home Screen for the full app experience — no App Store needed.
+      <p className="px-4 text-center text-[12px] leading-relaxed text-muted">
+        Add NomaeTrust to your Home Screen for the full app experience — no App Store needed.
       </p>
 
       <ActionSheet
@@ -245,7 +245,6 @@ export default function Settings() {
         }}
         onCancel={() => setResetAlert(false)}
       />
-      </div>
     </div>
   );
 }

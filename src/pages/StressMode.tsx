@@ -1,22 +1,20 @@
 import { useCallback, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import IntelligenceReportCard from "../components/IntelligenceReportCard";
-import LoadingSpinner from "../components/LoadingSpinner";
-import PageHeader from "../components/PageHeader";
 import PipelineSteps from "../components/PipelineSteps";
-import UploadBox from "../components/UploadBox";
 import VerificationResult from "../components/VerificationResult";
-import { useMapClaimDeepLink } from "../hooks/useMapClaimDeepLink";
-import { usePortalLayout } from "../hooks/usePortalLayout";
+import { useHaptic } from "../hooks/useHaptic";
 import { analyzeAudio } from "../services/analyzeAudio";
 import type { AudioAnalysisResult, EvidenceCard, PipelineStep } from "../types";
 import { buildEvidenceCardFromAnalysis } from "../utils/evidenceCardBuilder";
 
+const ACCEPT = "audio/*,video/*,.mp3,.wav,.m4a,.ogg,.webm,.mp4,.mov";
+
 const PIPELINE_STEPS: Omit<PipelineStep, "status">[] = [
   { id: "upload", label: "Upload" },
   { id: "transcribe", label: "Transcription" },
-  { id: "extract", label: "Claim Extraction" },
-  { id: "regional", label: "RAG Retrieval" },
+  { id: "extract", label: "Claim extraction" },
+  { id: "regional", label: "RAG retrieval" },
   { id: "evidence", label: "Action Card" },
 ];
 
@@ -41,65 +39,73 @@ function delay(ms: number) {
 }
 
 export default function StressMode() {
-  const { isMobile, content } = usePortalLayout();
-  const mapClaim = useMapClaimDeepLink();
+  const haptic = useHaptic();
   const [steps, setSteps] = useState<PipelineStep[]>(initialSteps);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AudioAnalysisResult | null>(null);
   const [card, setCard] = useState<EvidenceCard | null>(null);
   const [syncedToMap, setSyncedToMap] = useState(false);
+  const [dragging, setDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const runAnalysis = useCallback(async (file: File) => {
-    setLoading(true);
-    setError(null);
-    setResult(null);
-    setCard(null);
-    setSyncedToMap(false);
+  const runAnalysis = useCallback(
+    async (file: File) => {
+      haptic("medium");
+      setLoading(true);
+      setError(null);
+      setResult(null);
+      setCard(null);
+      setSyncedToMap(false);
 
-    try {
-      const base = initialSteps();
-      setSteps(setStepStatus(base, "transcribe", ["upload"]));
+      try {
+        const base = initialSteps();
+        setSteps(setStepStatus(base, "transcribe", ["upload"]));
 
-      const analysisPromise = analyzeAudio(file);
-      await delay(500);
-      setSteps(setStepStatus(base, "extract", ["upload", "transcribe"]));
-      await delay(500);
-      setSteps(setStepStatus(base, "regional", ["upload", "transcribe", "extract"]));
+        const analysisPromise = analyzeAudio(file);
+        await delay(500);
+        setSteps(setStepStatus(base, "extract", ["upload", "transcribe"]));
+        await delay(500);
+        setSteps(setStepStatus(base, "regional", ["upload", "transcribe", "extract"]));
 
-      const analysis = await analysisPromise;
-      await delay(400);
-      setSteps(setStepStatus(base, "evidence", ["upload", "transcribe", "extract", "regional"]));
+        const analysis = await analysisPromise;
+        await delay(400);
+        setSteps(setStepStatus(base, "evidence", ["upload", "transcribe", "extract", "regional"]));
 
-      const evidenceCard = buildEvidenceCardFromAnalysis(analysis, "voice");
-      setSyncedToMap(true);
+        const evidenceCard = buildEvidenceCardFromAnalysis(analysis, "voice");
+        setSyncedToMap(true);
 
-      await delay(300);
-      setSteps(PIPELINE_STEPS.map((s) => ({ ...s, status: "complete" as const })));
-      setResult(analysis);
-      setCard(evidenceCard);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not analyze voice note.");
-      setSteps((prev) =>
-        prev.map((s) => (s.status === "active" ? { ...s, status: "error" } : s)),
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const handleFile = (file: File) => {
-    runAnalysis(file);
-  };
+        await delay(300);
+        setSteps(PIPELINE_STEPS.map((s) => ({ ...s, status: "complete" as const })));
+        setResult(analysis);
+        setCard(evidenceCard);
+        haptic("success");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Could not analyze voice note.");
+        setSteps((prev) => prev.map((s) => (s.status === "active" ? { ...s, status: "error" } : s)));
+        haptic("error");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [haptic],
+  );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) handleFile(file);
+    if (file) runAnalysis(file);
     e.target.value = "";
   };
 
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) runAnalysis(file);
+  };
+
   const reset = () => {
+    haptic("light");
     setResult(null);
     setCard(null);
     setError(null);
@@ -107,130 +113,110 @@ export default function StressMode() {
     setSteps(initialSteps());
   };
 
-  const showResult = (card && result && !loading) || (mapClaim.card && !mapClaim.loading);
-  const displayCard = mapClaim.card ?? card;
-  const displayTranscript = mapClaim.claim?.text ?? result?.transcript;
+  const showResult = card && result && !loading;
 
   return (
-    <div className={`min-h-screen ${isMobile ? "mobile-page-bg" : "bg-bg"}`}>
-      <div className={`mx-auto max-w-3xl ${content}`}>
-        {isMobile ? (
-          <header className="mobile-screen-intro">
-            <h2 className="mobile-screen-title">
-              {showResult ? "Your Action Card" : "Action Cards"}
-            </h2>
-            <p className="mobile-screen-subtitle">
-              {showResult
-                ? "Here's what we heard, what we found, and what to do next."
-                : "Upload a forwarded voice note — we check trusted sources and tell you what to do."}
-            </p>
-          </header>
-        ) : (
-          <PageHeader
-            title={showResult ? "Your Action Card" : "Action Cards"}
-            description={
-              showResult
-                ? "Here's what we heard, what we found, and what to do next."
-                : "Forwarded a scary voice note? Upload it — we extract the claim, check trusted sources, and tell you what to do."
-            }
-          />
-        )}
+    <div className="nt-screen relative">
+      <span className="nt-blob" style={{ width: 200, height: 200, top: -40, left: -60, background: "#8fa6f6" }} />
+      <span className="nt-blob" style={{ width: 180, height: 180, top: 60, right: -50, background: "#ff9db8" }} />
 
-        <div className="card mb-6 p-6">
+      <header className="relative">
+        <p className="nt-kicker nt-kicker--news">Verify a voice note</p>
+        <h1 className="nt-h1 mt-1">
+          {showResult ? "Your Action Card" : "Voice notes"}
+        </h1>
+        <p className="mt-1 text-[14px] leading-relaxed text-body">
+          {showResult
+            ? "Here's what we heard, what we found, and what to do next."
+            : "Upload a forwarded voice note — we check trusted sources and tell you what to do."}
+        </p>
+      </header>
+
+      {!showResult && (
+        <section className="relative nt-card p-5">
           <PipelineSteps steps={steps} />
-        </div>
+        </section>
+      )}
 
-        {!showResult && !loading && !mapClaim.loading && (
-          <div className="space-y-4">
-            <div className="card p-6">
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="mb-6 flex w-full flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-[rgba(0,0,0,0.1)] bg-surface px-6 py-12 shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-colors hover:border-accent/40 hover:bg-accent/5"
-              >
-                <span className="text-4xl" aria-hidden>
-                  🎤
-                </span>
-                <span className="text-lg font-semibold text-navy">Tap to upload voice note</span>
-                <span className="text-xs text-text-muted">
-                  WhatsApp · MP3 · M4A · MP4 video — max 25 MB
-                </span>
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="audio/*,video/*,.mp3,.wav,.m4a,.ogg,.webm,.mp4,.mov"
-                className="hidden"
-                onChange={handleInputChange}
-              />
-
-              <p className="mb-4 text-center text-xs font-medium uppercase tracking-wide text-text-muted">
-                or drop a file
-              </p>
-
-              <UploadBox
-                accept="audio/*,video/*,.mp3,.wav,.m4a,.ogg,.webm,.mp4,.mov"
-                label="Drop a WhatsApp voice note or video"
-                description="Analysis starts automatically when you upload"
-                icon="audio"
-                onFileSelect={handleFile}
-                disabled={loading}
-              />
-            </div>
-
-            <Link
-              to="/call"
-              className="btn-secondary block w-full py-4 text-center text-sm font-semibold"
-            >
-              Reused image out of context?
-            </Link>
-          </div>
-        )}
-
-        {(loading || mapClaim.loading) && (
-          <div className="mt-4">
-            <LoadingSpinner
-              label={
-                mapClaim.loading
-                  ? "Loading Action Card from Confusion Map…"
-                  : "Checking rumor against trusted sources…"
-              }
-            />
-          </div>
-        )}
-
-        {(error || mapClaim.error) && (
-          <div
-            role="alert"
-            className="mt-6 rounded-xl border border-secondary/30 bg-secondary/10 px-4 py-3 text-sm text-secondary"
+      {!showResult && !loading && (
+        <div className="relative flex flex-col gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              haptic("light");
+              fileInputRef.current?.click();
+            }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragging(true);
+            }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={handleDrop}
+            className="nt-card nt-press flex flex-col items-center gap-3 px-6 py-10 text-center"
+            style={
+              dragging
+                ? { borderColor: "var(--color-blue)", background: "var(--color-blue-soft)" }
+                : undefined
+            }
           >
-            {error ?? mapClaim.error}
-          </div>
-        )}
+            <span className="nt-tile nt-tile--blue" style={{ width: 64, height: 64, fontSize: 30 }} aria-hidden>
+              🎙️
+            </span>
+            <span className="text-[16px] font-extrabold text-ink">Tap to upload a voice note</span>
+            <span className="text-[12px] text-muted">
+              WhatsApp · MP3 · M4A · MP4 video — or drop a file here
+            </span>
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept={ACCEPT}
+            className="hidden"
+            onChange={handleInputChange}
+          />
 
-        {showResult && displayCard && (
-          <div className="mt-6">
-            <VerificationResult
-              card={displayCard}
-              transcript={displayTranscript}
-              variant="light"
-              syncedToMap={mapClaim.card ? true : syncedToMap}
-              technicalDetails={
-                result ? (
-                  <IntelligenceReportCard card={displayCard} result={result} hideActionCard />
-                ) : undefined
-              }
-            />
-            <button
-              type="button"
-              onClick={reset}
-              className="mt-6 text-sm text-text-muted underline"
-            >
-              Check another voice note
-            </button>
-          </div>
-        )}
-      </div>
+          <Link
+            to="/call"
+            onClick={() => haptic("light")}
+            className="nt-btn nt-btn-soft nt-btn-block nt-press"
+          >
+            Reused image out of context?
+          </Link>
+        </div>
+      )}
+
+      {loading && (
+        <div className="relative nt-card flex flex-col items-center gap-3 p-8">
+          <span className="nt-spinner" aria-hidden />
+          <p className="text-[14px] font-semibold text-body">
+            Checking rumor against trusted sources…
+          </p>
+        </div>
+      )}
+
+      {error && (
+        <div role="alert" className="relative rounded-2xl bg-pink-soft px-4 py-3 text-[13px] font-semibold text-pink-deep">
+          {error}
+        </div>
+      )}
+
+      {showResult && (
+        <div className="relative flex flex-col gap-4">
+          <VerificationResult
+            card={card}
+            transcript={result.transcript}
+            syncedToMap={syncedToMap}
+            technicalDetails={<IntelligenceReportCard card={card} result={result} hideActionCard />}
+          />
+          <button
+            type="button"
+            onClick={reset}
+            className="nt-btn nt-btn-ghost nt-btn-block nt-press"
+          >
+            Check another voice note
+          </button>
+        </div>
+      )}
     </div>
   );
 }

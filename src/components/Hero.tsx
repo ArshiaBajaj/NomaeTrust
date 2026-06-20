@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { ROUTES } from "../config/navigation";
-import ProductPreview from "./ProductPreview";
 
 function MountainSilhouettes() {
   return (
@@ -56,8 +55,6 @@ export default function Hero() {
           </Link>
         </div>
       </div>
-
-      <ProductPreview />
     </section>
   );
 }

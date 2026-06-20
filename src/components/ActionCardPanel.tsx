@@ -1,87 +1,56 @@
 import { Link } from "react-router-dom";
 import type { EvidenceCard } from "../types";
-import {
-  ASSESSMENT_CONFIDENCE_DISCLAIMER,
-  getOutcomeAccentText,
-  getOutcomeBadgeClasses,
-  resolveVerificationConfidence,
-} from "../utils/verificationConfidence";
+import { resolveVerificationConfidence } from "../utils/verificationConfidence";
+import { outcomeTheme } from "./VerificationConfidenceGauge";
 
 type ActionCardPanelProps = {
   card: EvidenceCard;
   variant?: "dark" | "light";
 };
 
-export default function ActionCardPanel({
-  card,
-  variant = "light",
-}: ActionCardPanelProps) {
-  const isDark = variant === "dark";
+export default function ActionCardPanel({ card }: ActionCardPanelProps) {
   const steps = card.actionSteps ?? [];
   const avoid = card.doNotDo ?? [];
   const verification = resolveVerificationConfidence(card);
-  const accent = getOutcomeAccentText(verification.outcome, variant);
+  const theme = outcomeTheme(verification.outcome);
 
   if (steps.length === 0 && !card.plainLanguageSummary) return null;
 
-  const box = isDark
-    ? "rounded-lg border border-emerald-500/25 bg-emerald-500/5 p-5"
-    : "rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-6";
-
   return (
-    <section className={box}>
-      <p
-        className={`text-xs font-bold uppercase tracking-widest ${isDark ? "text-emerald-400" : "text-emerald-700"}`}
-      >
-        Action Card — What to do now
+    <section
+      className="overflow-hidden rounded-[28px] p-5 text-white"
+      style={{ background: "var(--grad-mint)", boxShadow: "var(--shadow-soft)" }}
+    >
+      <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-white/90">
+        Action Card — what to do now
       </p>
 
-      <div
-        className={`mt-4 rounded-lg border px-4 py-3 ${
-          isDark
-            ? "border-slate-700/60 bg-slate-900/40"
-            : "border-[rgba(0,0,0,0.06)] bg-surface"
-        }`}
-      >
-        <div className="flex flex-wrap items-center gap-2">
-          <span className={getOutcomeBadgeClasses(verification.outcome, variant)}>
-            {verification.outcomeLabel}
-          </span>
-        </div>
-        <p className={`mt-2 text-sm font-semibold leading-relaxed ${accent}`}>
+      <div className="mt-3 rounded-2xl bg-white/85 px-4 py-3">
+        <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-extrabold uppercase tracking-wide ${theme.badge}`}>
+          {verification.outcomeLabel}
+        </span>
+        <p className={`mt-2 text-[14px] font-bold leading-snug ${theme.accent}`}>
           {verification.headline}
-        </p>
-        <p
-          className={`mt-2 text-xs leading-relaxed ${isDark ? "text-slate-400" : "text-text-muted"}`}
-        >
-          {ASSESSMENT_CONFIDENCE_DISCLAIMER}
         </p>
       </div>
 
       {card.valuesBridge && (
-        <p className={`mt-3 text-sm italic ${isDark ? "text-slate-300" : "text-text-body"}`}>
-          {card.valuesBridge}
-        </p>
+        <p className="mt-3 text-[14px] italic leading-relaxed text-white/95">{card.valuesBridge}</p>
       )}
 
       {card.plainLanguageSummary && (
-        <p className={`mt-3 text-base font-medium leading-relaxed ${isDark ? "text-white" : "text-navy"}`}>
+        <p className="mt-3 text-[15px] font-semibold leading-relaxed text-white">
           {card.plainLanguageSummary}
         </p>
       )}
 
       {steps.length > 0 && (
-        <div className="mt-4">
-          <p className={`text-xs font-semibold uppercase ${isDark ? "text-slate-400" : "text-text-muted"}`}>
-            Do this now
-          </p>
-          <ul className="mt-2 space-y-2">
+        <div className="mt-4 rounded-2xl bg-white/85 p-4">
+          <p className="nt-kicker text-ink/70">Do this now</p>
+          <ul className="mt-2 flex flex-col gap-2">
             {steps.map((step) => (
-              <li
-                key={step}
-                className={`flex gap-2 text-sm ${isDark ? "text-slate-200" : "text-text-body"}`}
-              >
-                <span className="text-emerald-500">☐</span>
+              <li key={step} className="flex gap-2 text-[14px] text-ink">
+                <span className="text-mint">●</span>
                 <span>{step}</span>
               </li>
             ))}
@@ -90,16 +59,11 @@ export default function ActionCardPanel({
       )}
 
       {avoid.length > 0 && (
-        <div className="mt-4">
-          <p className={`text-xs font-semibold uppercase ${isDark ? "text-amber-400" : "text-secondary"}`}>
-            Do not do yet
-          </p>
-          <ul className="mt-2 space-y-2">
+        <div className="mt-3 rounded-2xl bg-white/85 p-4">
+          <p className="nt-kicker text-pink-deep">Do not do yet</p>
+          <ul className="mt-2 flex flex-col gap-2">
             {avoid.map((item) => (
-              <li
-                key={item}
-                className={`flex gap-2 text-sm ${isDark ? "text-amber-100" : "text-secondary"}`}
-              >
+              <li key={item} className="flex gap-2 text-[14px] text-pink-deep">
                 <span>✕</span>
                 <span>{item}</span>
               </li>
@@ -108,21 +72,30 @@ export default function ActionCardPanel({
         </div>
       )}
 
-      <div className="mt-5 flex flex-wrap gap-3">
+      <div className="mt-4 flex flex-wrap gap-2.5">
         {card.primaryActionUrl && (
           <a
             href={card.primaryActionUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-primary text-sm"
+            className="nt-btn nt-press"
+            style={{ background: "#fff", color: "var(--color-blue-deep)", padding: "11px 18px", fontSize: 14 }}
           >
             {card.primaryActionLabel ?? "Open official source"}
           </a>
         )}
-        <a href="tel:211" className="btn-secondary text-sm">
+        <a
+          href="tel:211"
+          className="nt-btn nt-press"
+          style={{ background: "rgba(255,255,255,0.25)", color: "#fff", padding: "11px 18px", fontSize: 14 }}
+        >
           Call 211
         </a>
-        <Link to="/trust-map" className="btn-secondary text-sm">
+        <Link
+          to="/trust-map"
+          className="nt-btn nt-press"
+          style={{ background: "rgba(255,255,255,0.25)", color: "#fff", padding: "11px 18px", fontSize: 14 }}
+        >
           Ask validator
         </Link>
       </div>

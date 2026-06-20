@@ -23,8 +23,6 @@ import StressMode from "./pages/StressMode";
 import TrustCircleGuard from "./components/TrustCircleGuard";
 import TrustCircleLogin from "./pages/TrustCircleLogin";
 import TrustMap from "./pages/TrustMap";
-import VoiceVerification from "./pages/VoiceVerification";
-import CallVerification from "./pages/CallVerification";
 
 function LegacyRedirect({ from }: { from: string }) {
   const target = LEGACY_REDIRECTS[from] ?? ROUTES.landing;
@@ -79,19 +77,11 @@ export default function App() {
             />
             <Route
               path="/voice"
-              element={
-                <AuthGuard>
-                  <VoiceVerification />
-                </AuthGuard>
-              }
+              element={<Navigate to={ROUTES.actionCards} replace />}
             />
             <Route
               path="/call-verification"
-              element={
-                <AuthGuard>
-                  <CallVerification />
-                </AuthGuard>
-              }
+              element={<Navigate to={ROUTES.contextTrace} replace />}
             />
             <Route
               path={ROUTES.screenshots}

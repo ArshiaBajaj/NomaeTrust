@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from "react";
+import { useHaptic } from "../../hooks/useHaptic";
 
 type ContextTraceUploadProps = {
   previewUrl: string | null;
@@ -15,6 +16,7 @@ export default function ContextTraceUpload({
   onFileSelect,
   onUrlSubmit,
 }: ContextTraceUploadProps) {
+  const haptic = useHaptic();
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
@@ -22,24 +24,31 @@ export default function ContextTraceUpload({
   const handleFile = useCallback(
     (file: File) => {
       if (!file.type.match(/^image\/(jpeg|png|webp|jpg)$/)) return;
+      haptic("medium");
       onFileSelect(file);
     },
-    [onFileSelect],
+    [haptic, onFileSelect],
   );
 
   return (
-    <section className="card overflow-hidden p-0">
-      <div className="border-b border-[rgba(0,0,0,0.06)] px-6 py-4">
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">
-          Section 1
-        </p>
-        <h2 className="mt-1 text-lg font-semibold text-navy">Image Upload</h2>
-        <p className="mt-1 text-sm text-text-muted">
-          Drop a forwarded image or paste a link to trace where it came from across the web.
-        </p>
-      </div>
+    <section className="nt-card relative overflow-hidden p-5">
+      <div
+        className="nt-blob"
+        style={{ width: 150, height: 150, top: -60, left: -40, background: "var(--grad-blue)" }}
+        aria-hidden
+      />
 
-      <div className="grid gap-6 p-6 lg:grid-cols-2">
+      <div className="relative">
+        <p className="nt-kicker">Step 1 · Upload</p>
+        <h2 className="mt-1 text-xl font-extrabold tracking-tight text-ink">
+          Trace an image&apos;s <span className="nt-gradient-text">true story</span>
+        </h2>
+        <p className="mt-1.5 text-sm leading-relaxed text-body">
+          Drop a forwarded image or paste a link. We reverse-search the web to find where it
+          really came from.
+        </p>
+
+        {/* Dropzone */}
         <div
           onDragOver={(e) => {
             e.preventDefault();
@@ -54,28 +63,43 @@ export default function ContextTraceUpload({
             if (file) handleFile(file);
           }}
           onClick={() => !loading && inputRef.current?.click()}
-          className={`flex min-h-[220px] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed px-6 py-10 transition-all ${
-            loading
-              ? "cursor-not-allowed opacity-60"
-              : dragOver
-                ? "border-accent bg-accent/5"
-                : "border-[rgba(0,0,0,0.1)] bg-surface shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:border-accent/40"
-          }`}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if ((e.key === "Enter" || e.key === " ") && !loading) inputRef.current?.click();
+          }}
+          className="nt-press mt-4 flex min-h-[160px] flex-col items-center justify-center rounded-3xl border-2 border-dashed px-6 py-8 text-center transition-all"
+          style={{
+            borderColor: dragOver ? "var(--color-blue)" : "var(--color-line)",
+            background: dragOver ? "var(--color-blue-soft)" : "var(--color-surface-2)",
+            opacity: loading ? 0.6 : 1,
+            cursor: loading ? "not-allowed" : "pointer",
+          }}
         >
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-accent/10 text-accent">
-            <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
-              />
-            </svg>
-          </div>
-          <p className="mt-4 text-base font-semibold text-navy">
-            {loading ? "Tracing context…" : "Drag & drop image here"}
-          </p>
-          <p className="mt-2 text-xs text-text-muted">JPG · PNG · WEBP — max 15 MB</p>
+          {previewUrl ? (
+            <img
+              src={previewUrl}
+              alt="Uploaded preview"
+              className="max-h-[180px] w-full rounded-2xl object-contain"
+            />
+          ) : (
+            <>
+              <span className="nt-tile nt-tile--blue" aria-hidden>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="h-6 w-6">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.8}
+                    d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+                  />
+                </svg>
+              </span>
+              <p className="mt-3 text-sm font-extrabold text-ink">
+                {loading ? "Tracing context…" : "Drag & drop or tap to upload"}
+              </p>
+              <p className="mt-1 text-xs text-muted">JPG · PNG · WEBP — max 15 MB</p>
+            </>
+          )}
           <input
             ref={inputRef}
             type="file"
@@ -90,59 +114,42 @@ export default function ContextTraceUpload({
           />
         </div>
 
-        <div className="flex flex-col">
-          <p className="text-xs font-bold uppercase tracking-widest text-text-muted">
-            Preview
-          </p>
-          <div className="mt-3 flex flex-1 items-center justify-center overflow-hidden rounded-xl border border-[rgba(0,0,0,0.08)] bg-surface-raised">
-            {previewUrl ? (
-              <img
-                src={previewUrl}
-                alt="Uploaded preview"
-                className="max-h-[280px] w-full object-contain"
-              />
-            ) : (
-              <p className="px-6 text-center text-sm text-text-muted">
-                Upload an image to preview EXIF metadata and context timeline.
-              </p>
-            )}
-          </div>
-          {fileName && (
-            <p className="mt-3 truncate font-mono text-xs text-text-muted">{fileName}</p>
-          )}
-        </div>
-      </div>
+        {fileName && (
+          <p className="mt-2 truncate text-center font-mono text-[11px] text-muted">{fileName}</p>
+        )}
 
-      <div className="border-t border-[rgba(0,0,0,0.06)] px-6 py-5">
-        <p className="text-xs font-bold uppercase tracking-widest text-text-muted">
-          Or paste image URL
-        </p>
-        <p className="mt-1 text-sm text-text-muted">
-          Works with direct image links and Google Images URLs — we fetch the photo and run reverse
-          image search to find the original source.
-        </p>
+        {/* Divider */}
+        <div className="my-4 flex items-center gap-3">
+          <span className="h-px flex-1" style={{ background: "var(--color-line)" }} />
+          <span className="text-[11px] font-extrabold uppercase tracking-wide text-muted">or</span>
+          <span className="h-px flex-1" style={{ background: "var(--color-line)" }} />
+        </div>
+
+        {/* URL form */}
         <form
-          className="mt-4 flex flex-col gap-3 sm:flex-row"
           onSubmit={(e) => {
             e.preventDefault();
             if (loading || !imageUrl.trim()) return;
+            haptic("medium");
             onUrlSubmit(imageUrl.trim());
           }}
         >
+          <label className="nt-kicker">Paste image URL</label>
           <input
             type="url"
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
-            placeholder="https://… or Google Images imgres link"
+            placeholder="https://… or Google Images link"
             disabled={loading}
-            className="flex-1 rounded-xl border border-[rgba(0,0,0,0.1)] bg-surface px-4 py-3 text-sm text-navy outline-none transition focus:border-accent disabled:opacity-60"
+            className="mt-2 w-full rounded-2xl border bg-surface px-4 py-3 text-sm font-medium text-ink outline-none transition placeholder:text-muted focus:border-blue disabled:opacity-60"
+            style={{ borderColor: "var(--color-line)" }}
           />
           <button
             type="submit"
             disabled={loading || !imageUrl.trim()}
-            className="rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-white transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="nt-btn nt-btn-primary nt-btn-block mt-3 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {loading ? "Tracing…" : "Trace URL"}
+            {loading ? "Tracing…" : "Trace this image"}
           </button>
         </form>
       </div>

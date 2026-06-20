@@ -12,7 +12,6 @@ import { usePortalAuth } from "../../context/PortalAuthContext";
 import { useIsMobile } from "../../hooks/useIsMobile";
 import InstallPrompt from "./InstallPrompt";
 import MobileHeader from "./MobileHeader";
-import MobilePageTransition from "./MobilePageTransition";
 import MobileTabBar from "./MobileTabBar";
 import OnboardingFlow from "./OnboardingFlow";
 import SplashScreen from "./SplashScreen";
@@ -38,8 +37,8 @@ export default function MobileAppShell({ children }: MobileAppShellProps) {
 
   if (phase === "splash") {
     return (
-      <div className="mobile-app-root">
-        <div className="mobile-app-frame mobile-app-frame--splash">
+      <div className="nt-app">
+        <div className="nt-frame">
           <SplashScreen />
         </div>
       </div>
@@ -48,8 +47,8 @@ export default function MobileAppShell({ children }: MobileAppShellProps) {
 
   if (phase === "onboarding") {
     return (
-      <div className="mobile-app-root">
-        <div className="mobile-app-frame mobile-app-frame--immersive">
+      <div className="nt-app">
+        <div className="nt-frame">
           <OnboardingFlow onComplete={completeOnboarding} />
         </div>
       </div>
@@ -57,14 +56,14 @@ export default function MobileAppShell({ children }: MobileAppShellProps) {
   }
 
   return (
-    <div className={`mobile-app-root ${immersive ? "mobile-app-root--immersive" : ""}`}>
-      <div className={`mobile-app-frame ${immersive ? "mobile-app-frame--immersive" : ""}`}>
+    <div className="nt-app">
+      <div className={`nt-frame ${immersive ? "nt-frame--immersive" : ""}`}>
         {!immersive && !headerless && (
           <MobileHeader onOpenProfile={() => setProfileMenuOpen(true)} />
         )}
-        <InstallPrompt />
-        <div className={`mobile-app-content ${immersive ? "mobile-app-content--immersive" : ""}`}>
-          <MobilePageTransition>{children}</MobilePageTransition>
+        <div key={pathname} className="nt-scroll">
+          {!immersive && <InstallPrompt />}
+          {children}
         </div>
         {showTabBar && (
           <MobileTabBar onOpenProfile={() => setProfileMenuOpen(true)} />
