@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ROUTES } from "../../config/navigation";
 import { useIsMobile } from "../../hooks/useIsMobile";
+import NomaeTrustLogo from "../NomaeTrustLogo";
 
 type PortalLoginShellProps = {
   accent: "individual" | "platform";
@@ -34,6 +35,9 @@ export default function PortalLoginShell({
       </Link>
 
       <header className="mt-6 text-center">
+        <div className="mb-4 flex justify-center">
+          <NomaeTrustLogo size="md" onDark />
+        </div>
         <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-white/75">{eyebrow}</p>
         <h1 className="mt-2 text-[28px] font-black tracking-tight text-white">{title}</h1>
         <p className="mx-auto mt-3 max-w-sm text-[14px] leading-relaxed text-white/85">{description}</p>

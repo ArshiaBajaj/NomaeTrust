@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import Icon3D from "../components/Icon3D";
+import NomaeTrustLogo from "../components/NomaeTrustLogo";
 import { ROUTES } from "../config/navigation";
 import { useHaptic } from "../hooks/useHaptic";
 import { useIsMobile } from "../hooks/useIsMobile";
@@ -21,12 +22,7 @@ export default function LandingPage() {
           <p className="text-[11px] font-extrabold uppercase tracking-[0.22em] text-white/70">
             Rumor → Reality → Action
           </p>
-          <h1
-            className="nt-3d-text text-[40px] font-black tracking-tight text-white"
-            style={{ letterSpacing: "-0.04em" }}
-          >
-            NomaeTrust
-          </h1>
+          <NomaeTrustLogo size="lg" onDark className="mx-auto" />
           <p className="max-w-[280px] text-[14px] leading-relaxed text-white/85">
             When panic spreads faster than truth, NomaeTrust turns viral rumors into verified Action Cards and
             community signal.
@@ -93,7 +89,7 @@ export default function LandingPage() {
         <div className="nt-shazam overflow-hidden rounded-[32px]">
           <section className="nt-shazam-hero" style={{ minHeight: 360 }}>
             <p className="text-[11px] font-extrabold uppercase tracking-[0.22em] text-white/70">Rumor → Reality → Action</p>
-            <h1 className="nt-3d-text text-[48px] font-black text-white">NomaeTrust</h1>
+            <NomaeTrustLogo size="xl" onDark />
             <p className="max-w-md text-[15px] text-white/85">
               When panic spreads faster than truth, NomaeTrust turns viral rumors into verified Action Cards.
             </p>

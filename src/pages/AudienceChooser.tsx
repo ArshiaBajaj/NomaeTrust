@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import Icon3D from "../components/Icon3D";
+import NomaeTrustLogo from "../components/NomaeTrustLogo";
 import { ROUTES } from "../config/navigation";
 import { useHaptic } from "../hooks/useHaptic";
 import { useIsMobile } from "../hooks/useIsMobile";
@@ -11,7 +12,9 @@ export default function AudienceChooser() {
   const content = (
     <>
       <header className="text-center">
-        <p className="nt-kicker nt-kicker--news">NomaeTrust</p>
+        <div className="mb-2 flex justify-center">
+          <NomaeTrustLogo size="md" />
+        </div>
         <h1 className="nt-h1 mt-1">Switch portal</h1>
         <p className="nt-h1-sub mx-auto max-w-sm">
           Sign in again to switch between individual and company experiences.

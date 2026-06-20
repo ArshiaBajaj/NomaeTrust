@@ -5,6 +5,7 @@ import {
   ROUTES,
 } from "../config/navigation";
 import { useAudience } from "../context/AudienceContext";
+import NomaeTrustLogo from "./NomaeTrustLogo";
 
 export default function Footer() {
   const { audience } = useAudience();
@@ -13,15 +14,12 @@ export default function Footer() {
   return (
     <footer className="footer-dark px-6 py-12 lg:px-8">
       <div className="mx-auto flex max-w-[1200px] flex-col items-center justify-between gap-6 sm:flex-row">
-        <p className="text-sm">
-          <Link to={ROUTES.landing} className="font-medium text-white hover:underline">
-            NomaeTrust
+        <div className="flex items-center gap-3">
+          <Link to={ROUTES.landing} aria-label="NomaeTrust home">
+            <NomaeTrustLogo size="sm" onDark />
           </Link>
-          <span className="text-[#6b7280]">
-            {" "}
-            &copy; {new Date().getFullYear()}
-          </span>
-        </p>
+          <span className="text-sm text-[#6b7280]">&copy; {new Date().getFullYear()}</span>
+        </div>
         <div className="flex flex-wrap items-center justify-center gap-6">
           {footerLinks.map((link) => (
             <Link

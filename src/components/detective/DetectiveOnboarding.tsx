@@ -1,4 +1,5 @@
 import { useState } from "react";
+import NomaeTrustLogo from "../NomaeTrustLogo";
 import { useHaptic } from "../../hooks/useHaptic";
 
 type DetectiveOnboardingProps = {
@@ -62,6 +63,9 @@ export default function DetectiveOnboarding({ onComplete }: DetectiveOnboardingP
           boxShadow: "0 16px 36px -18px rgba(50,46,77,0.22)",
         }}
       >
+        <div className="mb-3 flex justify-center">
+          <NomaeTrustLogo size="sm" />
+        </div>
         <p
           className="mb-1 text-[11px] font-bold uppercase tracking-[0.28em]"
           style={{ color: "#5a76e0" }}

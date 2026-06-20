@@ -61,10 +61,10 @@ export default function TrustCircleLogin() {
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-bg to-white">
       <div className="mx-auto grid min-h-screen max-w-6xl lg:grid-cols-2">
         <div className="flex flex-col justify-center px-8 py-16 lg:px-12">
-          <Link to={ROUTES.landing} className="text-sm text-text-muted hover:text-navy">
-            ← Back to NomaeTrust
+          <Link to={ROUTES.landing} className="inline-block w-fit" aria-label="NomaeTrust home">
+            <img src="/logo.png" alt="NomaeTrust" style={{ height: 40, width: "auto", maxWidth: "min(90vw, 280px)" }} />
           </Link>
-          <p className="mt-8 text-xs font-bold uppercase tracking-[0.2em] text-emerald-600">
+          <p className="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-emerald-600">
             Family Trust Circle
           </p>
           <h1 className="mt-4 font-serif text-4xl font-medium leading-tight text-navy">

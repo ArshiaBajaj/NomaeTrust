@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Icon3D, { type Icon3DName } from "../components/Icon3D";
+import NomaeTrustLogo from "../components/NomaeTrustLogo";
 import LoadingSpinner from "../components/LoadingSpinner";
 import WhatsHappening from "../components/WhatsHappening";
 import { ROUTES } from "../config/navigation";
@@ -63,12 +64,7 @@ export default function IndividualHome() {
         <p className="text-[14px] font-semibold text-white/85">
           {greeting()}, {firstName} 👋
         </p>
-        <h1
-          className="nt-3d-text text-[36px] font-black tracking-tight text-white"
-          style={{ letterSpacing: "-0.04em" }}
-        >
-          NomaeTrust
-        </h1>
+        <NomaeTrustLogo size="lg" onDark />
         <p className="text-[11px] font-extrabold uppercase tracking-[0.22em] text-white/70">
           Rumor → Reality → Action
         </p>
@@ -83,9 +79,7 @@ export default function IndividualHome() {
           <span className="nt-orb-ring nt-orb-ring--light nt-orb-ring--2" aria-hidden />
           <span className="nt-orb-ring nt-orb-ring--light nt-orb-ring--3" aria-hidden />
           <span className="nt-orb nt-orb--glass">
-            <svg className="h-14 w-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.1} aria-hidden>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.04A11.96 11.96 0 0 1 3.6 6 12 12 0 0 0 3 9.75c0 5.59 3.82 10.29 9 11.62 5.18-1.33 9-6.03 9-11.62 0-1.31-.21-2.57-.6-3.75h-.15a11.96 11.96 0 0 1-8.25-3.29Z" />
-            </svg>
+            <NomaeTrustLogo variant="icon" size="md" />
             <span className="text-[16px] font-black tracking-wide">Tap to Verify</span>
           </span>
         </Link>

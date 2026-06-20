@@ -7,6 +7,7 @@ import {
   usePortalAuth,
 } from "../../context/PortalAuthContext";
 import ProfileAvatar from "../auth/ProfileAvatar";
+import NomaeTrustLogo from "../NomaeTrustLogo";
 
 type MobileHeaderProps = {
   onOpenProfile?: () => void;
@@ -47,11 +48,7 @@ export default function MobileHeader({ onOpenProfile }: MobileHeaderProps) {
         </button>
       ) : (
         <Link to={homeTo} className="nt-topbar-btn nt-press" aria-label="NomaeTrust home">
-          <span aria-hidden style={{ background: "var(--grad-blue)", color: "#fff", borderRadius: 12, width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.04A11.96 11.96 0 0 1 3.6 6 12 12 0 0 0 3 9.75c0 5.59 3.82 10.29 9 11.62 5.18-1.33 9-6.03 9-11.62 0-1.31-.21-2.57-.6-3.75h-.15a11.96 11.96 0 0 1-8.25-3.29Z" />
-            </svg>
-          </span>
+          <NomaeTrustLogo variant="icon" size="sm" />
         </Link>
       )}
 

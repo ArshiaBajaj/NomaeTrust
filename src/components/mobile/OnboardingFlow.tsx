@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Icon3D, { type Icon3DName } from "../Icon3D";
+import NomaeTrustLogo from "../NomaeTrustLogo";
 import { useHaptic } from "../../hooks/useHaptic";
 
 type OnboardingFlowProps = { onComplete: () => void };
@@ -48,6 +49,10 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     >
       <span className="nt-blob" style={{ width: 240, height: 240, top: -50, right: -40, background: "#ffd36e" }} />
       <span className="nt-blob" style={{ width: 220, height: 220, bottom: 80, left: -50, background: "#8fe3c6" }} />
+
+      <div className="relative flex justify-center pb-2">
+        <NomaeTrustLogo size="md" onDark />
+      </div>
 
       <div className="relative flex justify-end">
         <button

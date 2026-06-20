@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ROUTES } from "../config/navigation";
+import NomaeTrustLogo from "./NomaeTrustLogo";
 
 function MountainSilhouettes() {
   return (
@@ -31,6 +32,7 @@ export default function Hero() {
       </div>
 
       <div className="relative z-10 mx-auto flex max-w-[760px] flex-col items-center px-6 pt-36 text-center sm:pt-40">
+        <NomaeTrustLogo size="lg" className="mb-4" />
         <p className="rounded-full border border-black/10 bg-white/40 px-4 py-1.5 text-xs font-medium uppercase tracking-widest text-black/70">
           Rumor → Reality → Action
         </p>
