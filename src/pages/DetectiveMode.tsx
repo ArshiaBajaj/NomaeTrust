@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { homeForAudience } from "../config/navigation";
+import { useAudience } from "../context/AudienceContext";
 import AchievementToast from "../components/detective/AchievementToast";
 import DetectiveOnboarding from "../components/detective/DetectiveOnboarding";
 import DetectiveResultPanel from "../components/detective/DetectiveResultPanel";
@@ -48,6 +50,8 @@ function Bulb({ size = 14 }: { size?: number }) {
 
 export default function DetectiveMode() {
   const haptic = useHaptic();
+  const { audience } = useAudience();
+  const backTo = homeForAudience(audience);
   const { progress, xpInLevel, xpToNext, accuracy, completeOnboarding, recordAnswer } =
     useDetectiveProgress();
 
@@ -232,7 +236,7 @@ export default function DetectiveMode() {
       {/* top HUD */}
       <header className="flex items-center gap-3 px-4">
         <Link
-          to="/home"
+          to={backTo}
           aria-label="Back"
           className="nt-press flex h-10 w-10 shrink-0 items-center justify-center text-lg"
           style={{

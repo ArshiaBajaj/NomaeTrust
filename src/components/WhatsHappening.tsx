@@ -131,7 +131,7 @@ export default function WhatsHappening({ glass = false }: { glass?: boolean }) {
       </div>
 
       {/* lead story — photo with overlaid headline (social-post style) */}
-      <Link to={actionCardUrlForClaim(lead.id)} onClick={() => haptic("light")} className="nt-press block">
+      <Link to={actionCardUrlForClaim(lead)} onClick={() => haptic("light")} className="nt-press block">
         <Cover id={lead.id} topic={leadTopic} className="h-[176px]">
           <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(10,8,30,0.08) 0%, rgba(10,8,30,0.78) 100%)" }} />
           <span
@@ -162,7 +162,7 @@ export default function WhatsHappening({ glass = false }: { glass?: boolean }) {
           return (
             <Link
               key={c.id}
-              to={actionCardUrlForClaim(c.id)}
+              to={actionCardUrlForClaim(c)}
               onClick={() => haptic("light")}
               className="nt-press flex items-center gap-3 px-4 py-3"
             >

@@ -1,37 +1,145 @@
-import { Navigate, Route, Routes } from "react-router-dom";
-import AppShell from "./components/mobile/MobileAppShell";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { AuthGuard, IndividualGuard, PlatformGuard } from "./components/auth/PortalGuards";
+import AudienceRouteSync from "./components/AudienceRouteSync";
+import Footer from "./components/Footer";
+import MobileAppShell from "./components/mobile/MobileAppShell";
+import Navbar from "./components/Navbar";
+import { LEGACY_REDIRECTS, ROUTES } from "./config/navigation";
+import { useIsMobile } from "./hooks/useIsMobile";
+import AudienceChooser from "./pages/AudienceChooser";
 import ContextTrace from "./pages/ContextTrace";
 import DetectiveMode from "./pages/DetectiveMode";
 import Disclosure from "./pages/Disclosure";
-import HomeHub from "./pages/MobileHome";
+import EntryGate from "./pages/EntryGate";
+import Home from "./pages/Home";
+import IndividualHome from "./pages/IndividualHome";
+import IndividualLogin from "./pages/IndividualLogin";
+import NewsWatch from "./pages/NewsWatch";
+import PlatformHome from "./pages/PlatformHome";
+import PlatformLogin from "./pages/PlatformLogin";
 import ScreenshotVerification from "./pages/ScreenshotVerification";
 import Settings from "./pages/Settings";
 import StressMode from "./pages/StressMode";
+import TrustCircleGuard from "./components/TrustCircleGuard";
+import TrustCircleLogin from "./pages/TrustCircleLogin";
 import TrustMap from "./pages/TrustMap";
 
-/**
- * Single responsive mobile-first app. Every route renders inside one shell;
- * the legacy desktop/mobile fork has been retired.
- */
+function LegacyRedirect({ from }: { from: string }) {
+  const target = LEGACY_REDIRECTS[from] ?? ROUTES.landing;
+  return <Navigate to={target} replace />;
+}
+
 export default function App() {
+  const { pathname } = useLocation();
+  const isMobile = useIsMobile();
+  const immersive = pathname === ROUTES.detective;
+  const showDesktopChrome = !isMobile && !immersive;
+
   return (
-    <AppShell>
-      <Routes>
-        <Route path="/" element={<HomeHub />} />
-        <Route path="/home" element={<Navigate to="/" replace />} />
-        <Route path="/app" element={<Navigate to="/" replace />} />
-        <Route path="/detective" element={<DetectiveMode />} />
-        <Route path="/voice" element={<Navigate to="/stress" replace />} />
-        <Route path="/stress" element={<StressMode />} />
-        <Route path="/screenshot" element={<ScreenshotVerification />} />
-        <Route path="/call" element={<ContextTrace />} />
-        <Route path="/context-trace" element={<ContextTrace />} />
-        <Route path="/context-lens" element={<Navigate to="/call" replace />} />
-        <Route path="/trust-map" element={<TrustMap />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/disclosure" element={<Disclosure />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </AppShell>
+    <MobileAppShell>
+      <AudienceRouteSync />
+      <div className="min-h-screen">
+        {showDesktopChrome && <Navbar />}
+        <main>
+          <Routes>
+            <Route path={ROUTES.landing} element={<EntryGate />} />
+            <Route path={ROUTES.choose} element={<AudienceChooser />} />
+            <Route path={ROUTES.loginIndividual} element={<IndividualLogin />} />
+            <Route path={ROUTES.loginPlatform} element={<PlatformLogin />} />
+            <Route
+              path={ROUTES.individual}
+              element={
+                <IndividualGuard>
+                  <IndividualHome />
+                </IndividualGuard>
+              }
+            />
+            <Route
+              path={ROUTES.platform}
+              element={
+                <PlatformGuard>
+                  <PlatformHome />
+                </PlatformGuard>
+              }
+            />
+            <Route path={ROUTES.home} element={<Home />} />
+            <Route
+              path="/app"
+              element={<Navigate to={isMobile ? ROUTES.landing : ROUTES.home} replace />}
+            />
+            <Route
+              path={ROUTES.detective}
+              element={
+                <AuthGuard>
+                  <DetectiveMode />
+                </AuthGuard>
+              }
+            />
+            <Route
+              path="/voice"
+              element={<Navigate to={ROUTES.actionCards} replace />}
+            />
+            <Route
+              path="/call-verification"
+              element={<Navigate to={ROUTES.contextTrace} replace />}
+            />
+            <Route
+              path={ROUTES.screenshots}
+              element={
+                <AuthGuard>
+                  <ScreenshotVerification />
+                </AuthGuard>
+              }
+            />
+            <Route
+              path={ROUTES.newsWatch}
+              element={
+                <AuthGuard>
+                  <NewsWatch />
+                </AuthGuard>
+              }
+            />
+            <Route path="/context-lens" element={<LegacyRedirect from="/context-lens" />} />
+            <Route path="/context-trace" element={<LegacyRedirect from="/context-trace" />} />
+            <Route
+              path={ROUTES.contextTrace}
+              element={
+                <AuthGuard>
+                  <ContextTrace />
+                </AuthGuard>
+              }
+            />
+            <Route
+              path={ROUTES.actionCards}
+              element={
+                <AuthGuard>
+                  <StressMode />
+                </AuthGuard>
+              }
+            />
+            <Route
+              path={ROUTES.confusionMap}
+              element={
+                <AuthGuard>
+                  <TrustMap />
+                </AuthGuard>
+              }
+            />
+            <Route
+              path={ROUTES.settings}
+              element={
+                <AuthGuard>
+                  <Settings />
+                </AuthGuard>
+              }
+            />
+            <Route path={ROUTES.disclosure} element={<Disclosure />} />
+            <Route path={ROUTES.trustCircleLogin} element={<TrustCircleLogin />} />
+            <Route path={ROUTES.trustCircle} element={<TrustCircleGuard />} />
+          </Routes>
+        </main>
+        {showDesktopChrome && <Footer />}
+      </div>
+    </MobileAppShell>
   );
 }

@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useRef, type MutableRefObject } from "react";
 import L from "leaflet";
-import { Circle, MapContainer, TileLayer, useMap } from "react-leaflet";
+import {
+  Circle,
+  MapContainer,
+  TileLayer,
+  useMap,
+} from "react-leaflet";
 import type { Claim, MapHotspot, OfficialFeedPin } from "../types";
 import { actionCardUrlForClaim } from "../services/map";
 import "leaflet/dist/leaflet.css";
@@ -21,13 +26,11 @@ type ConfusionMapProps = {
   skipAutoFit?: boolean;
 };
 
-// Pastel-tuned status colors (kept perceptually close to the previous palette
-// but aligned with the new design tokens used elsewhere).
 const STATUS_COLOR: Record<Claim["status"], string> = {
-  verified: "#6fcf9f",
-  unverified: "#ff7a8a",
-  disputed: "#ffc23f",
-  pending: "#6e8bf0",
+  verified: "#16a34a",
+  unverified: "#dc2626",
+  disputed: "#f59e0b",
+  pending: "#2b5ce6",
 };
 
 const STATUS_LABEL: Record<Claim["status"], string> = {
@@ -44,6 +47,7 @@ const SOURCE_LABEL: Record<Claim["source"], string> = {
   community: "Community report",
   deepfake: "Synthetic media",
   "context-trace": "Context Trace",
+  news: "News Watch",
 };
 
 const ANALYSIS_LABEL: Record<NonNullable<Claim["analysisOutcome"]>, string> = {
@@ -109,7 +113,7 @@ function popupHtml(claim: Claim): string {
           )
           .join("")}</ul>`
       : "";
-  const actionCard = `<a class="claim-popup-action" href="${actionCardUrlForClaim(claim.id)}">View Action Card →</a>`;
+  const actionCard = `<a class="claim-popup-action" href="${actionCardUrlForClaim(claim)}">View Action Card →</a>`;
   const externalAction =
     claim.primaryActionUrl && claim.primaryActionLabel
       ? `<a class="claim-popup-action claim-popup-action--secondary" href="${escapeHtml(claim.primaryActionUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(claim.primaryActionLabel)}</a>`
@@ -203,7 +207,6 @@ function ClaimClusterLayer({
       groupRef.current = null;
       markersRef.current.clear();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [claimsKey, map, onSelect, markersRef]);
 
   useEffect(() => {
@@ -313,11 +316,11 @@ function HotspotLayer({
     for (const hotspot of hotspots.filter((h) => h.unverifiedCount > 0)) {
       const circle = L.circle([hotspot.lat, hotspot.lng], {
         radius: 600 + hotspot.unverifiedCount * 180,
-        color: hotspot.intensity > 0.6 ? "#ff7a8a" : "#ffc23f",
-        fillColor: hotspot.intensity > 0.6 ? "#ff7a8a" : "#ffc23f",
-        fillOpacity: 0.07 + hotspot.intensity * 0.08,
+        color: hotspot.intensity > 0.6 ? "#dc2626" : "#f59e0b",
+        fillColor: hotspot.intensity > 0.6 ? "#dc2626" : "#f59e0b",
+        fillOpacity: 0.06 + hotspot.intensity * 0.08,
         weight: 1.5,
-        opacity: 0.4,
+        opacity: 0.35,
       });
       circle.on("click", () => onHotspotClick?.(hotspot));
       circle.addTo(map);
@@ -367,10 +370,10 @@ export default function ConfusionMap({
   const markersRef = useRef<Map<string, L.Marker>>(new Map());
 
   return (
-    <div className="confusion-map-frame relative h-[58vh] max-h-[560px] min-h-[340px] w-full overflow-hidden rounded-[22px] border border-line shadow-[var(--shadow-soft)]">
+    <div className="confusion-map-frame relative h-[min(520px,65vh)] w-full overflow-hidden rounded-xl border border-[rgba(0,0,0,0.07)] shadow-[0_4px_24px_rgba(15,23,42,0.06)]">
       {located.length === 0 && (
-        <div className="pointer-events-none absolute inset-0 z-[500] flex items-center justify-center p-6">
-          <p className="nt-glass rounded-3xl px-4 py-3 text-center text-[13px] font-semibold text-body shadow-[var(--shadow-soft)]">
+        <div className="pointer-events-none absolute inset-0 z-[500] flex items-center justify-center bg-white/70">
+          <p className="rounded-lg border border-[rgba(0,0,0,0.08)] bg-white px-4 py-3 text-sm text-text-muted shadow-sm">
             No pins match this filter — try another category or report a rumor.
           </p>
         </div>
@@ -400,11 +403,11 @@ export default function ConfusionMap({
                 center={[claim.location!.lat, claim.location!.lng]}
                 radius={claim.urgentReview ? 420 : 280}
                 pathOptions={{
-                  color: claim.urgentReview ? "#ff7a8a" : "#ffc23f",
-                  fillColor: claim.urgentReview ? "#ff7a8a" : "#ffc23f",
-                  fillOpacity: 0.1,
+                  color: claim.urgentReview ? "#dc2626" : "#f59e0b",
+                  fillColor: claim.urgentReview ? "#dc2626" : "#f59e0b",
+                  fillOpacity: 0.08,
                   weight: 1,
-                  opacity: 0.28,
+                  opacity: 0.25,
                 }}
               />
             ))}
@@ -438,17 +441,17 @@ export function MapLegend({
   showOfficial?: boolean;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-[11px] font-semibold text-muted">
-      <span className="nt-kicker">Legend</span>
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-text-muted">
+      <span className="font-semibold uppercase tracking-wide text-text-body">Legend</span>
       {(
         [
-          ["verified", "Verified", "#6fcf9f"],
-          ["pending", "Pending", "#6e8bf0"],
-          ["unverified", "Unverified", "#ff7a8a"],
-          ["disputed", "Disputed", "#ffc23f"],
+          ["verified", "Community verified", "#16a34a"],
+          ["pending", "Pending", "#2b5ce6"],
+          ["unverified", "Unverified", "#dc2626"],
+          ["disputed", "Disputed", "#f59e0b"],
         ] as const
       ).map(([, label, color]) => (
-        <span key={label} className="inline-flex items-center gap-1.5 text-body">
+        <span key={label} className="inline-flex items-center gap-1.5">
           <span
             className="inline-block h-2.5 w-2.5 rounded-full ring-2 ring-white"
             style={{ background: color }}
@@ -456,18 +459,18 @@ export function MapLegend({
           {label}
         </span>
       ))}
-      <span className="inline-flex items-center gap-1.5 text-body">
-        <span className="claim-pin claim-pin--urgent inline-block h-2.5 w-2.5 rounded-full bg-danger" />
+      <span className="inline-flex items-center gap-1.5">
+        <span className="claim-pin claim-pin--urgent inline-block h-2.5 w-2.5 rounded-full bg-secondary" />
         Urgent pulse
       </span>
       {showHotspots && (
-        <span className="inline-flex items-center gap-1.5 text-body">
-          <span className="inline-block h-3 w-3 rounded-full border border-yellow-deep/40 bg-yellow/20" />
-          Confusion zone
+        <span className="inline-flex items-center gap-1.5">
+          <span className="inline-block h-3 w-3 rounded-full border border-amber-500/40 bg-amber-500/15" />
+          Confusion zone (click to drill in)
         </span>
       )}
       {showOfficial && (
-        <span className="inline-flex items-center gap-1.5 text-body">
+        <span className="inline-flex items-center gap-1.5">
           <span className="official-pin inline-block h-2.5 w-2.5 rounded-full" />
           Official feed
         </span>
@@ -475,13 +478,6 @@ export function MapLegend({
     </div>
   );
 }
-
-const DETAIL_STATUS_TONE: Record<Claim["status"], string> = {
-  verified: "bg-mint-soft text-[#2f8f68]",
-  unverified: "bg-pink-soft text-pink-deep",
-  disputed: "bg-yellow-soft text-yellow-deep",
-  pending: "bg-blue-soft text-blue-deep",
-};
 
 export function ClaimMapDetail({
   claim,
@@ -491,50 +487,46 @@ export function ClaimMapDetail({
   compact?: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-3 px-4 py-4">
-      <div className="flex items-center justify-between gap-2">
-        <span className="nt-kicker">Selected rumor</span>
-        <span
-          className={`rounded-pill px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide ${DETAIL_STATUS_TONE[claim.status]}`}
-        >
-          {claim.status}
-        </span>
-      </div>
-
-      <p className="text-[14px] font-bold leading-snug text-ink">{claim.text}</p>
-
-      <dl className="grid gap-2 text-[12px]">
+    <div className="border-t border-[rgba(0,0,0,0.06)] bg-surface-raised p-4">
+      <p className="text-[10px] font-bold uppercase tracking-wide text-text-muted">
+        Selected rumor
+      </p>
+      <p className="mt-2 text-sm font-semibold leading-snug text-navy">{claim.text}</p>
+      <dl className="mt-3 grid gap-1.5 text-xs text-text-muted">
+        <div className="flex justify-between gap-2">
+          <dt>Community status</dt>
+          <dd className="capitalize text-text-body">{claim.status}</dd>
+        </div>
         {claim.analysisOutcome && (
-          <div className="flex items-center justify-between gap-2">
-            <dt className="text-muted">AI analysis</dt>
-            <dd className="font-semibold text-lilac">{ANALYSIS_LABEL[claim.analysisOutcome]}</dd>
+          <div className="flex justify-between gap-2">
+            <dt>AI analysis</dt>
+            <dd className="text-text-body">{ANALYSIS_LABEL[claim.analysisOutcome]}</dd>
           </div>
         )}
-        <div className="flex items-center justify-between gap-2">
-          <dt className="text-muted">Source</dt>
-          <dd className="font-semibold capitalize text-body">{claim.source}</dd>
+        <div className="flex justify-between gap-2">
+          <dt>Source</dt>
+          <dd className="capitalize text-text-body">{claim.source}</dd>
         </div>
         {claim.location && (
-          <div className="flex items-center justify-between gap-2">
-            <dt className="text-muted">Area</dt>
-            <dd className="font-semibold text-body">{claim.location.label}</dd>
+          <div className="flex justify-between gap-2">
+            <dt>Area</dt>
+            <dd className="text-text-body">{claim.location.label}</dd>
           </div>
         )}
-        <div className="flex items-center justify-between gap-2">
-          <dt className="text-muted">Confidence</dt>
-          <dd className="font-semibold text-body">{Math.round(claim.confidence * 100)}%</dd>
+        <div className="flex justify-between gap-2">
+          <dt>Confidence</dt>
+          <dd className="text-text-body">{Math.round(claim.confidence * 100)}%</dd>
         </div>
       </dl>
-
       {claim.sourceReferences && claim.sourceReferences.length > 0 && !compact && (
-        <ul className="space-y-1 text-[12px]">
+        <ul className="mt-3 space-y-1 text-xs">
           {claim.sourceReferences.slice(0, 3).map((ref) => (
             <li key={ref.url}>
               <a
                 href={ref.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-semibold text-blue hover:underline"
+                className="text-accent hover:underline"
               >
                 {ref.title}
               </a>
@@ -542,9 +534,8 @@ export function ClaimMapDetail({
           ))}
         </ul>
       )}
-
-      <div className="flex flex-wrap gap-2">
-        <a href={actionCardUrlForClaim(claim.id)} className="nt-btn nt-btn-primary !px-4 !py-2.5 !text-[13px]">
+      <div className="mt-3 flex flex-wrap gap-2">
+        <a href={actionCardUrlForClaim(claim)} className="btn-primary text-xs">
           View Action Card
         </a>
         {claim.primaryActionUrl && claim.primaryActionLabel && (
@@ -552,18 +543,17 @@ export function ClaimMapDetail({
             href={claim.primaryActionUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="nt-btn nt-btn-ghost !px-4 !py-2.5 !text-[13px]"
+            className="btn-secondary text-xs"
           >
             {claim.primaryActionLabel}
           </a>
         )}
       </div>
-
       {claim.provenanceBadge && (
-        <p className="text-[12px] font-bold text-success">✓ {claim.provenanceBadge}</p>
+        <p className="mt-3 text-xs font-semibold text-success">✓ {claim.provenanceBadge}</p>
       )}
       {claim.validatorNotes && (
-        <p className="text-[12px] text-muted">Validator note: {claim.validatorNotes}</p>
+        <p className="mt-2 text-xs text-text-muted">Validator note: {claim.validatorNotes}</p>
       )}
     </div>
   );

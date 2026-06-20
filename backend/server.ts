@@ -7,23 +7,46 @@ import mapRouter from "./routes/map.js";
 import contextTraceRouter from "./routes/contextTrace.js";
 import detectiveRouter from "./routes/detective.js";
 import trustCircleRouter from "./routes/trustCircle.js";
+import newsWatchRouter from "./routes/newsWatch.js";
+import extensionRouter from "./routes/extension.js";
+import platformRouter from "./routes/platform.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 
+const corsOrigins = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "http://localhost:5176",
+  "http://127.0.0.1:5176",
+  "http://localhost:4173",
+  "http://127.0.0.1:4173",
+];
+
+if (process.env.FRONTEND_BASE_URL) {
+  corsOrigins.push(process.env.FRONTEND_BASE_URL);
+}
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "http://127.0.0.1:5173",
-      "http://localhost:5176",
-      "http://127.0.0.1:5176",
-      "http://localhost:4173",
-      "http://127.0.0.1:4173",
-    ],
+    origin: (origin, callback) => {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+      if (
+        corsOrigins.includes(origin) ||
+        origin.startsWith("chrome-extension://")
+      ) {
+        callback(null, true);
+        return;
+      }
+      callback(null, false);
+    },
     methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "X-NomaeTrust-Key"],
   }),
 );
 
@@ -39,6 +62,9 @@ app.use("/api", mapRouter);
 app.use("/api", contextTraceRouter);
 app.use("/api", detectiveRouter);
 app.use("/api", trustCircleRouter);
+app.use("/api", newsWatchRouter);
+app.use("/api", extensionRouter);
+app.use("/api", platformRouter);
 
 app.use(
   (

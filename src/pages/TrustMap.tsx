@@ -965,7 +965,7 @@ function FeedView({
                 )}
               </div>
               <Link
-                to={actionCardUrlForClaim(claim.id)}
+                to={actionCardUrlForClaim(claim)}
                 className="nt-press text-[12px] font-bold text-blue"
               >
                 View Action Card →
@@ -1154,7 +1154,7 @@ function ValidatorsView({
                   </button>
                 </div>
                 <div className="flex flex-wrap gap-3 text-[12px] font-bold">
-                  <Link to={actionCardUrlForClaim(claim.id)} className="nt-press text-blue">
+                  <Link to={actionCardUrlForClaim(claim)} className="nt-press text-blue">
                     Action Card →
                   </Link>
                   <button

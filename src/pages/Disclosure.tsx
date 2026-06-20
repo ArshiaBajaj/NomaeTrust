@@ -3,8 +3,9 @@ import { Link } from "react-router-dom";
 import Icon3D, { type Icon3DName } from "../components/Icon3D";
 
 const MODELS = [
-  { name: "OpenAI Whisper", tier: "Transcription", cost: "Free tier" },
-  { name: "GPT-4o-mini", tier: "Claims · OCR · evidence", cost: "Paid API" },
+  { name: "OpenAI Whisper", tier: "Open-source / API", cost: "Free tier available" },
+  { name: "GPT-4o-mini", tier: "Claim extraction, OCR, evidence cards", cost: "Paid API" },
+  { name: "Google Fact Check Tools API", tier: "News Watch — ClaimReview search", cost: "Free API key" },
   { name: "Leaflet + OpenStreetMap", tier: "Confusion Map", cost: "Free" },
   { name: "Local voice passports", tier: "On-device storage", cost: "Free" },
 ];
@@ -83,6 +84,23 @@ export default function Disclosure() {
             </li>
           ))}
         </ul>
+      </Card>
+
+      <Card tone="blue" icon="book" title="News Watch methodology">
+        News Watch does not label outlets as &quot;fake news.&quot; Outlet tiers (A–D) are curated using public
+        criteria. Claim matches come from third-party fact-checkers via Google&apos;s ClaimReview search. AI output is
+        always presented as a suggestion with confidence bands — not a verdict. Share from Apple News, Google News, or
+        Safari after adding NomaeTrust to your Home Screen.
+      </Card>
+
+      <Card tone="lilac" icon="shield" title="Two products, one trust layer">
+        Platforms use a publish gate (<code>POST /api/platform/submit</code>) before content goes live. Individuals use
+        a major-claims feed (<code>GET /api/map/claims/major</code>) for high-impact rumors — not every forwarded meme.
+      </Card>
+
+      <Card tone="mint" icon="chip" title="Reddit &amp; Discord extensions">
+        Opt-in only: Discord <code>/verify</code>, browser extension on reddit.com and discord.com, and{" "}
+        <code>POST /api/extension/verify</code>. No auto-moderation or TRUE/FALSE spam.
       </Card>
 
       <Card tone="pink" icon="book" title="Public demo sources">
