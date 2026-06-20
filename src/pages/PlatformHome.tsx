@@ -104,14 +104,12 @@ export default function PlatformHome() {
   };
 
   return (
-    <div className={isMobile ? "mobile-screen" : "page-shell"}>
-      <div className={`mx-auto max-w-4xl ${isMobile ? "mobile-screen-pad" : "px-6 pb-20 pt-10 lg:px-8"}`}>
-        <header className="mobile-screen-intro">
-          <p className="text-xs font-bold uppercase tracking-widest text-accent">
-            {platform?.orgName ?? "Platform portal"}
-          </p>
-          <h1 className="mobile-screen-title">Publish gate</h1>
-          <p className="mobile-screen-subtitle">
+    <div className={isMobile ? "nt-screen nt-stagger" : "page-shell"}>
+      <div className={isMobile ? "" : "mx-auto max-w-4xl px-6 pb-20 pt-10 lg:px-8"}>
+        <header className="rounded-[24px] p-5 text-white" style={{ background: "var(--grad-lilac)" }}>
+          <p className="nt-kicker text-white/80">{platform?.orgName ?? "Platform portal"}</p>
+          <h1 className="nt-h1 mt-1 text-white">Publish gate</h1>
+          <p className="mt-2 text-[14px] text-white/85">
             {platform
               ? `${platform.teamName} · ${platform.role} — review content before it goes live.`
               : "Route content through NomaeTrust before it goes live."}
@@ -141,9 +139,9 @@ export default function PlatformHome() {
           </div>
         )}
 
-        <form onSubmit={(e) => void handleSubmit(e)} className="mobile-card mt-8 p-5">
-          <h2 className="mobile-section-label">Test pre-publish review</h2>
-          <p className="mb-4 text-xs text-text-muted">
+        <form onSubmit={(e) => void handleSubmit(e)} className="nt-card mt-2 p-5">
+          <h2 className="nt-kicker">Test pre-publish review</h2>
+          <p className="mb-4 text-[12px] text-muted">
             Simulates a platform calling <code>POST /api/platform/submit</code> before posting.
           </p>
           <label className="nw-label" htmlFor="platform-name">
@@ -186,7 +184,7 @@ export default function PlatformHome() {
           />
           <button
             type="submit"
-            className="ios-btn ios-btn-primary mt-4 w-full"
+            className="nt-btn nt-btn-primary nt-press mt-4 w-full"
             disabled={submitting || !draftText.trim()}
           >
             {submitting ? "Reviewing…" : "Submit for review"}
@@ -200,9 +198,9 @@ export default function PlatformHome() {
         )}
 
         <section className="mt-8" id="platform-queue">
-          <h2 className="mobile-section-label">Review queue</h2>
+          <h2 className="nt-kicker px-1">Review queue</h2>
           {reviews.length === 0 && !loading && (
-            <div className="mobile-card p-4 text-sm text-text-muted">
+            <div className="nt-card p-4 text-sm text-muted">
               No reviews yet. Submit draft content above or connect your Discord bot / extension.
             </div>
           )}
@@ -266,9 +264,9 @@ export default function PlatformHome() {
           </div>
         </section>
 
-        <section className="mobile-card mt-8 p-5">
-          <h2 className="mobile-section-label">Integration</h2>
-          <p className="text-sm text-text-muted">
+        <section className="nt-card p-5">
+          <h2 className="nt-kicker">Integration</h2>
+          <p className="text-sm text-body">
             Platforms call <code>POST /api/platform/submit</code> with{" "}
             <code>X-NomaeTrust-Key</code> before content goes live. Discord bot and browser
             extension use the same verification pipeline via{" "}

@@ -1,97 +1,114 @@
 import { Link } from "react-router-dom";
+import Icon3D from "../components/Icon3D";
 import { ROUTES } from "../config/navigation";
 import { useHaptic } from "../hooks/useHaptic";
-import { usePortalLayout } from "../hooks/usePortalLayout";
+import { useIsMobile } from "../hooks/useIsMobile";
 
 const HIGHLIGHTS = [
-  {
-    icon: "📋",
-    title: "Action Cards",
-    text: "Plain-language next steps — not TRUE/FALSE labels.",
-  },
-  {
-    icon: "🏢",
-    title: "Publish gate",
-    text: "Platforms review content before it goes live.",
-  },
-  {
-    icon: "🕵️",
-    title: "Digital Detective",
-    text: "Train your eye to spot deepfakes before they spread.",
-  },
-] as const;
+  { icon: "shield" as const, tile: "blue", title: "Action Cards", text: "Plain-language next steps — not TRUE/FALSE labels." },
+  { icon: "chip" as const, tile: "lilac", title: "Publish gate", text: "Platforms review content before it goes live." },
+  { icon: "eye" as const, tile: "mint", title: "Digital Detective", text: "Train your eye to spot deepfakes before they spread." },
+];
 
 export default function LandingPage() {
   const haptic = useHaptic();
-  const { isMobile, shell, content } = usePortalLayout();
+  const isMobile = useIsMobile();
 
-  return (
-    <div className={`${shell} landing-page`}>
-      <div className={`mx-auto max-w-3xl ${content} ${isMobile ? "pt-10 pb-16" : "pt-20 pb-24"}`}>
-        <header className="landing-hero text-center">
-          <div className="landing-logo" aria-hidden>
-            <svg className="h-8 w-8 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-            </svg>
-          </div>
-          <p className="landing-tagline">Rumor → Reality → Action</p>
-          <h1 className={`landing-title ${isMobile ? "text-4xl" : "text-6xl"}`}>NomaeTrust</h1>
-          <p className="landing-subtitle">
-            When panic spreads faster than truth, NomaeTrust turns viral rumors into verified
-            Action Cards, outlet context, and community signal — for families and platforms alike.
+  if (isMobile) {
+    return (
+      <div className="nt-shazam">
+        <section className="nt-shazam-hero">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.22em] text-white/70">
+            Rumor → Reality → Action
           </p>
-        </header>
+          <h1
+            className="nt-3d-text text-[40px] font-black tracking-tight text-white"
+            style={{ letterSpacing: "-0.04em" }}
+          >
+            NomaeTrust
+          </h1>
+          <p className="max-w-[280px] text-[14px] leading-relaxed text-white/85">
+            When panic spreads faster than truth, NomaeTrust turns viral rumors into verified Action Cards and
+            community signal.
+          </p>
+        </section>
 
-        <section className="landing-highlights">
+        <section className="flex flex-col gap-3">
           {HIGHLIGHTS.map((item) => (
-            <div key={item.title} className="landing-highlight-card">
-              <span className="landing-highlight-icon" aria-hidden>{item.icon}</span>
+            <div key={item.title} className="nt-gcard flex items-center gap-3 p-4">
+              <span className={`nt-tile nt-tile--${item.tile}`} style={{ width: 48, height: 48 }} aria-hidden>
+                <Icon3D name={item.icon} />
+              </span>
               <div>
-                <p className="landing-highlight-title">{item.title}</p>
-                <p className="landing-highlight-text">{item.text}</p>
+                <p className="text-[15px] font-bold text-white">{item.title}</p>
+                <p className="text-[12px] text-white/75">{item.text}</p>
               </div>
             </div>
           ))}
         </section>
 
-        <section className="landing-portals">
-          <h2 className="landing-portals-label">Choose your portal</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
+        <section>
+          <h2 className="mb-3 px-1 text-[11px] font-extrabold uppercase tracking-[0.14em] text-white/75">
+            Choose your portal
+          </h2>
+          <div className="grid gap-3">
             <Link
               to={ROUTES.loginIndividual}
-              className="audience-card audience-card--individual text-left"
+              className="nt-gcard nt-press block p-5"
               onClick={() => haptic("light")}
             >
-              <span className="audience-card-icon" aria-hidden>👤</span>
-              <h3 className="audience-card-title">For individuals</h3>
-              <p className="audience-card-desc">
-                Families and neighbors verifying major claims, headlines, and voice notes in
-                your community.
+              <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-white/70">Individuals</p>
+              <h3 className="mt-1 text-[20px] font-black text-white">Families & neighbors</h3>
+              <p className="mt-2 text-[13px] text-white/80">
+                Verify major claims, headlines, and voice notes in your community.
               </p>
-              <span className="audience-card-cta">Sign in →</span>
+              <span className="mt-3 inline-block text-[13px] font-bold text-white">Sign in →</span>
             </Link>
 
             <Link
               to={ROUTES.loginPlatform}
-              className="audience-card audience-card--platform text-left"
+              className="nt-gcard nt-press block p-5"
               onClick={() => haptic("light")}
             >
-              <span className="audience-card-icon" aria-hidden>🏢</span>
-              <h3 className="audience-card-title">For companies</h3>
-              <p className="audience-card-desc">
-                Reddit mods, Discord admins, and publishers routing content through the publish
-                gate before it goes live.
+              <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-white/70">Companies</p>
+              <h3 className="mt-1 text-[20px] font-black text-white">Platforms & publishers</h3>
+              <p className="mt-2 text-[13px] text-white/80">
+                Route content through the publish gate before it goes live.
               </p>
-              <span className="audience-card-cta">Sign in →</span>
+              <span className="mt-3 inline-block text-[13px] font-bold text-white">Sign in →</span>
             </Link>
           </div>
         </section>
 
-        <p className="landing-footnote text-center">
-          <Link to={ROUTES.disclosure} className="text-accent hover:underline">
-            How NomaeTrust works
-          </Link>
-        </p>
+        <Link to={ROUTES.disclosure} className="text-center text-[12px] font-semibold text-white/75 underline">
+          How NomaeTrust works
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="page-shell">
+      <div className="mx-auto max-w-3xl px-6 pb-20 pt-16 lg:px-8">
+        <div className="nt-shazam overflow-hidden rounded-[32px]">
+          <section className="nt-shazam-hero" style={{ minHeight: 360 }}>
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.22em] text-white/70">Rumor → Reality → Action</p>
+            <h1 className="nt-3d-text text-[48px] font-black text-white">NomaeTrust</h1>
+            <p className="max-w-md text-[15px] text-white/85">
+              When panic spreads faster than truth, NomaeTrust turns viral rumors into verified Action Cards.
+            </p>
+          </section>
+          <div className="grid gap-3 px-[18px] pb-8 sm:grid-cols-2">
+            <Link to={ROUTES.loginIndividual} className="nt-gcard nt-press block p-5" onClick={() => haptic("light")}>
+              <h3 className="text-[18px] font-black text-white">For individuals</h3>
+              <p className="mt-2 text-[13px] text-white/80">Families verifying major claims and headlines.</p>
+            </Link>
+            <Link to={ROUTES.loginPlatform} className="nt-gcard nt-press block p-5" onClick={() => haptic("light")}>
+              <h3 className="text-[18px] font-black text-white">For companies</h3>
+              <p className="mt-2 text-[13px] text-white/80">Publish gate for mods and publishers.</p>
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

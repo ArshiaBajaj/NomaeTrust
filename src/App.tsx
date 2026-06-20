@@ -38,9 +38,9 @@ export default function App() {
   return (
     <MobileAppShell>
       <AudienceRouteSync />
-      <div className={`min-h-screen ${isMobile ? "mobile-page-bg" : "bg-bg"}`}>
+      <div className="min-h-screen">
         {showDesktopChrome && <Navbar />}
-        <main className={isMobile && !immersive ? "mobile-main-pad" : undefined}>
+        <main>
           <Routes>
             <Route path={ROUTES.landing} element={<EntryGate />} />
             <Route path={ROUTES.choose} element={<AudienceChooser />} />

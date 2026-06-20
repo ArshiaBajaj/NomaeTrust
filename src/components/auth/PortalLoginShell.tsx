@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ROUTES } from "../../config/navigation";
-import { usePortalLayout } from "../../hooks/usePortalLayout";
+import { useIsMobile } from "../../hooks/useIsMobile";
 
 type PortalLoginShellProps = {
   accent: "individual" | "platform";
@@ -18,23 +18,46 @@ export default function PortalLoginShell({
   description,
   children,
 }: PortalLoginShellProps) {
-  const { isMobile, shell, content } = usePortalLayout();
+  const isMobile = useIsMobile();
+  const grad =
+    accent === "platform"
+      ? "linear-gradient(160deg, #b9a8f2 0%, #9f9bf4 40%, #8fa6f6 100%)"
+      : "linear-gradient(160deg, #8fa6f6 0%, #9f9bf4 35%, #ff9db8 100%)";
+
+  const inner = (
+    <>
+      <Link
+        to={ROUTES.landing}
+        className="nt-press inline-flex items-center gap-1 text-[14px] font-semibold text-white/90"
+      >
+        ← Back
+      </Link>
+
+      <header className="mt-6 text-center">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-white/75">{eyebrow}</p>
+        <h1 className="mt-2 text-[28px] font-black tracking-tight text-white">{title}</h1>
+        <p className="mx-auto mt-3 max-w-sm text-[14px] leading-relaxed text-white/85">{description}</p>
+      </header>
+
+      <div className="nt-card mt-8 p-5 shadow-[var(--shadow-soft)]">{children}</div>
+    </>
+  );
+
+  if (!isMobile) {
+    return (
+      <div className="page-shell">
+        <div className="mx-auto max-w-md px-6 pb-20 pt-16">
+          <div className="overflow-hidden rounded-[32px] p-6" style={{ background: grad }}>
+            {inner}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className={`${shell} portal-login-bg portal-login-bg--${accent}`}>
-      <div className={`mx-auto max-w-md ${content} ${isMobile ? "pt-8" : "pt-16"}`}>
-        <Link to={ROUTES.landing} className="portal-login-back">
-          ← Back
-        </Link>
-
-        <header className="portal-login-header">
-          <p className={`portal-login-eyebrow portal-login-eyebrow--${accent}`}>{eyebrow}</p>
-          <h1 className="portal-login-title">{title}</h1>
-          <p className="portal-login-desc">{description}</p>
-        </header>
-
-        <div className="portal-login-card">{children}</div>
-      </div>
+    <div className="nt-screen" style={{ background: grad, minHeight: "100dvh" }}>
+      {inner}
     </div>
   );
 }
