@@ -338,6 +338,11 @@ body {
   .nt-island {
     display: block;
   }
+  /* desktop: size the home hero to the phone frame (not the browser window) so
+     the orb stays centered in the first screen and clears the dock */
+  .nt-shazam-hero {
+    min-height: calc(min(880px, 100dvh - 48px) - 136px);
+  }
 }
 
 .nt-scroll {
@@ -763,7 +768,7 @@ body {
 }
 /* centers the orb in the first viewport; tools peek below the fold */
 .nt-shazam-hero {
-  flex: 1 0 auto;
+  min-height: calc(100dvh - 104px);
   display: flex;
   flex-direction: column;
   align-items: center;
