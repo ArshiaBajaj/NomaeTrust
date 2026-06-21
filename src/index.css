@@ -316,11 +316,16 @@ body {
     padding: 24px 0;
   }
   .nt-frame {
-    min-height: min(900px, calc(100dvh - 48px));
-    max-height: calc(100dvh - 48px);
+    /* true iPhone proportions — never squashed on short/wide windows */
+    aspect-ratio: 9 / 19.5;
+    height: min(880px, calc(100dvh - 48px));
+    width: auto;
+    min-height: 0;
+    max-width: 430px;
     overflow: hidden;
     border-radius: 56px;
     padding-top: 48px; /* iPhone status-bar zone for the Dynamic Island */
+    transform: translateZ(0); /* contain position:fixed modals inside the phone */
     box-shadow:
       0 0 0 12px #0c0b15,
       0 0 0 14px #2b2748,

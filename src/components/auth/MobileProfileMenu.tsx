@@ -130,6 +130,6 @@ export default function MobileProfileMenu({ open, onClose }: MobileProfileMenuPr
         </button>
       </div>
     </div>,
-    document.body,
+    document.getElementById("nt-modal-root") ?? document.body,
   );
 }

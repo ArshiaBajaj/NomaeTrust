@@ -75,6 +75,8 @@ export default function MobileAppShell({ children }: MobileAppShellProps) {
           open={profileMenuOpen}
           onClose={() => setProfileMenuOpen(false)}
         />
+        {/* in-frame mount point so modals/sheets stay inside the phone */}
+        <div id="nt-modal-root" />
       </div>
     </div>
   );
