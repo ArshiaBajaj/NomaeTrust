@@ -1,7 +1,6 @@
+import { API_BASE } from "../config/api";
 import type { ContextTraceAnalysis } from "../types/contextTrace";
 import { CONTEXT_TRACE_DEMO } from "../data/contextTraceDemo";
-
-const API_BASE = import.meta.env.VITE_API_BASE ?? "";
 
 export async function analyzeContextTraceUrl(url: string): Promise<ContextTraceAnalysis> {
   const trimmed = url.trim();

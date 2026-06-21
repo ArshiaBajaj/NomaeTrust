@@ -74,12 +74,19 @@
 html,
 body,
 #root {
-  height: 100%;
+  min-height: 100%;
+  min-height: 100dvh;
+  min-height: 100svh;
+}
+
+html {
+  /* Fills iOS home-indicator safe area — avoids a white strip below the dock */
+  background: #b9a0f2;
 }
 
 body {
   margin: 0;
-  background: var(--color-bg);
+  background: transparent;
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -147,6 +154,7 @@ body {
    --------------------------------------------------------------------------- */
 .nt-app {
   min-height: 100dvh;
+  min-height: 100svh;
   background: var(--grad-page);
 }
 
@@ -157,9 +165,39 @@ body {
   width: 100%;
   max-width: 430px;
   min-height: 100dvh;
+  min-height: 100svh;
   margin: 0 auto;
   background: var(--grad-page);
-  overflow: hidden;
+  overflow-x: hidden;
+}
+
+/* Full-viewport gradient on home — not clipped by overflow (uses :has on the frame) */
+.nt-frame:has(.nt-shazam)::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(160deg, #8fa6f6 0%, #9f9bf4 30%, #ff9db8 68%, #ffd36e 118%);
+  background-size: 200% 200%;
+  animation: nt-gradient-move 16s ease infinite;
+  pointer-events: none;
+}
+
+.nt-frame:has(.nt-shazam) {
+  background: transparent;
+}
+
+/* Tint the home-indicator zone on standard (light) screens */
+.nt-frame:not(:has(.nt-shazam))::after {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: env(safe-area-inset-bottom);
+  background: var(--color-bg);
+  pointer-events: none;
+  z-index: 1;
 }
 
 .nt-frame--immersive {
@@ -176,6 +214,7 @@ body {
   .nt-frame {
     min-height: min(900px, calc(100dvh - 48px));
     max-height: calc(100dvh - 48px);
+    overflow: hidden;
     border-radius: 46px;
     box-shadow:
       0 0 0 11px #16142b,
@@ -185,6 +224,8 @@ body {
 }
 
 .nt-scroll {
+  position: relative;
+  z-index: 1;
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
@@ -251,7 +292,7 @@ body {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  bottom: calc(14px + env(safe-area-inset-bottom));
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
   z-index: 40;
   display: flex;
   align-items: center;
@@ -556,15 +597,14 @@ body {
 /* ---- Shazam-style full-screen home (whole screen is the gradient) ---- */
 .nt-shazam {
   position: relative;
+  z-index: 1;
   min-height: 100dvh;
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 0 18px calc(108px + env(safe-area-inset-bottom));
+  padding: 0 18px calc(88px + env(safe-area-inset-bottom, 0px));
   color: #fff;
-  background: linear-gradient(160deg, #8fa6f6 0%, #9f9bf4 30%, #ff9db8 68%, #ffd36e 118%);
-  background-size: 200% 200%;
-  animation: nt-gradient-move 16s ease infinite;
 }
 /* centers the orb in the first viewport; tools peek below the fold */
 .nt-shazam-hero {

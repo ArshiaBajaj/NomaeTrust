@@ -36,7 +36,7 @@ export type PlatformStats = {
   };
 };
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
+import { API_BASE } from "../config/api";
 
 function apiHeaders(): Record<string, string> {
   const headers: Record<string, string> = { "Content-Type": "application/json" };

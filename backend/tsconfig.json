@@ -12,6 +12,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "include": ["server.ts", "routes/**/*.ts", "services/**/*.ts", "data/**/*.ts", "store/**/*.ts", "types/**/*.ts"],
+  "include": ["server.ts", "app.ts", "routes/**/*.ts", "services/**/*.ts", "data/**/*.ts", "store/**/*.ts", "types/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

@@ -48,7 +48,9 @@ function isImageFile(mimetype: string, originalname: string): boolean {
 
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 25 * 1024 * 1024 },
+  limits: {
+    fileSize: process.env.VERCEL ? 4 * 1024 * 1024 : 25 * 1024 * 1024,
+  },
 });
 
 const router = Router();
@@ -128,7 +130,11 @@ router.post(
     upload.single("audio")(req, res, (err) => {
       if (err instanceof multer.MulterError) {
         if (err.code === "LIMIT_FILE_SIZE") {
-          res.status(400).json({ error: "Audio file must be under 25 MB" });
+          res.status(400).json({
+            error: process.env.VERCEL
+              ? "Audio file must be under 4 MB on cloud deploy"
+              : "Audio file must be under 25 MB",
+          });
           return;
         }
         res.status(400).json({ error: err.message });

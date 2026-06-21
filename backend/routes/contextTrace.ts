@@ -37,7 +37,9 @@ function maybeAddContextTraceClaim(
 
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 15 * 1024 * 1024 },
+  limits: {
+    fileSize: process.env.VERCEL ? 4 * 1024 * 1024 : 15 * 1024 * 1024,
+  },
 });
 
 const router = Router();

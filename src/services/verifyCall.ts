@@ -1,7 +1,7 @@
 import type { CallVerificationResult, VoicePassport } from "../types";
 import { getStoredSessionToken } from "./trustCircleApi";
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "";
+import { API_BASE } from "../config/api";
 
 export async function verifyCallApi(input: {
   scenario: "registered" | "unregistered";

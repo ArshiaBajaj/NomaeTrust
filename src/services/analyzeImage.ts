@@ -1,7 +1,7 @@
 import type { ImageAnalysisResult } from "../types";
 import { DEMO_ANALYSIS_RESULT } from "./analyzeAudio";
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "";
+import { API_BASE } from "../config/api";
 
 const DEMO_OCR = {
   text: `BREAKING: City water supply contaminated with bacteria.

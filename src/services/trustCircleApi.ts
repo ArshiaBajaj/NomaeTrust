@@ -1,6 +1,6 @@
 import type { TrustCircleAuthResponse, TrustCircleMe } from "../types/trustCircle";
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "";
+import { API_BASE } from "../config/api";
 const SESSION_KEY = "nomae-trust-circle-session";
 
 export function getStoredSessionToken(): string | null {

@@ -38,7 +38,7 @@ export default function App() {
   return (
     <MobileAppShell>
       <AudienceRouteSync />
-      <div className="min-h-screen">
+      <div className={isMobile ? undefined : "min-h-screen"}>
         {showDesktopChrome && <Navbar />}
         <main>
           <Routes>

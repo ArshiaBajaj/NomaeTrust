@@ -1,6 +1,7 @@
 import type { DetectiveChallenge } from "../data/detectiveChallenges";
 import { DETECTIVE_CHALLENGES, shuffleChallenges } from "../data/detectiveChallenges";
 import { loadLocalVideoDeck } from "../data/detectiveVideoClips";
+import { API_BASE } from "../config/api";
 
 export type { DetectiveChallenge };
 
@@ -16,8 +17,6 @@ type ChallengesResponse = {
 };
 
 /** Video deck from local public clips and/or backend API. Works without backend if clips exist. */
-const API_BASE = import.meta.env.VITE_API_URL ?? "";
-
 export async function fetchDetectiveChallenges(): Promise<{
   deck: DetectiveChallenge[];
   setup?: DetectiveSetup;

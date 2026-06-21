@@ -1,7 +1,7 @@
 import type { AudioAnalysisResult } from "../types";
 import { analyzeRegionalIntelligence } from "./regionalIntelligence";
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "";
+import { API_BASE } from "../config/api";
 
 export const DEMO_ANALYSIS_RESULT: AudioAnalysisResult = {
   transcript:

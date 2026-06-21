@@ -1,6 +1,6 @@
 import type { Claim } from "../types";
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
+import { API_BASE } from "../config/api";
 
 export async function fetchMajorClaims(): Promise<Claim[]> {
   const res = await fetch(`${API_BASE}/api/map/claims/major`);

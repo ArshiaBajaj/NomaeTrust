@@ -6,7 +6,7 @@ import type {
   OfficialFeedPin,
 } from "../types";
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "";
+import { API_BASE } from "../config/api";
 
 type ClaimFilters = {
   sinceHours?: number;

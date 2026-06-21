@@ -1,6 +1,6 @@
 import type { FactCheckHit, NewsOutlet, NewsWatchCheckResult } from "../types";
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "";
+import { API_BASE } from "../config/api";
 
 export async function fetchNewsOutlets(): Promise<NewsOutlet[]> {
   const res = await fetch(`${API_BASE}/api/news-watch/outlets`);
