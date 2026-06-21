@@ -48,7 +48,7 @@ export default function MobileHeader({ onOpenProfile }: MobileHeaderProps) {
         </button>
       ) : (
         <Link to={homeTo} className="nt-topbar-btn nt-press" aria-label="NomaeTrust home">
-          <NomaeTrustLogo variant="icon" size="sm" />
+            <NomaeTrustLogo size="sm" />
         </Link>
       )}
 

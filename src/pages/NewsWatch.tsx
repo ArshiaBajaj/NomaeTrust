@@ -259,7 +259,7 @@ export default function NewsWatch() {
               Demo
             </button>
           </div>
-          {pasteHint && <p className="mt-2 text-xs text-text-muted">{pasteHint}</p>}
+          {pasteHint && <p className="mt-2 text-xs text-muted">{pasteHint}</p>}
         </form>
 
         {loading && <LoadingSpinner label="Searching fact-checks and composing Action Card…" />}
@@ -289,7 +289,7 @@ export default function NewsWatch() {
                 <OutletReliabilityBadge outlet={result.outlet} compact />
               </div>
             ) : (
-              <div className="mobile-card p-4 text-sm text-text-muted">
+              <div className="mobile-card p-4 text-sm text-body">
                 Publisher not in our curated registry — verify the original source before sharing.
               </div>
             )}
@@ -341,7 +341,7 @@ export default function NewsWatch() {
               <div className="mb-3 flex items-center justify-between">
                 <h3 className="mobile-section-label mb-0">Trending fact-checks</h3>
                 {feedDemo && (
-                  <span className="text-[10px] font-bold uppercase tracking-wide text-amber-400">
+                  <span className="text-[10px] font-bold uppercase tracking-wide text-yellow-deep">
                     Demo data
                   </span>
                 )}

@@ -5,21 +5,24 @@ import App from "./App";
 import { AppBootProvider } from "./context/AppBootContext";
 import { AudienceProvider } from "./context/AudienceContext";
 import { PortalAuthProvider } from "./context/PortalAuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import { TrustCircleProvider } from "./context/TrustCircleContext";
 import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
-      <AppBootProvider>
-        <AudienceProvider>
-          <PortalAuthProvider>
-            <TrustCircleProvider>
-              <App />
-            </TrustCircleProvider>
-          </PortalAuthProvider>
-        </AudienceProvider>
-      </AppBootProvider>
+      <ThemeProvider>
+        <AppBootProvider>
+          <AudienceProvider>
+            <PortalAuthProvider>
+              <TrustCircleProvider>
+                <App />
+              </TrustCircleProvider>
+            </PortalAuthProvider>
+          </AudienceProvider>
+        </AppBootProvider>
+      </ThemeProvider>
     </BrowserRouter>
   </StrictMode>,
 );

@@ -61,11 +61,11 @@ export default function IndividualHome() {
   const hero = (
     <>
       <section className="nt-shazam-hero">
-        <p className="text-[14px] font-semibold text-white/85">
+        <p className="text-[14px] font-semibold nt-shazam-body">
           {greeting()}, {firstName} 👋
         </p>
-        <NomaeTrustLogo size="lg" onDark />
-        <p className="text-[11px] font-extrabold uppercase tracking-[0.22em] text-white/70">
+        <NomaeTrustLogo size="lg" />
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.22em] nt-shazam-muted">
           Rumor → Reality → Action
         </p>
 
@@ -79,19 +79,17 @@ export default function IndividualHome() {
           <span className="nt-orb-ring nt-orb-ring--light nt-orb-ring--2" aria-hidden />
           <span className="nt-orb-ring nt-orb-ring--light nt-orb-ring--3" aria-hidden />
           <span className="nt-orb nt-orb--glass">
-            <NomaeTrustLogo variant="icon" size="md" />
-            <span className="text-[16px] font-black tracking-wide">Tap to Verify</span>
+            <NomaeTrustLogo size="md" />
+            <span className="text-[16px] font-black tracking-wide nt-shazam-ink">Tap to Verify</span>
           </span>
         </Link>
-        <p className="text-[13px] font-medium text-white/85">
+        <p className="text-[13px] font-medium nt-shazam-body">
           {individual?.city ? `Major claims near ${individual.city}` : "Drop a voice note, screenshot, or headline"}
         </p>
       </section>
 
       <section>
-        <h2 className="mb-3 px-1 text-[11px] font-extrabold uppercase tracking-[0.14em] text-white/75">
-          Verification tools
-        </h2>
+        <h2 className="nt-shazam-label mb-3 px-1">Verification tools</h2>
         <div className="nt-stagger grid grid-cols-2 gap-3">
           {TOOLS.map((tool, i) => (
             <Link
@@ -104,8 +102,8 @@ export default function IndividualHome() {
                 <Icon3D name={tool.icon} />
               </span>
               <span className={i === TOOLS.length - 1 ? "flex flex-col" : "mt-2 flex flex-col"}>
-                <span className="text-[15px] font-bold text-white">{tool.label}</span>
-                <span className="text-[12px] text-white/75">{tool.desc}</span>
+                <span className="text-[15px] font-bold nt-shazam-ink">{tool.label}</span>
+                <span className="text-[12px] nt-shazam-muted">{tool.desc}</span>
               </span>
             </Link>
           ))}
@@ -114,23 +112,21 @@ export default function IndividualHome() {
 
       <section>
         <div className="mb-3 flex items-center justify-between px-1">
-          <h2 className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-white/75">
-            Major claims
-          </h2>
-          <Link to={ROUTES.confusionMap} className="text-[12px] font-bold text-white" onClick={() => haptic("light")}>
+          <h2 className="nt-shazam-label mb-0">Major claims</h2>
+          <Link to={ROUTES.confusionMap} className="text-[12px] nt-shazam-link" onClick={() => haptic("light")}>
             View map →
           </Link>
         </div>
 
         {loading && <LoadingSpinner label="Loading major claims…" />}
         {error && (
-          <p className="nt-gcard p-4 text-sm text-white/90" role="alert">
+          <p className="nt-gcard p-4 text-sm nt-shazam-body" role="alert">
             {error}
           </p>
         )}
 
         {!loading && !error && claims.length === 0 && (
-          <p className="nt-gcard p-4 text-sm text-white/80">
+          <p className="nt-gcard p-4 text-sm nt-shazam-body">
             No major claims yet. Tap the orb above to verify a headline.
           </p>
         )}
@@ -144,13 +140,11 @@ export default function IndividualHome() {
               onClick={() => haptic("light")}
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="rounded-full bg-white/20 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-white">
-                  {outcomeLabel(claim)}
-                </span>
-                <span className="text-[11px] text-white/70">{formatRelativeTime(claim.extractedAt)}</span>
+                <span className="nt-shazam-badge">{outcomeLabel(claim)}</span>
+                <span className="text-[11px] nt-shazam-muted">{formatRelativeTime(claim.extractedAt)}</span>
               </div>
-              <p className="mt-2 text-[15px] font-bold leading-snug text-white">{claim.text}</p>
-              <p className="mt-1 text-[11px] text-white/70">
+              <p className="mt-2 text-[15px] font-bold leading-snug nt-shazam-ink">{claim.text}</p>
+              <p className="mt-1 text-[11px] nt-shazam-muted">
                 {[claim.category, claim.location?.label].filter(Boolean).join(" · ")}
               </p>
             </Link>
@@ -160,7 +154,7 @@ export default function IndividualHome() {
 
       <WhatsHappening glass />
 
-      <Link to={ROUTES.disclosure} className="text-center text-[12px] font-semibold text-white/75 underline">
+      <Link to={ROUTES.disclosure} className="text-center text-[12px] font-semibold nt-shazam-muted underline">
         How NomaeTrust uses AI responsibly
       </Link>
     </>

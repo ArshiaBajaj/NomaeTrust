@@ -1,56 +1,46 @@
 const SIZES = {
-  sm: 32,
-  md: 40,
-  lg: 52,
-  xl: 64,
-  hero: 80,
+  sm: 48,
+  md: 64,
+  lg: 84,
+  xl: 100,
+  hero: 120,
 } as const;
 
 type LogoSize = keyof typeof SIZES;
 
+/** NomaeTrust brand mark — single asset (`/logo.png`) used everywhere. */
 type NomaeTrustLogoProps = {
-  variant?: "full" | "icon";
   size?: LogoSize;
   height?: number;
   className?: string;
+  /** @deprecated Ignored — kept for call-site compatibility. */
   onDark?: boolean;
 };
 
+/** Square wordmark (1024×1024 source). */
+const LOGO_ASPECT = 1;
+
 export default function NomaeTrustLogo({
-  variant = "full",
   size,
   height,
   className = "",
-  onDark = false,
 }: NomaeTrustLogoProps) {
-  const px = height ?? (size ? SIZES[size] : SIZES.md);
-  const src = variant === "icon" ? "/logo-icon.png" : "/logo.png";
+  const h = height ?? (size ? SIZES[size] : SIZES.md);
 
-  const img = (
+  return (
     <img
-      src={src}
+      src="/logo.png"
       alt="NomaeTrust"
       className={className}
       style={{
-        height: px,
-        width: variant === "icon" ? px : "auto",
-        maxWidth: variant === "full" ? "min(90vw, 360px)" : px,
+        height: h,
+        width: h * LOGO_ASPECT,
+        maxWidth: "min(92vw, 320px)",
         display: "block",
         objectFit: "contain",
       }}
       draggable={false}
       decoding="async"
     />
-  );
-
-  if (!onDark) return img;
-
-  return (
-    <span
-      className="inline-flex items-center justify-center rounded-2xl bg-white/96 px-3 py-2 shadow-sm"
-      style={{ boxShadow: "0 8px 32px -10px rgba(50,46,77,0.3)" }}
-    >
-      {img}
-    </span>
   );
 }

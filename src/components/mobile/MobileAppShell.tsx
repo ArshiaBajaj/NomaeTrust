@@ -29,7 +29,7 @@ export default function MobileAppShell({ children }: MobileAppShellProps) {
   const immersive = IMMERSIVE_ROUTES.has(pathname);
   const headerless = HEADERLESS_ROUTES.has(pathname);
   const tabless = TABLESS_ROUTES.has(pathname);
-  const showTabBar = isAuthenticated && !immersive && !tabless;
+  const showTabBar = isAuthenticated && !tabless;
 
   if (!isMobile) {
     return <>{children}</>;

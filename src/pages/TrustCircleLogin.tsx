@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import NomaeTrustLogo from "../components/NomaeTrustLogo";
 import { ROUTES } from "../config/navigation";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { useTrustCircle } from "../context/TrustCircleContext";
@@ -62,7 +63,7 @@ export default function TrustCircleLogin() {
       <div className="mx-auto grid min-h-screen max-w-6xl lg:grid-cols-2">
         <div className="flex flex-col justify-center px-8 py-16 lg:px-12">
           <Link to={ROUTES.landing} className="inline-block w-fit" aria-label="NomaeTrust home">
-            <img src="/logo.png" alt="NomaeTrust" style={{ height: 40, width: "auto", maxWidth: "min(90vw, 280px)" }} />
+            <NomaeTrustLogo size="md" />
           </Link>
           <p className="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-emerald-600">
             Family Trust Circle

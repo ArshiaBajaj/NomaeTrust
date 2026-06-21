@@ -20,7 +20,7 @@ export default function LoadingSpinner({
         role="status"
         aria-label={label ?? "Loading"}
       />
-      {label && <p className="text-sm text-text-muted">{label}</p>}
+      {label && <p className="text-sm text-muted">{label}</p>}
     </div>
   );
 }

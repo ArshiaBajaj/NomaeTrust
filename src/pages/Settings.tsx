@@ -13,6 +13,7 @@ import {
   usePortalAuth,
 } from "../context/PortalAuthContext";
 import { useHaptic } from "../hooks/useHaptic";
+import ThemeToggle from "../components/settings/ThemeToggle";
 import {
   isAutoVerifyShareEnabled,
   setAutoVerifyShare,
@@ -29,7 +30,12 @@ type RowProps = {
 
 function Row({ label, value, chevron, to, onClick, children }: RowProps) {
   if (children) {
-    return <div className="flex w-full items-center justify-between px-4 py-[15px]">{children}</div>;
+    return (
+      <div className="flex w-full items-center justify-between gap-3 px-4 py-[15px]">
+        <span className="text-[16px] font-medium text-ink">{label}</span>
+        {children}
+      </div>
+    );
   }
   const inner = (
     <>
@@ -175,6 +181,9 @@ export default function Settings() {
       </div>
 
       <Group title="Preferences">
+        <Row label="Appearance">
+          <ThemeToggle />
+        </Row>
         <Row
           label="Language"
           value="English"

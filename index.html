@@ -11,13 +11,23 @@
       content="NomaeTrust — Verify rumors, spot deepfakes, and trace misinformation before harm spreads."
     />
     <meta name="theme-color" content="#6e8bf0" />
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("nomae-theme");
+          document.documentElement.setAttribute("data-theme", t === "dark" ? "dark" : "light");
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      })();
+    </script>
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="NomaeTrust" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/logo-icon.png" type="image/png" />
-    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <link rel="icon" href="/logo.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/logo.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

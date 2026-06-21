@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import Icon3D, { type Icon3DName } from "./Icon3D";
 import { mockCommunityClaims } from "../data/mockClaims";
@@ -88,8 +88,6 @@ function Cover({ id, topic, className, children }: { id: string; topic: Topic; c
 export default function WhatsHappening({ glass = false }: { glass?: boolean }) {
   const haptic = useHaptic();
   const [claims, setClaims] = useState<Claim[]>(mockCommunityClaims);
-  const headlineStyle: CSSProperties | undefined = glass ? { color: "#fff" } : undefined;
-  const metaCls = glass ? "text-white/75" : "text-muted";
 
   useEffect(() => {
     let alive = true;
@@ -110,22 +108,25 @@ export default function WhatsHappening({ glass = false }: { glass?: boolean }) {
 
   return (
     <section
-      className={`${glass ? "nt-gcard" : "nt-card"} overflow-hidden p-0`}
-      style={glass ? ({ "--color-hairline": "rgba(255,255,255,0.24)" } as CSSProperties) : undefined}
+      className={`${glass ? "nt-gcard wh-glass" : "nt-card"} overflow-hidden p-0`}
     >
       {/* header */}
       <div className="flex items-center justify-between px-4 pb-2.5 pt-4">
         <div className="flex items-center gap-2">
           <span
-            className="inline-block h-2 w-2 rounded-full"
-            style={{ background: glass ? "#fff" : "#e0455f", animation: "claim-pulse 1.6s ease-in-out infinite" }}
+            className={`inline-block h-2 w-2 rounded-full ${glass ? "wh-glass-dot" : ""}`}
+            style={glass ? undefined : { background: "#e0455f", animation: "claim-pulse 1.6s ease-in-out infinite" }}
             aria-hidden
           />
-          <h2 className="text-[18px] font-extrabold tracking-tight" style={{ color: glass ? "#fff" : "var(--color-headline)" }}>
+          <h2 className={`text-[18px] font-extrabold tracking-tight ${glass ? "nt-shazam-ink" : "text-headline"}`}>
             What&apos;s happening
           </h2>
         </div>
-        <Link to="/trust-map" onClick={() => haptic("light")} className="text-[13px] font-bold" style={{ color: glass ? "#fff" : "var(--color-coral)" }}>
+        <Link
+          to="/trust-map"
+          onClick={() => haptic("light")}
+          className={`text-[13px] font-bold ${glass ? "nt-shazam-link" : "text-coral"}`}
+        >
           See all
         </Link>
       </div>
@@ -164,14 +165,14 @@ export default function WhatsHappening({ glass = false }: { glass?: boolean }) {
               key={c.id}
               to={actionCardUrlForClaim(c)}
               onClick={() => haptic("light")}
-              className="nt-press flex items-center gap-3 px-4 py-3"
+              className={`nt-press flex items-center gap-3 px-4 py-3 ${glass ? "wh-glass-row" : ""}`}
             >
               <div className="min-w-0 flex-1">
                 <Pill status={c.status} />
-                <h3 className="nt-headline mt-1.5 line-clamp-2 text-[14.5px] font-extrabold" style={headlineStyle}>
+                <h3 className={`nt-headline mt-1.5 line-clamp-2 text-[14.5px] font-extrabold ${glass ? "nt-shazam-ink" : ""}`}>
                   {c.text}
                 </h3>
-                <p className={`mt-1 text-[11px] ${metaCls}`}>
+                <p className={`mt-1 text-[11px] ${glass ? "nt-shazam-body" : "text-muted"}`}>
                   {topic.label} · {c.location?.label ?? "Community"} · {ago(c.extractedAt)}
                 </p>
               </div>
@@ -184,8 +185,7 @@ export default function WhatsHappening({ glass = false }: { glass?: boolean }) {
       <Link
         to="/trust-map"
         onClick={() => haptic("light")}
-        className="nt-press flex items-center justify-center gap-1 py-3.5 text-[13px] font-bold"
-        style={{ color: glass ? "#fff" : "var(--color-coral)", borderTop: "1px solid var(--color-hairline)" }}
+        className={`nt-press flex items-center justify-center gap-1 border-t border-[var(--color-hairline)] py-3.5 text-[13px] font-bold ${glass ? "nt-shazam-link" : "text-coral"}`}
       >
         Show more on the Confusion Map →
       </Link>

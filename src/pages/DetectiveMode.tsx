@@ -215,7 +215,7 @@ export default function DetectiveMode() {
         background: SHELL_BG,
         color: "#ffffff",
         paddingTop: "max(14px, env(safe-area-inset-top))",
-        paddingBottom: "max(16px, env(safe-area-inset-bottom))",
+        paddingBottom: "calc(88px + max(16px, env(safe-area-inset-bottom)))",
       }}
     >
       {/* alert flash on catching a deepfake */}
