@@ -1,19 +1,7 @@
-import { useEffect, useState } from "react";
-
-const QUERY = "(max-width: 768px)";
-
+/**
+ * NomaeTrust is locked to its phone UI on every screen size — the app always
+ * renders inside the centered phone frame, so this is always true.
+ */
 export function useIsMobile(): boolean {
-  const [mobile, setMobile] = useState(() =>
-    typeof window !== "undefined" ? window.matchMedia(QUERY).matches : false,
-  );
-
-  useEffect(() => {
-    const media = window.matchMedia(QUERY);
-    const onChange = () => setMobile(media.matches);
-    onChange();
-    media.addEventListener("change", onChange);
-    return () => media.removeEventListener("change", onChange);
-  }, []);
-
-  return mobile;
+  return true;
 }
