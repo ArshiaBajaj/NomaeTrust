@@ -39,6 +39,7 @@ export default function MobileAppShell({ children }: MobileAppShellProps) {
     return (
       <div className="nt-app">
         <div className="nt-frame">
+          <div className="nt-island" aria-hidden />
           <SplashScreen />
         </div>
       </div>
@@ -49,6 +50,7 @@ export default function MobileAppShell({ children }: MobileAppShellProps) {
     return (
       <div className="nt-app">
         <div className="nt-frame">
+          <div className="nt-island" aria-hidden />
           <OnboardingFlow onComplete={completeOnboarding} />
         </div>
       </div>
@@ -58,6 +60,7 @@ export default function MobileAppShell({ children }: MobileAppShellProps) {
   return (
     <div className="nt-app">
       <div className={`nt-frame ${immersive ? "nt-frame--immersive" : ""}`}>
+        <div className="nt-island" aria-hidden />
         {!immersive && !headerless && (
           <MobileHeader onOpenProfile={() => setProfileMenuOpen(true)} />
         )}
