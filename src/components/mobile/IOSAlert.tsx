@@ -59,6 +59,6 @@ export default function IOSAlert({
         </div>
       </div>
     </div>,
-    document.body,
+    document.getElementById("nt-modal-root") ?? document.body,
   );
 }

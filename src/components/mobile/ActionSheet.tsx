@@ -78,6 +78,6 @@ export default function ActionSheet({ open, title, message, options, onClose, ch
         </button>
       </div>
     </div>,
-    document.body,
+    document.getElementById("nt-modal-root") ?? document.body,
   );
 }
