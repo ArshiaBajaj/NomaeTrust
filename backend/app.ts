@@ -57,7 +57,16 @@ export function createApp() {
   app.use(express.json({ limit: "10mb" }));
 
   app.get("/api/health", (_req, res) => {
-    res.json({ status: "ok", port: PORT });
+    const openaiConfigured = Boolean(
+      process.env.OPENAI_API_KEY &&
+        process.env.OPENAI_API_KEY !== "your_openai_api_key_here",
+    );
+    res.json({
+      status: "ok",
+      port: PORT,
+      openaiConfigured,
+      runtime: process.env.VERCEL ? "vercel" : "local",
+    });
   });
 
   app.use("/api", analyzeRouter);

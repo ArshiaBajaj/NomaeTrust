@@ -28,8 +28,6 @@ export default function MobileHeader({ onOpenProfile }: MobileHeaderProps) {
     ROUTES.platform,
     ROUTES.settings,
     ROUTES.choose,
-    ROUTES.loginIndividual,
-    ROUTES.loginPlatform,
   ];
   const showBack = !noBackRoutes.includes(pathname);
 

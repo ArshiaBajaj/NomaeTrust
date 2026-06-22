@@ -59,7 +59,16 @@ export default function MobileAppShell({ children }: MobileAppShellProps) {
 
   return (
     <div className="nt-app">
-      <div className={`nt-frame ${immersive ? "nt-frame--immersive" : ""}`}>
+      <div
+        className={[
+          "nt-frame",
+          immersive ? "nt-frame--immersive" : "",
+          headerless ? "nt-frame--headerless" : "",
+          showTabBar ? "nt-frame--tabbed" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
         <div className="nt-island" aria-hidden />
         {!immersive && !headerless && (
           <MobileHeader onOpenProfile={() => setProfileMenuOpen(true)} />

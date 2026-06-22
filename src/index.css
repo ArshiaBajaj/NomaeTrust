@@ -182,6 +182,27 @@ body {
   /* real heavy cuts are loaded — never let the browser fake-bold (Apple News crispness) */
   font-synthesis-weight: none;
   letter-spacing: -0.011em;
+  overscroll-behavior: none;
+}
+
+#root {
+  overscroll-behavior: none;
+}
+
+/* Mobile app shell: one scroll container, no rubber-band past content */
+@media (max-width: 768px) {
+  html,
+  body,
+  #root {
+    overflow: hidden;
+  }
+
+  body {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    touch-action: manipulation;
+  }
 }
 
 /* Editorial display type — heavy, tight, Apple-News-bold */
@@ -240,10 +261,12 @@ body {
    App shell — one responsive mobile-first frame (phone-framed on desktop)
    --------------------------------------------------------------------------- */
 .nt-app {
-  min-height: 100dvh;
+  height: 100dvh;
+  max-height: 100dvh;
   min-height: 100svh;
-  background: var(--grad-page);
+  overflow: hidden;
   overscroll-behavior: none;
+  background: var(--grad-page);
 }
 
 .nt-frame {
@@ -252,12 +275,21 @@ body {
   flex-direction: column;
   width: 100%;
   max-width: 430px;
-  min-height: 100dvh;
+  height: 100%;
+  max-height: 100dvh;
+  min-height: 0;
   min-height: 100svh;
   margin: 0 auto;
   background: var(--grad-page);
-  overflow-x: hidden;
+  overflow: hidden;
   overscroll-behavior: none;
+  --nt-dock-clearance: calc(24px + env(safe-area-inset-bottom));
+  --nt-shazam-dock-clearance: calc(20px + env(safe-area-inset-bottom));
+}
+
+.nt-frame--tabbed {
+  --nt-dock-clearance: calc(118px + env(safe-area-inset-bottom));
+  --nt-shazam-dock-clearance: calc(108px + env(safe-area-inset-bottom));
 }
 
 /* Full-viewport gradient on home — not clipped by overflow (uses :has on the frame) */
@@ -314,6 +346,8 @@ body {
     align-items: center;
     justify-content: center;
     padding: 24px 0;
+    height: 100dvh;
+    max-height: 100dvh;
   }
   .nt-frame {
     /* true iPhone proportions — never squashed on short/wide windows */
@@ -344,10 +378,13 @@ body {
   position: relative;
   z-index: 1;
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
   overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
   background: var(--grad-page);
 }
 
@@ -355,13 +392,21 @@ body {
   overflow: hidden;
 }
 
-/* Screen padding + bottom clearance for the floating tab bar */
+/* Screen padding; extra bottom clearance only when tab bar is visible */
 .nt-screen {
-  padding: 14px 18px calc(118px + env(safe-area-inset-bottom));
+  padding: 14px 18px var(--nt-dock-clearance);
   display: flex;
   flex-direction: column;
   gap: 20px;
   animation: nt-enter 0.5s var(--ease-bounce);
+}
+
+.nt-frame--headerless .nt-screen {
+  padding-top: max(14px, env(safe-area-inset-top));
+}
+
+.nt-screen--login {
+  padding-top: 14px;
 }
 
 @keyframes nt-enter {
@@ -735,7 +780,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 0 18px calc(88px + env(safe-area-inset-bottom, 0px));
+  padding: 0 18px var(--nt-shazam-dock-clearance);
   color: var(--shazam-ink);
 }
 
@@ -760,6 +805,16 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.04em;
   padding: 4px 10px;
+}
+/* Inside the phone shell, size to content — avoids phantom scroll + white bounce */
+.nt-scroll .nt-shazam {
+  min-height: auto;
+}
+.nt-scroll .nt-shazam-hero {
+  min-height: auto;
+}
+.nt-frame--headerless:not(.nt-frame--tabbed) .nt-scroll .nt-shazam-hero {
+  min-height: min(480px, calc(100dvh - 80px));
 }
 /* centers the orb in the first viewport; tools peek below the fold */
 .nt-shazam-hero {

@@ -107,8 +107,6 @@ export const PLATFORM_TABS: TabItem[] = [
 export const HEADERLESS_ROUTES: ReadonlySet<string> = new Set([
   ROUTES.landing,
   ROUTES.choose,
-  ROUTES.loginIndividual,
-  ROUTES.loginPlatform,
   ROUTES.settings,
   ROUTES.individual,
   ROUTES.platform,

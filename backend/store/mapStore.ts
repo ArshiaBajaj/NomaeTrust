@@ -213,7 +213,11 @@ export function subscribeMapEvents(listener: MapEventListener): () => void {
 }
 
 function save() {
-  persistClaims(claims);
+  try {
+    persistClaims(claims);
+  } catch (error) {
+    console.warn("[MapStore] persist skipped:", error);
+  }
 }
 
 function geohashKey(lat: number, lng: number): string {

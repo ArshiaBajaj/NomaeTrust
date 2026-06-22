@@ -27,14 +27,16 @@ export default function PortalLoginShell({
 
   const inner = (
     <>
-      <Link
-        to={ROUTES.landing}
-        className="nt-press inline-flex items-center gap-1 text-[14px] font-semibold text-white/90"
-      >
-        ← Back
-      </Link>
+      {!isMobile && (
+        <Link
+          to={ROUTES.landing}
+          className="nt-press inline-flex items-center gap-1 text-[14px] font-semibold text-white/90"
+        >
+          ← Back
+        </Link>
+      )}
 
-      <header className="mt-6 text-center">
+      <header className={`text-center ${isMobile ? "mt-2" : "mt-6"}`}>
         <div className="mb-4 flex justify-center">
           <NomaeTrustLogo size="md" onDark />
         </div>
@@ -60,7 +62,7 @@ export default function PortalLoginShell({
   }
 
   return (
-    <div className="nt-screen" style={{ background: grad, minHeight: "100dvh" }}>
+    <div className="nt-screen nt-screen--login" style={{ background: grad }}>
       {inner}
     </div>
   );
